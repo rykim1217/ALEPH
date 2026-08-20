@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>30초 스타 도지</title>
+<style>
+  :root{
+    --bg:#f8fbff;
+    --panel:#ffffff;
+    --text:#25324a;
+    --muted:#64748b;
+    --line:#cbd5e1;
+    --accent:#facc15;
+    --danger:#fb7185;
+    --player:#38bdf8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(180deg,#f0f9ff,#fff7ed);
+    color:var(--text);
+    font-family:Pretendard,"Pretendard Variable","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  }
+  .wrap{width:min(92vw,760px); padding:24px}
+  .card{
+    background:rgba(255,255,255,.96);
+    border:2px solid var(--line);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 16px 45px rgba(100,116,139,.18);
+  }
+  h1{margin:0 0 8px;font-size:clamp(24px,4vw,38px)}
+  .rule{color:var(--muted);line-height:1.55;margin:0 0 16px}
+  .hud{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .hud div{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px;
+    text-align:center;
+    background:#f8fafc;
+  }
+  .hud b{display:block;font-size:20px;margin-top:3px}
+  .game{
+    position:relative;
+    width:100%;
+    aspect-ratio:4/3;
+    background:
+      linear-gradient(rgba(100,116,139,.10) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(100,116,139,.10) 1px,transparent 1px),
+      #f0f9ff;
+    background-size:28px 28px;
+    border:2px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    outline:none;
+  }
+  .entity{position:absolute;transform:translate(-50%,-50%)}
+  .player{
+    width:34px;height:34px;background:var(--player);
+    border:3px solid #e0f2fe;border-radius:7px;
+  }
+  .star{
+    width:28px;height:28px;display:grid;place-items:center;
+    font-size:26px;filter:drop-shadow(0 0 6px rgba(250,204,21,.55));
+  }
+  .obstacle{
+    width:36px;height:36px;background:var(--danger);
+    border:3px solid #fecaca;border-radius:6px;
+  }
+  .overlay{
+    position:absolute;inset:0;display:grid;place-items:center;
+    background:rgba(255,255,255,.82);text-align:center;padding:24px;
+  }
+  .overlay.hidden{display:none}
+  .pause-note{font-size:13px;color:#64748b;margin-top:8px}
+  .overlay h2{font-size:clamp(28px,5vw,46px);margin:0 0 10px}
+  .overlay p{margin:5px 0;color:#475569;line-height:1.5}
+  .controls{
+    display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+    margin-top:14px;
+  }
+  button{
+    appearance:none;border:1px solid var(--line);background:#f8fafc;
+    color:#25324a;padding:10px 14px;border-radius:10px;
+    font:inherit;cursor:pointer;
+  }
+  button:hover{border-color:#64748b}
+  button.primary{background:#eab308;color:#111827;border-color:#fde047;font-weight:800}
+  .mobile{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px
+  }
+  .mobile button{font-size:24px;padding:14px}
+  .status-line{margin-top:10px;color:var(--muted);font-size:14px;text-align:center}
+  @media (max-width:560px){.hud{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:700px){.mobile{display:none}}
+  @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+
+  .difficulty-note{
+    margin-top:6px;
+    font-size:11px;
+    color:#64748b;
+    line-height:1.45;
+  }
+  .difficulty-note strong{
+    font-weight:800;
+    color:#475569;
+  }
+  .difficulty-gap{
+    display:inline-block;
+    width:34px;
+  }
+
+  .pickup-burst{
+    position:absolute;
+    width:42px;
+    height:42px;
+    border:5px solid #facc15;
+    border-radius:50%;
+    pointer-events:none;
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.45);
+    z-index:7;
+    will-change:transform,opacity;
+  }
+  .pickup-burst.show{
+    animation:pickupBurst .50s ease-out forwards;
+  }
+  @keyframes pickupBurst{
+    0%{
+      opacity:.95;
+      transform:translate(-50%,-50%) scale(.45);
+    }
+    100%{
+      opacity:0;
+      transform:translate(-50%,-50%) scale(5.0);
+    }
+  }
+</style>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23facc15' d='M32 4l7.9 16 17.7 2.6-12.8 12.5 3 17.6L32 44.4 16.2 52.7l3-17.6L6.4 22.6 24.1 20z'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>⭐ 30초 스타 도지</h1>
+    <p class="rule">
+      ← → 또는 A / D로 이동해 별을 모으세요.<br>
+      <strong>별 1개당 1점</strong>, <strong>장애물에 닿으면 실패</strong>,
+      <strong>30초 생존하면 성공</strong>입니다.
+    </p>
+
+    <div class="hud">
+      <div>TIME<b id="time">30.0</b></div>
+      <div>SCORE<b id="score">0</b></div>
+      <div>BEST<b id="best">0</b></div>
+      <div>STATE<b id="state">대기</b></div>
+    </div>
+
+    <div id="game" class="game" tabindex="0" aria-label="게임 화면">
+      <div id="player" class="entity player"></div>
+      <div id="star" class="entity star">⭐</div>
+      <div id="star2" class="entity star">⭐</div>
+      <div id="obstacle" class="entity obstacle"></div>
+      <div id="obstacle2" class="entity obstacle"></div>
+      <div id="pickupFx" class="pickup-burst" aria-hidden="true"></div>
+
+      <div id="overlay" class="overlay">
+        <div>
+          <h2 id="overlayTitle">READY?</h2>
+          <p id="overlayText">30초 동안 별을 모으면서 장애물을 피하세요.</p>
+          <button id="startBtn" class="primary">게임 시작</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile">
+      <button id="leftBtn" aria-label="왼쪽 이동">←</button>
+      <button id="rightBtn" aria-label="오른쪽 이동">→</button>
+    </div>
+
+    <div class="controls">
+      <button id="restartBtn">다시 시작</button>
+      <button id="pauseBtn">일시정지</button>
+      <button id="motionBtn">효과 줄이기: OFF</button>
+    </div>
+
+    <div class="status-line">
+      별 1개를 획득할 때마다 1점이 올라갑니다. BEST 기록은 유지됩니다.
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const game = document.getElementById('game');
+  const playerEl = document.getElementById('player');
+  const starEl = document.getElementById('star');
+  const star2El = document.getElementById('star2');
+  const obstacleEl = document.getElementById('obstacle');
+  const obstacle2El = document.getElementById('obstacle2');
+  const pickupFx = document.getElementById('pickupFx');
+  const timeEl = document.getElementById('time');
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const stateEl = document.getElementById('state');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const motionBtn = document.getElementById('motionBtn');
+
+  let running = false;
+  let paused = false;
+  let loopToken = 0;
+  let score = 0;
+  const savedBestRaw = localStorage.getItem('starDodgeBest');
+  const savedBestNumber = Number(savedBestRaw);
+  let best = Number.isFinite(savedBestNumber) && savedBestNumber >= 0
+    ? Math.floor(savedBestNumber)
+    : 0;
+
+  // 저장값이 비어 있거나 숫자가 아니거나 손상된 경우 안전하게 0으로 복구합니다.
+  if(savedBestRaw === null || savedBestRaw === '' || !Number.isFinite(savedBestNumber) || savedBestNumber < 0){
+    localStorage.setItem('starDodgeBest', '0');
+  }
+  let remaining = 30;
+  let reducedMotion = false;
+  let last = 0;
+  let spawnClock = 0;
+
+  const keys = {left:false,right:false};
+  const player = {x:50,y:90,w:7,h:9,speed:48};
+  const star = {x:50,y:-24,r:4,vy:31};
+  const star2 = {x:75,y:-72,r:4,vy:31};
+  const obstacle = {x:25,y:-10,w:7,h:9,vy:38};
+  const obstacle2 = {x:70,y:-55,w:7,h:9,vy:38};
+
+  bestEl.textContent = best;
+
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+
+  function place(el,o){
+    el.style.left = o.x + '%';
+    el.style.top = o.y + '%';
+  }
+
+  function resetOneStar(s, el, startDelaySeconds=0){
+    s.x = rand(8,92);
+
+    // 별은 화면 위에서 너무 멀리 생성하지 않고,
+    // 낙하 시간 차이로만 등장 간격을 만듭니다.
+    const baseSpeed = reducedMotion ? rand(18,22) : rand(35,43);
+    s.vy = baseSpeed;
+
+    // y=-10에서 시작하면 첫 별이 약 1~2초 안에 보이고,
+    // 두 번째 별은 추가 지연만큼 더 늦게 들어옵니다.
+    s.y = -10 - (baseSpeed * startDelaySeconds);
+
+    el.textContent = '⭐';
+  }
+
+  function resetStar(){ resetOneStar(star, starEl, 0.4); }
+  function resetStar2(){ resetOneStar(star2, star2El, 2.0); }
+
+  function resetOneObstacle(o, offset=0){
+    o.x = rand(8,92);
+    o.y = -8 - offset;
+    o.vy = rand(52.8,66);
+  }
+
+  function resetObstacle(){ resetOneObstacle(obstacle, 0); }
+  function resetObstacle2(){ resetOneObstacle(obstacle2, 40); }
+
+  function resetGame(){
+    running = false;
+    paused = false;
+    loopToken++;
+    pauseBtn.textContent = '일시정지';
+    score = 0;
+    remaining = 30;
+    player.x = 50;
+    player.y = 90;
+    resetStar();
+    resetStar2();
+    resetObstacle();
+    resetObstacle2();
+    scoreEl.textContent = score;
+    timeEl.textContent = remaining.toFixed(1);
+    stateEl.textContent = '대기';
+    overlayTitle.textContent = 'READY?';
+    overlayText.textContent = '30초 동안 별을 모으면서 장애물을 피하세요.';
+    startBtn.textContent = '게임 시작';
+    overlay.classList.remove('hidden');
+    place(playerEl,player);
+    place(starEl,star); place(star2El,star2);
+    place(obstacleEl,obstacle); place(obstacle2El,obstacle2);
+  }
+
+  function startGame(){
+    loopToken++;
+    const myToken = loopToken;
+    paused = false;
+    pauseBtn.textContent = '일시정지';
+    score = 0;
+    remaining = 30;
+    player.x = 50;
+    resetStar();
+    resetStar2();
+    resetObstacle();
+    resetObstacle2();
+    running = true;
+    last = performance.now();
+    spawnClock = 0;
+    overlay.classList.add('hidden');
+    scoreEl.textContent = score;
+    stateEl.textContent = '진행 중';
+
+    // 직전 GAME OVER 위치가 첫 프레임 충돌 판정에 남지 않도록
+    // 새 판의 위치를 즉시 화면에 반영합니다.
+    place(playerEl,player);
+    place(starEl,star);
+    place(star2El,star2);
+    place(obstacleEl,obstacle);
+    place(obstacle2El,obstacle2);
+
+    game.focus();
+    requestAnimationFrame((t)=>loop(t,myToken));
+  }
+
+  function finish(success){
+    running = false;
+    paused = false;
+    pauseBtn.textContent = '일시정지';
+    loopToken++;
+    if(score > best){
+      best = score;
+      localStorage.setItem('starDodgeBest', String(best));
+      bestEl.textContent = best;
+    }
+    stateEl.textContent = success ? '성공' : '실패';
+    overlayTitle.textContent = success ? '🎉 SUCCESS!' : '💥 GAME OVER';
+    const survived = Math.min(30, Math.max(0, 30 - remaining));
+    overlayText.innerHTML = success
+      ? `최종 점수 <strong>${score}점</strong><br>생존 시간 <strong>30.0초</strong>`
+      : `최종 점수 <strong>${score}점</strong><br>생존 시간 <strong>${survived.toFixed(1)}초</strong>`;
+    startBtn.textContent = '다시 플레이';
+    overlay.classList.remove('hidden');
+  }
+
+  function rectsOverlap(obstacleElement){
+    // 실제 화면에 보이는 네모를 기준으로 충돌 판정합니다.
+    // 가장자리 2px는 여유를 둬서 억울한 충돌을 줄입니다.
+    const a = playerEl.getBoundingClientRect();
+    const b = obstacleElement.getBoundingClientRect();
+    const inset = 2;
+
+    return (
+      a.left + inset < b.right - inset &&
+      a.right - inset > b.left + inset &&
+      a.top + inset < b.bottom - inset &&
+      a.bottom - inset > b.top + inset
+    );
+  }
+
+  function starHit(s){
+    return Math.hypot(player.x-s.x, player.y-s.y) < 7;
+  }
+
+  function showPickupEffect(s){
+    if(reducedMotion) return;
+
+    pickupFx.style.left = s.x + '%';
+    pickupFx.style.top = s.y + '%';
+
+    // 한 요소만 재사용: 이전 효과를 취소하고 다음 프레임에 다시 시작
+    pickupFx.classList.remove('show');
+    requestAnimationFrame(()=>{
+      if(!reducedMotion) pickupFx.classList.add('show');
+    });
+  }
+
+  function loop(now, token){
+    if(token !== loopToken || !running) return;
+    if(paused){
+      last = now;
+      requestAnimationFrame((t)=>loop(t,token));
+      return;
+    }
+    const dt = Math.min((now-last)/1000, .033);
+    last = now;
+    remaining -= dt;
+    spawnClock += dt;
+
+    const moveSpeed = player.speed;
+    if(keys.left) player.x -= moveSpeed*dt;
+    if(keys.right) player.x += moveSpeed*dt;
+    player.x = clamp(player.x,5,95);
+
+    obstacle.y += obstacle.vy*dt;
+    obstacle2.y += obstacle2.vy*dt;
+    if(obstacle.y > 110) resetObstacle();
+    if(obstacle2.y > 110) resetObstacle2();
+
+    star.y += star.vy*dt;
+    star2.y += star2.vy*dt;
+    if(star.y > 108) resetStar();
+    if(star2.y > 108) resetStar2();
+
+    if(starHit(star)){
+      score += 1;
+      scoreEl.textContent = score;
+      showPickupEffect(star);
+      resetStar();
+    }
+
+    if(starHit(star2)){
+      score += 1;
+      scoreEl.textContent = score;
+      showPickupEffect(star2);
+      resetStar2();
+    }
+
+    if(rectsOverlap(obstacleEl) || rectsOverlap(obstacle2El)){
+      finish(false);
+      return;
+    }
+
+    if(remaining <= 0){
+      remaining = 0;
+      timeEl.textContent = '0.0';
+      finish(true);
+      return;
+    }
+
+    timeEl.textContent = remaining.toFixed(1);
+    place(playerEl,player);
+    place(starEl,star);
+    place(star2El,star2);
+    place(obstacleEl,obstacle);
+    place(obstacle2El,obstacle2);
+    requestAnimationFrame((t)=>loop(t,token));
+  }
+
+  function setKey(e,down){
+    if(!running || paused){
+      if(!down){ keys.left = false; keys.right = false; }
+      return;
+    }
+    if(['ArrowLeft','a','A'].includes(e.key)){keys.left=down;e.preventDefault();}
+    if(['ArrowRight','d','D'].includes(e.key)){keys.right=down;e.preventDefault();}
+  }
+  addEventListener('keydown',e=>setKey(e,true));
+  addEventListener('keyup',e=>setKey(e,false));
+
+  function holdButton(btn,dir){
+    const start = e => { e.preventDefault(); if(running && !paused) keys[dir]=true; };
+    const end = e => { e.preventDefault(); keys[dir]=false; };
+    btn.addEventListener('pointerdown',start);
+    btn.addEventListener('pointerup',end);
+    btn.addEventListener('pointercancel',end);
+    btn.addEventListener('pointerleave',end);
+  }
+  holdButton(document.getElementById('leftBtn'),'left');
+  holdButton(document.getElementById('rightBtn'),'right');
+
+  function pauseGame(reason='manual'){
+    if(!running || paused) return;
+    paused = true;
+    keys.left = false;
+    keys.right = false;
+    stateEl.textContent = '일시정지';
+    pauseBtn.textContent = '계속하기';
+    overlayTitle.textContent = '⏸ PAUSED';
+    overlayText.innerHTML = reason === 'focus'
+      ? '브라우저 포커스가 해제되어 자동으로 일시정지되었습니다.<div class="pause-note">계속하기 버튼을 눌러 재개하세요.</div>'
+      : '게임이 일시정지되었습니다.<div class="pause-note">계속하기 버튼을 눌러 재개하세요.</div>';
+    startBtn.textContent = '계속하기';
+    overlay.classList.remove('hidden');
+  }
+
+  function resumeGame(){
+    if(!running || !paused) return;
+    paused = false;
+    last = performance.now();
+    stateEl.textContent = '진행 중';
+    pauseBtn.textContent = '일시정지';
+    overlay.classList.add('hidden');
+    game.focus();
+  }
+
+  startBtn.addEventListener('click', ()=> paused ? resumeGame() : startGame());
+  restartBtn.addEventListener('click', resetGame);
+  pauseBtn.addEventListener('click', ()=> paused ? resumeGame() : pauseGame('manual'));
+
+  motionBtn.addEventListener('click',()=>{
+    reducedMotion = !reducedMotion;
+    motionBtn.textContent = `효과 줄이기: ${reducedMotion ? 'ON' : 'OFF'}`;
+
+    // 켜는 순간 현재 퍼지는 효과도 즉시 중단
+    if(reducedMotion){
+      pickupFx.classList.remove('show');
+    }
+  });
+
+
+  window.addEventListener('blur', ()=>{
+    keys.left = false;
+    keys.right = false;
+    if(running && !paused) pauseGame('focus');
+  });
+
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){
+      keys.left = false;
+      keys.right = false;
+      if(running && !paused) pauseGame('focus');
+    }
+  });
+
+  window.addEventListener('resize', ()=>{
+    // 좌표는 퍼센트 기반이므로 상태는 유지하고 표시 위치만 다시 반영합니다.
+    place(playerEl,player);
+    place(starEl,star);
+    place(star2El,star2);
+    place(obstacleEl,obstacle);
+    place(obstacle2El,obstacle2);
+  });
+
+  resetGame();
+})();
+</script>
+    <div class="difficulty-note"><strong>난이도 규칙</strong> · 장애물 낙하 속도가 빠를수록 어려워집니다.<span class="difficulty-gap"></span><strong>최종값</strong> · 52.8~66 (기본값 44~55 대비 +20%)</div>
+</body>
+</html>
