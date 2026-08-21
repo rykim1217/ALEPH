@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood Card Maker</title>
+  <style>
+    :root{
+      --bg:#f7f6f3;
+      --panel:#ffffff;
+      --text:#222222;
+      --muted:#77736d;
+      --line:#e8e4df;
+      --accent:#242424;
+      --soft:#f0ece6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,"Noto Sans KR",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:32px 20px 48px;
+    }
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      margin-bottom:24px;
+    }
+    h1{
+      margin:0;
+      font-size:30px;
+      letter-spacing:-0.8px;
+    }
+    .sub{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+    .badge{
+      background:var(--soft);
+      border:1px solid var(--line);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      color:#55514c;
+      white-space:nowrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:24px;
+      align-items:start;
+    }
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 8px 30px rgba(0,0,0,.04);
+    }
+    .section + .section{margin-top:22px}
+    .label{
+      display:block;
+      font-weight:700;
+      font-size:14px;
+      margin-bottom:9px;
+    }
+    .help{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    input[type="text"], textarea, select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px 13px;
+      font-size:14px;
+      background:#fff;
+      outline:none;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus{
+      border-color:#aaa49d;
+    }
+    textarea{
+      resize:vertical;
+      min-height:96px;
+      line-height:1.55;
+      font-family:inherit;
+    }
+    .filebox{
+      position:relative;
+      border:1.5px dashed #ccc5bd;
+      border-radius:14px;
+      padding:18px;
+      text-align:center;
+      background:#fbfaf8;
+    }
+    .filebox input{
+      width:100%;
+      font-size:13px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .range-row{
+      display:grid;
+      grid-template-columns:1fr 52px;
+      gap:10px;
+      align-items:center;
+    }
+    input[type="range"]{width:100%}
+    .num{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px 0;
+      text-align:center;
+      font-size:13px;
+      background:#faf9f7;
+    }
+    input[type="color"]{
+      width:100%;
+      height:42px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:4px;
+      background:#fff;
+    }
+    .preview-panel{
+      min-height:680px;
+      display:flex;
+      flex-direction:column;
+    }
+    .preview-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    .preview-title{
+      font-weight:700;
+      font-size:15px;
+    }
+    .status{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .stage-wrap{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#efede9;
+      border-radius:16px;
+      padding:26px;
+      overflow:hidden;
+      min-height:590px;
+    }
+    .stage{
+      position:relative;
+      width:min(100%,520px);
+      aspect-ratio:4 / 5;
+      background-color:#f3f3f3;
+      background-image:
+        linear-gradient(45deg,#e7e7e7 25%,transparent 25%),
+        linear-gradient(-45deg,#e7e7e7 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#e7e7e7 75%),
+        linear-gradient(-45deg,transparent 75%,#e7e7e7 75%);
+      background-size:24px 24px;
+      background-position:0 0,0 12px,12px -12px,-12px 0px;
+      overflow:hidden;
+      box-shadow:0 16px 36px rgba(0,0,0,.12);
+    }
+    .stage img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:none;
+    }
+    .placeholder{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:30px;
+      color:#77716a;
+      background:linear-gradient(145deg,#e9e4dc,#d8d0c7);
+    }
+    .placeholder strong{
+      font-size:18px;
+      margin-bottom:8px;
+    }
+    .caption-layer{
+      position:absolute;
+      inset:0;
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+      padding:8% 8%;
+    }
+    .caption-layer.top{
+      align-items:flex-start;
+    }
+    .caption-layer.middle{
+      align-items:center;
+    }
+    .caption-layer.bottom{
+      align-items:flex-end;
+    }
+    .caption-text{
+      width:100%;
+      color:#ffffff;
+      font-weight:700;
+      text-align:center;
+      line-height:1.35;
+      text-shadow:0 2px 10px rgba(0,0,0,.35);
+      white-space:pre-wrap;
+      word-break:keep-all;
+      overflow-wrap:anywhere;
+      font-size:36px;
+      margin:0;
+    }
+
+    .ratio-buttons{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    }
+    .ratio-btn{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:11px;
+      padding:11px 8px;
+      font-size:13px;
+      cursor:pointer;
+    }
+    .ratio-btn.active{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+    }
+    .download-btn{
+      width:100%;
+      border:0;
+      border-radius:12px;
+      padding:13px 14px;
+      background:var(--accent);
+      color:#fff;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .download-btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+    .ratio-info{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+
+    .top-download-btn{
+      width:auto;
+      min-width:150px;
+      padding:12px 18px;
+      align-self:center;
+    }
+    .compact-template-save{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:7px;
+      margin-top:9px;
+      margin-bottom:6px;
+    }
+    .compact-template-save input{
+      min-width:0;
+      padding:9px 10px;
+      font-size:12px;
+    }
+    .compact-template-save .secondary-btn{
+      padding:9px 12px;
+      font-size:12px;
+    }
+    .template-panel{
+      margin-top:24px;
+    }
+    .template-save-top{
+      display:grid;
+      grid-template-columns:minmax(180px,240px) auto;
+      gap:10px;
+      align-items:center;
+    }
+    .template-save-top input{
+      min-width:0;
+    }
+    .template-create{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:end;
+    }
+    .template-create input{
+      min-width:0;
+    }
+    .secondary-btn{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:11px;
+      padding:11px 14px;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .secondary-btn:hover{
+      background:#f8f6f2;
+    }
+    .template-list{
+      display:grid;
+      gap:8px;
+      margin-top:8px;
+    }
+    .compact-template-section{
+      margin-bottom:4px;
+      padding-bottom:18px;
+      border-bottom:1px solid var(--line);
+    }
+    .compact-template-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .compact-template-label{
+      margin-bottom:0;
+    }
+    .template-count{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .compact-template-list{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+    .compact-template-list .template-item{
+      padding:9px;
+      border-radius:10px;
+    }
+    .compact-template-list .template-item-head{
+      margin-bottom:4px;
+    }
+    .compact-template-list .template-name{
+      font-size:12px;
+    }
+    .compact-template-list .template-meta{
+      font-size:10px;
+      line-height:1.35;
+      margin-bottom:7px;
+    }
+    .compact-template-list .template-actions{
+      gap:5px;
+    }
+    .compact-template-list .template-actions button{
+      padding:6px 4px;
+      font-size:10px;
+    }
+    .compact-save-top{
+      opacity:.92;
+    }
+    .template-empty{
+      padding:14px;
+      border:1px dashed var(--line);
+      border-radius:12px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+      background:#fbfaf8;
+    }
+    .template-item{
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:12px;
+      background:#fff;
+    }
+    .template-item-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .template-name{
+      font-weight:700;
+      font-size:13px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .template-meta{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.5;
+      margin-bottom:10px;
+    }
+    .template-actions{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:7px;
+    }
+    .template-actions button{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:9px;
+      padding:8px 6px;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .template-actions button:hover{
+      background:#f8f6f2;
+    }
+    .template-actions .danger{
+      color:#9f3030;
+    }
+
+    .notice{
+      margin-top:16px;
+      padding:12px 14px;
+      background:#f8f6f2;
+      border:1px solid var(--line);
+      border-radius:12px;
+      font-size:12px;
+      color:#69645e;
+      line-height:1.55;
+    }
+
+
+
+    .bottom-template-section .template-item{
+      grid-template-columns:minmax(0,1fr) auto;
+    }
+    .bottom-template-section .template-meta{
+      font-size:9.5px;
+      letter-spacing:-0.02em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .bottom-template-section .template-actions button{
+      padding:6px 6px;
+      font-size:9.5px;
+    }
+
+    .transfer-box{
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid var(--line);
+    }
+    .transfer-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+    .transfer-actions button,
+    .transfer-actions label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:10px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      padding:9px 10px;
+      text-align:center;
+    }
+    .transfer-actions button:hover,
+    .transfer-actions label:hover{
+      background:#f8f6f2;
+    }
+    .json-file-input{
+      display:none;
+    }
+    .public-note{
+      margin-top:10px;
+      padding:9px 11px;
+      border-radius:10px;
+      background:#f7f5f1;
+      border:1px solid var(--line);
+      font-size:11px;
+      line-height:1.55;
+      color:var(--muted);
+    }
+
+    /* 카드 4: 편집 패널 세로 길이 압축 */
+    .panel{padding:20px}
+    .section + .section{margin-top:16px}
+    .filebox{padding:13px}
+    textarea{min-height:78px}
+    .label{margin-bottom:7px}
+    .help{margin-top:5px}
+    .notice{margin-top:12px;padding:10px 12px}
+    .size-fit-row{align-items:end}
+    .compact-range-row{grid-template-columns:1fr 46px;gap:7px}
+    .compact-range-row .num{padding:7px 0}
+    .bottom-template-section{
+      margin-top:16px !important;
+      padding-top:16px;
+      padding-bottom:0;
+      border-top:1px solid var(--line);
+      border-bottom:0;
+    }
+    .bottom-template-section .compact-template-list{
+      grid-template-columns:1fr;
+    }
+    .bottom-template-section .template-item{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:8px 10px;
+      align-items:center;
+      padding:8px 9px;
+    }
+    .bottom-template-section .template-item-head{
+      margin:0;
+    }
+    .bottom-template-section .template-meta{
+      grid-column:1;
+      margin:0;
+    }
+    .bottom-template-section .template-actions{
+      grid-column:2;
+      grid-row:1 / span 2;
+      display:flex;
+      gap:4px;
+    }
+    .bottom-template-section .template-actions button{
+      padding:6px 7px;
+      white-space:nowrap;
+    }
+
+    @media (max-width:860px){
+      .grid{grid-template-columns:1fr}
+      .preview-panel{min-height:auto}
+      .stage-wrap{min-height:500px}
+      .top{align-items:flex-start;flex-direction:column}
+      .top-download-btn{width:100%}
+      .compact-template-list{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div>
+        <h1>Mood Card Maker</h1>
+        <p class="sub">사진과 한글 문구를 조합해 감성적인 SNS 카드를 만들어보세요.</p>
+      </div>
+
+      <button id="downloadBtnTop" class="download-btn top-download-btn" type="button" disabled>PNG 내려받기</button>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="section">
+          <label class="label" for="imageInput">이미지 불러오기</label>
+          <div class="filebox">
+            <input id="imageInput" type="file" accept="image/png,image/jpeg" />
+            <p class="help">PNG 또는 JPEG만 지원합니다. 직접 만들었거나 사용이 허용된 이미지를 사용하세요.</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <label class="label" for="captionInput">문구</label>
+          <textarea id="captionInput" maxlength="300" rows="4">오늘의 분위기를 기록해요.</textarea>
+          <p class="help">긴 문장·줄바꿈·이모지도 입력할 수 있으며 즉시 미리보기에 반영됩니다.</p>
+        </div>
+
+        <div class="section row">
+          <div>
+            <label class="label" for="positionSelect">문구 위치</label>
+            <select id="positionSelect">
+              <option value="top">상단</option>
+              <option value="middle" selected>가운데</option>
+              <option value="bottom">하단</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="colorInput">문구 색상</label>
+            <input id="colorInput" type="color" value="#ffffff" />
+          </div>
+        </div>
+
+        <div class="section row size-fit-row">
+          <div>
+            <label class="label" for="sizeInput">문구 크기</label>
+            <div class="range-row compact-range-row">
+              <input id="sizeInput" type="range" min="18" max="72" value="36" />
+              <div id="sizeValue" class="num">36</div>
+            </div>
+          </div>
+          <div>
+            <label class="label" for="fitSelect">이미지 맞춤 방식</label>
+            <select id="fitSelect">
+              <option value="cover" selected>채우기</option>
+              <option value="contain">맞추기</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section">
+          <span class="label">화면 비율</span>
+          <div class="ratio-buttons" role="group" aria-label="화면 비율 선택">
+            <button class="ratio-btn" type="button" data-ratio="1:1">1:1</button>
+            <button class="ratio-btn active" type="button" data-ratio="4:5">4:5</button>
+            <button class="ratio-btn" type="button" data-ratio="9:16">9:16</button>
+          </div>
+          <div id="ratioInfo" class="ratio-info">현재 미리보기 · 4:5 (1080 × 1350)</div>
+        </div>
+
+
+        <div class="section compact-template-section bottom-template-section">
+          <div class="compact-template-head">
+            <span class="label compact-template-label">저장된 템플릿</span>
+            <span class="template-count" id="templateCount">0개</span>
+          </div>
+          <div class="compact-template-save">
+            <input id="templateNameInput" type="text" maxlength="40" placeholder="템플릿 이름" />
+            <button id="saveTemplateBtn" class="secondary-btn" type="button">저장</button>
+          </div>
+          <div id="templateList" class="template-list compact-template-list"></div>
+
+          <div class="transfer-box">
+            <div class="compact-template-head">
+              <span class="label compact-template-label">템플릿 옮겨 쓰기</span>
+            </div>
+            <div class="transfer-actions">
+              <button id="exportJsonBtn" type="button">JSON 내보내기</button>
+              <label for="importJsonInput">JSON 가져오기</label>
+              <input id="importJsonInput" class="json-file-input" type="file" accept=".json,application/json" />
+            </div>
+            <div id="jsonStatus" class="public-note">
+              공개 화면과 내보낸 파일에는 개인정보·비밀값을 넣지 않습니다. 템플릿 설정 정보만 JSON으로 저장합니다.
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="preview-head">
+          <div class="preview-title">실시간 미리보기</div>
+          <div id="status" class="status">현재 비율 4:5 · 문구 변경이 즉시 반영됩니다.</div>
+        </div>
+
+        <div class="stage-wrap">
+          <div class="stage" id="stage">
+            <img id="previewImage" alt="사용자가 불러온 이미지 미리보기" />
+            <div id="placeholder" class="placeholder">
+              <strong>이미지를 불러와 주세요</strong>
+              <span>PNG 또는 JPEG 파일을 선택하면 이 영역에 표시됩니다.</span>
+            </div>
+            <div id="captionLayer" class="caption-layer middle"><div id="captionText" class="caption-text">오늘의 분위기를 기록해요.</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const captionInput = document.getElementById('captionInput');
+    const positionSelect = document.getElementById('positionSelect');
+    const sizeInput = document.getElementById('sizeInput');
+    const sizeValue = document.getElementById('sizeValue');
+    const colorInput = document.getElementById('colorInput');
+    const fitSelect = document.getElementById('fitSelect');
+    const templateNameInput = document.getElementById('templateNameInput');
+    const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+    const templateList = document.getElementById('templateList');
+    const templateCount = document.getElementById('templateCount');
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const importJsonInput = document.getElementById('importJsonInput');
+    const ratioButtons = Array.from(document.querySelectorAll('.ratio-btn'));
+    const ratioInfo = document.getElementById('ratioInfo');
+    const downloadBtn = document.getElementById('downloadBtnTop');
+    const stage = document.getElementById('stage');
+
+
+    const previewImage = document.getElementById('previewImage');
+    const placeholder = document.getElementById('placeholder');
+    const captionLayer = document.getElementById('captionLayer');
+    const captionText = document.getElementById('captionText');
+    const status = document.getElementById('status');
+
+    function showMessage(text){
+      const jsonStatus = document.getElementById('jsonStatus');
+      if(jsonStatus) jsonStatus.textContent = text;
+      if(status) status.textContent = text;
+    }
+
+    const ratioMap = {
+      '1:1': {w:1080, h:1080, css:'1 / 1'},
+      '4:5': {w:1080, h:1350, css:'4 / 5'},
+      '9:16': {w:1080, h:1920, css:'9 / 16'}
+    };
+    let currentRatio = '4:5';
+    let currentImage = null;
+    let originalFileName = 'mood-card';
+
+
+    function updateCaption(){
+      captionText.textContent = captionInput.value || '';
+      captionLayer.className = 'caption-layer ' + positionSelect.value;
+      captionText.style.fontSize = sizeInput.value + 'px';
+      captionText.style.color = colorInput.value;
+      sizeValue.textContent = sizeInput.value;
+      status.textContent = '현재 비율 ' + currentRatio + ' · 마지막 변경이 미리보기에 반영되었습니다.';
+    }
+
+    captionInput.addEventListener('input', updateCaption);
+    positionSelect.addEventListener('change', updateCaption);
+    sizeInput.addEventListener('input', updateCaption);
+    colorInput.addEventListener('input', updateCaption);
+    fitSelect.addEventListener('change', () => {
+      previewImage.style.objectFit = fitSelect.value;
+      status.textContent = '현재 비율 ' + currentRatio + ' · 이미지 맞춤 방식이 미리보기에 반영되었습니다.';
+    });
+
+
+    function setRatio(ratio){
+      currentRatio = ratio;
+      const info = ratioMap[ratio];
+      stage.style.aspectRatio = info.css;
+      ratioButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.ratio === ratio));
+      ratioInfo.textContent = `현재 미리보기 · ${ratio} (${info.w} × ${info.h})`;
+      status.textContent = `현재 비율 ${ratio} · 미리보기와 저장 파일에 같은 비율을 사용합니다.`;
+    }
+
+    ratioButtons.forEach(btn => {
+      btn.addEventListener('click', () => setRatio(btn.dataset.ratio));
+    });
+
+    function drawImageFit(ctx, img, canvasW, canvasH, fitMode){
+      const scale = fitMode === 'contain'
+        ? Math.min(canvasW / img.naturalWidth, canvasH / img.naturalHeight)
+        : Math.max(canvasW / img.naturalWidth, canvasH / img.naturalHeight);
+
+      const w = img.naturalWidth * scale;
+      const h = img.naturalHeight * scale;
+      const x = (canvasW - w) / 2;
+      const y = (canvasH - h) / 2;
+      ctx.drawImage(img, x, y, w, h);
+    }
+
+    function getPreviewLines(){
+      const textNode = captionText.firstChild;
+      if(!textNode || textNode.nodeType !== Node.TEXT_NODE || textNode.length === 0){
+        return [''];
+      }
+
+      const text = textNode.nodeValue;
+      const segments = (window.Intl && Intl.Segmenter)
+        ? Array.from(new Intl.Segmenter('ko', {granularity:'grapheme'}).segment(text), s => ({
+            text:s.segment,
+            start:s.index,
+            end:s.index + s.segment.length
+          }))
+        : Array.from(text).map((ch, i) => ({text:ch, start:i, end:i + ch.length}));
+
+      const lines = [];
+      let current = '';
+      let currentTop = null;
+
+      for(const seg of segments){
+        if(seg.text === '\n'){
+          lines.push(current);
+          current = '';
+          currentTop = null;
+          continue;
+        }
+
+        const range = document.createRange();
+        range.setStart(textNode, seg.start);
+        range.setEnd(textNode, seg.end);
+        const rect = range.getBoundingClientRect();
+
+        if(currentTop === null){
+          currentTop = rect.top;
+        }else if(Math.abs(rect.top - currentTop) > 1){
+          lines.push(current);
+          current = '';
+          currentTop = rect.top;
+        }
+
+        current += seg.text;
+      }
+
+      lines.push(current);
+      return lines;
+    }
+
+    function drawPreviewMatchedText(ctx, lines, x, centerY, lineHeight, position, canvasH){
+      const totalHeight = Math.max(lineHeight, lines.length * lineHeight);
+
+      let firstBaseline;
+      if(position === 'top'){
+        firstBaseline = canvasH * 0.08 + lineHeight / 2;
+      }else if(position === 'bottom'){
+        firstBaseline = canvasH * 0.92 - totalHeight + lineHeight / 2;
+      }else{
+        firstBaseline = centerY - totalHeight / 2 + lineHeight / 2;
+      }
+
+      lines.forEach((line, index) => {
+        ctx.fillText(line, x, firstBaseline + index * lineHeight);
+      });
+    }
+
+    async function downloadImage(){
+      if(!currentImage) return;
+
+      if(document.fonts && document.fonts.ready){
+        await document.fonts.ready;
+      }
+
+      const {w, h} = ratioMap[currentRatio];
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+
+      drawImageFit(ctx, currentImage, w, h, fitSelect.value);
+
+      const previewWidth = stage.clientWidth || 520;
+      const scale = w / previewWidth;
+      const fontPx = Number(sizeInput.value) * scale;
+
+      ctx.save();
+      ctx.fillStyle = colorInput.value;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `700 ${fontPx}px Arial, "Noto Sans KR", sans-serif`;
+      ctx.shadowColor = 'rgba(0,0,0,.35)';
+      ctx.shadowBlur = 10 * scale;
+      ctx.shadowOffsetY = 2 * scale;
+
+      const previewLines = getPreviewLines();
+      const computed = getComputedStyle(captionText);
+      const previewLineHeight = parseFloat(computed.lineHeight) || (Number(sizeInput.value) * 1.35);
+      const lineHeight = previewLineHeight * scale;
+
+      drawPreviewMatchedText(
+        ctx,
+        previewLines,
+        w / 2,
+        h * 0.50,
+        lineHeight,
+        positionSelect.value,
+        h
+      );
+      ctx.restore();
+
+      canvas.toBlob((blob) => {
+        if(!blob) return;
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = `${originalFileName}-${currentRatio.replace(':','x')}.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        status.textContent = `현재 비율 ${currentRatio} · PNG 저장 완료`;
+      }, 'image/png');
+    }
+
+    downloadBtn.addEventListener('click', downloadImage);
+
+
+    const TEMPLATE_STORAGE_KEY = 'moodCardMakerTemplates_v1';
+
+    function readTemplates(){
+      try{
+        const raw = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+        if(!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      }catch(error){
+        return [];
+      }
+    }
+
+    function writeTemplates(templates){
+      localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
+    }
+
+    function getCurrentTemplateSettings(name){
+      return {
+        id: (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
+        name,
+        ratio: currentRatio,
+        caption: captionInput.value,
+        position: positionSelect.value,
+        size: Number(sizeInput.value),
+        color: colorInput.value,
+        imageFit: fitSelect.value
+      };
+    }
+
+    function applyTemplate(template){
+      captionInput.value = template.caption ?? '';
+      positionSelect.value = template.position ?? 'middle';
+      sizeInput.value = String(template.size ?? 36);
+      colorInput.value = template.color ?? '#ffffff';
+      fitSelect.value = template.imageFit ?? 'cover';
+      previewImage.style.objectFit = fitSelect.value;
+      templateNameInput.value = template.name ?? '';
+      setRatio(template.ratio && ratioMap[template.ratio] ? template.ratio : '4:5');
+      updateCaption();
+      showMessage(`템플릿 "${template.name}"을 불러왔습니다.`);
+    }
+
+    function renderTemplates(){
+      const templates = readTemplates();
+      templateList.innerHTML = '';
+      templateCount.textContent = `${templates.length}개`;
+
+      if(!templates.length){
+        const empty = document.createElement('div');
+        empty.className = 'template-empty';
+        empty.textContent = '저장된 템플릿 없음';
+        templateList.appendChild(empty);
+        return;
+      }
+
+      templates.forEach(template => {
+        const item = document.createElement('div');
+        item.className = 'template-item';
+
+        const head = document.createElement('div');
+        head.className = 'template-item-head';
+
+        const name = document.createElement('div');
+        name.className = 'template-name';
+        name.textContent = template.name;
+
+        head.appendChild(name);
+
+        const meta = document.createElement('div');
+        meta.className = 'template-meta';
+        const positionLabel = {top:'상단', middle:'가운데', bottom:'하단'}[template.position] || template.position;
+        const fitLabel = template.imageFit === 'contain' ? '맞추기' : '채우기';
+        const colorLabel = (template.color || '#ffffff').toLowerCase();
+        meta.textContent = `${template.ratio} · ${positionLabel} · ${template.size}px · ${colorLabel} · ${fitLabel}`;
+
+        const actions = document.createElement('div');
+        actions.className = 'template-actions';
+
+        const loadBtn = document.createElement('button');
+        loadBtn.type = 'button';
+        loadBtn.textContent = '불러오기';
+        loadBtn.addEventListener('click', () => applyTemplate(template));
+
+        const updateBtn = document.createElement('button');
+        updateBtn.type = 'button';
+        updateBtn.textContent = '수정';
+        updateBtn.addEventListener('click', () => {
+          const templatesNow = readTemplates();
+          const index = templatesNow.findIndex(t => t.id === template.id);
+          if(index < 0) return;
+
+          const newName = templateNameInput.value.trim() || template.name;
+          templatesNow[index] = {
+            ...template,
+            name: newName,
+            ratio: currentRatio,
+            caption: captionInput.value,
+            position: positionSelect.value,
+            size: Number(sizeInput.value),
+            color: colorInput.value,
+            imageFit: fitSelect.value
+          };
+          writeTemplates(templatesNow);
+          templateNameInput.value = newName;
+          renderTemplates();
+          showMessage(`템플릿 "${newName}"을 현재 설정으로 수정했습니다.`);
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = '삭제';
+        deleteBtn.className = 'danger';
+        deleteBtn.addEventListener('click', () => {
+          const templatesNow = readTemplates().filter(t => t.id !== template.id);
+          writeTemplates(templatesNow);
+          renderTemplates();
+          showMessage(`템플릿 "${template.name}"을 삭제했습니다.`);
+        });
+
+        actions.append(loadBtn, updateBtn, deleteBtn);
+        item.append(head, meta, actions);
+        templateList.appendChild(item);
+      });
+    }
+
+    saveTemplateBtn.addEventListener('click', () => {
+      const name = templateNameInput.value.trim();
+      if(!name){
+        showMessage('템플릿 이름을 입력한 뒤 저장해 주세요.');
+        templateNameInput.focus();
+        return;
+      }
+
+      const templates = readTemplates();
+      templates.push(getCurrentTemplateSettings(name));
+      writeTemplates(templates);
+      renderTemplates();
+      showMessage(`템플릿 "${name}"을 저장했습니다. 새로고침 후에도 유지됩니다.`);
+      templateNameInput.value = '';
+    });
+
+
+    function isValidHexColor(value){
+      return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value);
+    }
+
+    function normalizeTemplateObject(template){
+      if(!template || typeof template !== 'object') return null;
+
+      const normalized = {
+        id: (typeof template.id === 'string' && template.id)
+          ? template.id
+          : ((crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)),
+        name: typeof template.name === 'string' ? template.name.trim() : '',
+        ratio: template.ratio,
+        caption: typeof template.caption === 'string' ? template.caption : '',
+        position: template.position,
+        size: Number(template.size),
+        color: template.color,
+        imageFit: template.imageFit
+      };
+
+      if(!normalized.name) return null;
+      if(!['1:1','4:5','9:16'].includes(normalized.ratio)) return null;
+      if(!['top','middle','bottom'].includes(normalized.position)) return null;
+      if(!Number.isFinite(normalized.size) || normalized.size < 18 || normalized.size > 72) return null;
+      if(!isValidHexColor(normalized.color)) return null;
+      if(!['cover','contain'].includes(normalized.imageFit)) return null;
+
+      return normalized;
+    }
+
+    function normalizeTemplateArray(data){
+      if(!Array.isArray(data) || data.length === 0) return null;
+      const normalized = data.map(normalizeTemplateObject);
+      if(normalized.some(item => !item)) return null;
+      return normalized;
+    }
+
+    exportJsonBtn.addEventListener('click', () => {
+      const templates = readTemplates();
+
+      if(templates.length < 3){
+        showMessage('JSON 내보내기 전에 템플릿을 3개 이상 저장해 주세요.');
+        return;
+      }
+
+      const blob = new Blob([JSON.stringify(templates, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'mood-card-templates.json';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showMessage(`템플릿 ${templates.length}개를 JSON으로 내보냈습니다.`);
+    });
+
+    function readJsonFileAsText(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('파일을 읽지 못했습니다.'));
+        reader.readAsText(file, 'UTF-8');
+      });
+    }
+
+    importJsonInput.addEventListener('change', async () => {
+      const file = importJsonInput.files && importJsonInput.files[0];
+      if(!file) return;
+
+      const existingTemplates = readTemplates();
+
+      try{
+        const text = await readJsonFileAsText(file);
+        const parsed = JSON.parse(text);
+        const normalized = normalizeTemplateArray(parsed);
+
+        if(!normalized){
+          throw new Error('필수 항목 또는 값 형식이 올바르지 않습니다.');
+        }
+
+        // 모든 검사가 끝난 경우에만 기존 목록을 교체합니다.
+        writeTemplates(normalized);
+
+        // 실제 저장 여부까지 다시 확인한 뒤 화면을 갱신합니다.
+        const saved = readTemplates();
+        if(saved.length !== normalized.length){
+          throw new Error('브라우저 저장소에 복원하지 못했습니다.');
+        }
+
+        renderTemplates();
+        showMessage(`JSON 가져오기 완료: 템플릿 ${saved.length}개를 복원했습니다.`);
+      }catch(error){
+        // 실패하면 가져오기 전 데이터를 그대로 복구합니다.
+        writeTemplates(existingTemplates);
+        renderTemplates();
+        showMessage(`JSON 가져오기 실패: ${error.message} 기존 템플릿은 유지됩니다.`);
+      }finally{
+        importJsonInput.value = '';
+      }
+    });
+
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files && imageInput.files[0];
+      if(!file) return;
+
+      const allowed = ['image/png','image/jpeg'];
+      if(!allowed.includes(file.type)){
+        showMessage('지원하지 않는 파일입니다. PNG 또는 JPEG 파일을 선택해 주세요. 기존 편집 내용은 유지됩니다.');
+        imageInput.value = '';
+        return;
+      }
+
+      originalFileName = file.name.replace(/\.[^.]+$/, '') || 'mood-card';
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        previewImage.onload = () => {
+          currentImage = previewImage;
+          downloadBtn.disabled = false;
+          previewImage.style.display = 'block';
+          previewImage.style.objectFit = fitSelect.value;
+          placeholder.style.display = 'none';
+          showMessage('이미지를 불러왔습니다. 비율·문구 위치·크기·색을 바꾸면 즉시 미리보기에 반영됩니다.');
+          status.textContent = `현재 비율 ${currentRatio} · 이미지 불러오기 완료`;
+        };
+        previewImage.src = event.target.result;
+      };
+      reader.onerror = () => {
+        showMessage('이미지를 읽지 못했습니다. 다른 PNG/JPEG 파일을 선택해 주세요. 기존 편집 내용은 유지됩니다.');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setRatio('4:5');
+    updateCaption();
+    previewImage.style.objectFit = fitSelect.value;
+    renderTemplates();
+  </script>
+</body>
+</html>
