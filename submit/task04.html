@@ -308,6 +308,13 @@
       cursor: default;
     }
 
+  
+    .mode-banner{display:none;margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fff4cf;color:#765d13;font-size:13px;font-weight:800;text-align:center}
+    .mode-banner.show{display:block}
+    .state-detail{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;background:#fff7df;color:#705a18;font-size:13px;line-height:1.6}
+    .state-detail.show{display:block}
+    .state-detail strong{color:#59460f}
+
   </style>
 </head>
 <body>
@@ -316,6 +323,7 @@
     <p class="purpose">
       이 정보판은 미국 달러 대비 원화 환율의 현재값과 일별 변화를 확인하기 위한 것이다.
     </p>
+    <div id="modeBanner" class="mode-banner" aria-live="polite"></div>
 
     <section class="card">
       <div class="top">
@@ -337,7 +345,7 @@
 
       <dl>
         <div>
-          <dt>데이터 기준일</dt>
+          <dt>출처 관측 시각</dt>
           <dd id="dataDate">--</dd>
         </div>
         <div>
@@ -360,6 +368,7 @@
 
 
       <p id="message" aria-live="polite"></p>
+      <div id="stateDetail" class="state-detail" aria-live="polite"></div>
 
       <section class="history" aria-labelledby="historyTitle">
         <div class="history-head">
@@ -375,198 +384,172 @@
   </main>
 
   <script>
-    const API_URL = "https://api.exchangerate.fun/latest?base=USD";
+const API_URL="https://api.exchangerate.fun/latest?base=USD";
+const LIVE_HISTORY_KEY="usd-krw-daily-history-v1";
+const LIVE_LAST_NORMAL_KEY="usd-krw-last-normal-v2";
+const SYNTH_HISTORY_KEY="usd-krw-synthetic-history-v1";
+const SYNTH_LAST_NORMAL_KEY="usd-krw-synthetic-last-normal-v1";
 
-    const rateEl = document.getElementById("rate");
-    const dataDateEl = document.getElementById("dataDate");
-    const checkedAtEl = document.getElementById("checkedAt");
-    const statusEl = document.getElementById("status");
-    const messageEl = document.getElementById("message");
-    const retryEl = document.getElementById("retry");
-    const historyListEl = document.getElementById("historyList");
-    const HISTORY_KEY = "usd-krw-daily-history-v1";
+const rateEl=document.getElementById("rate");
+const dataDateEl=document.getElementById("dataDate");
+const checkedAtEl=document.getElementById("checkedAt");
+const statusEl=document.getElementById("status");
+const messageEl=document.getElementById("message");
+const retryEl=document.getElementById("retry");
+const historyListEl=document.getElementById("historyList");
+const stateDetailEl=document.getElementById("stateDetail");
+const modeBannerEl=document.getElementById("modeBanner");
 
-    function kstParts(date = new Date()) {
-      const parts = new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      }).formatToParts(date);
+const params=new URLSearchParams(location.search);
+const fixtureParam=(params.get("fixture")||"").trim().toUpperCase();
+const isSyntheticMode=fixtureParam.length>0;
+const HISTORY_KEY=isSyntheticMode?SYNTH_HISTORY_KEY:LIVE_HISTORY_KEY;
+const LAST_NORMAL_KEY=isSyntheticMode?SYNTH_LAST_NORMAL_KEY:LIVE_LAST_NORMAL_KEY;
 
-      const get = (type) => parts.find((part) => part.type === type)?.value || "";
-      return {
-        date: `${get("year")}-${get("month")}-${get("day")}`,
-        time: `${get("hour")}:${get("minute")}:${get("second")}`
-      };
-    }
+const FIXTURES={
+ "T04-NORMAL-D1-A":{kind:"success",label:"정상 데이터 재생 중",sourceObservedAt:"2026-01-01T09:00:00+09:00",value:1300.00},
+ "T04-NORMAL-D1-B":{kind:"success",label:"같은 날짜 정상 데이터 재생 중",sourceObservedAt:"2026-01-01T11:00:00+09:00",value:1301.00},
+ "T04-NORMAL-D2":{kind:"success",label:"다음 날짜 정상 데이터 재생 중",sourceObservedAt:"2026-01-02T09:00:00+09:00",value:1305.00},
+ "T04-RECOVER-D2":{kind:"success",label:"정상 복구 재생 중",sourceObservedAt:"2026-01-02T10:00:00+09:00",value:1305.00},
+ "T04-TIMEOUT":{kind:"failure",label:"응답 시간 초과 재생 중",code:"timeout"},
+ "T04-AUTH-401":{kind:"failure",label:"인증 실패 재생 중",code:"auth"},
+ "T04-AUTH-403":{kind:"failure",label:"인증 실패 재생 중",code:"auth"},
+ "T04-RATE-429":{kind:"failure",label:"호출 제한 재생 중",code:"limit"},
+ "T04-OFFLINE":{kind:"failure",label:"오프라인 재생 중",code:"offline"},
+ "T04-SCHEMA-BREAK":{kind:"failure",label:"응답 형식 변경 재생 중",code:"schema"},
+ "RESET":{kind:"reset",label:"합성 검증 상태 초기화"}
+};
 
-    function getHistory() {
-      try {
-        const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
+const FAILURE_INFO={
+ timeout:{label:"응답 시간 초과",message:"외부 원천의 응답이 제한 시간 안에 도착하지 않았습니다.",action:"잠시 후 다시 조회해 주세요."},
+ auth:{label:"외부 원천 인증 실패",message:"외부 원천이 401/403으로 요청을 거절했습니다.",action:"출처 상태를 확인한 뒤 다시 조회해 주세요."},
+ limit:{label:"호출 제한",message:"외부 원천의 호출 제한에 도달했습니다.",action:"잠시 기다린 뒤 다시 조회해 주세요."},
+ offline:{label:"오프라인",message:"네트워크 연결이 없어 외부 원천에 접근할 수 없습니다.",action:"인터넷 연결을 확인한 뒤 다시 조회해 주세요."},
+ schema:{label:"응답 형식 변경",message:"외부 원천의 응답 형식이 예상한 구조와 달라 값을 읽지 못했습니다.",action:"출처 응답 형식을 확인한 뒤 다시 조회해 주세요."}
+};
 
-    function saveTodayOnce(rate) {
-      const history = getHistory();
-      const now = kstParts();
+function kstParts(date=new Date()){
+ const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(date);
+ const get=t=>parts.find(p=>p.type===t)?.value||"";
+ return {date:`${get("year")}-${get("month")}-${get("day")}`,time:`${get("hour")}:${get("minute")}:${get("second")}`,full:`${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}:${get("second")} KST`};
+}
+function formatSourceObservedAt(v){
+ const d=new Date(v);
+ return Number.isNaN(d.getTime())?"출처 시각 확인 불가":kstParts(d).full;
+}
+function getHistory(){try{const p=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");return Array.isArray(p)?p:[]}catch{return[]}}
+function getLastNormal(){try{return JSON.parse(localStorage.getItem(LAST_NORMAL_KEY)||"null")}catch{return null}}
+function setLastNormal(r){localStorage.setItem(LAST_NORMAL_KEY,JSON.stringify(r))}
+function setStatus(kind,text){statusEl.className="status "+kind;statusEl.textContent=text}
+function clearStateDetail(){messageEl.textContent="";stateDetailEl.className="state-detail";stateDetailEl.innerHTML=""}
 
-      if (history.some((item) => item.date === now.date)) {
-        return;
-      }
+function saveTodayOnce(record){
+ const history=getHistory();
+ const dateKey=isSyntheticMode?record.sourceObservedAt.slice(0,10):kstParts().date;
+ if(history.some(item=>item.date===dateKey))return;
+ history.push({date:dateKey,sourceUrl:record.sourceUrl,sourceObservedAt:record.sourceObservedAt,normalizedValue:Number(record.normalizedValue),unit:record.unit,checkedAt:record.checkedAt});
+ history.sort((a,b)=>a.date.localeCompare(b.date));
+ localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+ renderHistory();
+}
 
-      history.push({
-        date: now.date,
-        rate: rate,
-        unit: "KRW",
-        checkedAt: now.time
-      });
+function renderHistory(){
+ const history=getHistory();
+ if(history.length===0){historyListEl.innerHTML='<div class="history-empty">정상 환율을 조회하면 오늘 기록이 저장됩니다.</div>';return}
+ const sorted=[...history].sort((a,b)=>a.date.localeCompare(b.date));
+ historyListEl.innerHTML=sorted.map((item,index)=>{
+   const value=Number(item.normalizedValue??item.rate);
+   const rate=value.toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+   let changeText="—",changeClass="change-same";
+   if(index>0){
+     const prev=sorted[index-1];
+     const cv=Number(item.normalizedValue??item.rate),pv=Number(prev.normalizedValue??prev.rate);
+     if(item.unit===prev.unit){
+       const cr=Math.round(cv*100)/100,pr=Math.round(pv*100)/100;
+       const diff=Math.round((cr-pr)*100)/100;
+       const abs=Math.abs(diff).toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+       if(diff>0){changeText=`▲ ${abs} ${item.unit} 증가`;changeClass="change-up"}
+       else if(diff<0){changeText=`▼ ${abs} ${item.unit} 감소`;changeClass="change-down"}
+       else changeText=`→ 0.00 ${item.unit} 변동 없음`;
+     }else changeText="단위 불일치";
+   }
+   return `<div class="history-row"><span>${item.date}</span><span class="history-change ${changeClass}">${changeText}</span><strong>${rate} ${item.unit||"KRW"}</strong><time>${item.checkedAt||"기록 시각 없음"}</time></div>`;
+ }).join("");
+}
 
-      history.sort((a, b) => b.date.localeCompare(a.date));
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-      renderHistory();
-    }
+function showNormal(record){
+ rateEl.textContent=Number(record.normalizedValue).toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+ dataDateEl.textContent=formatSourceObservedAt(record.sourceObservedAt);
+ checkedAtEl.textContent=record.checkedAt;
+ setStatus("ok","현재 데이터");
+ clearStateDetail();
+}
+function showFailure(code){
+ const info=FAILURE_INFO[code]||{label:"조회 실패",message:"현재 데이터를 불러오지 못했습니다.",action:"잠시 후 다시 조회해 주세요."};
+ const last=getLastNormal();
+ messageEl.textContent=info.message;
+ if(last){
+   rateEl.textContent=Number(last.normalizedValue).toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+   dataDateEl.textContent=formatSourceObservedAt(last.sourceObservedAt);
+   checkedAtEl.textContent=last.checkedAt;
+   setStatus("error","오래된 데이터");
+   stateDetailEl.className="state-detail show";
+   stateDetailEl.innerHTML=`<strong>${info.label}</strong> · 마지막 정상값을 표시하고 있습니다.<br>다음 행동: ${info.action}<br>마지막 정상 조회: ${last.checkedAt}`;
+ }else{
+   rateEl.textContent="--";dataDateEl.textContent="--";checkedAtEl.textContent="--";
+   setStatus("error","데이터 없음");
+   stateDetailEl.className="state-detail show";
+   stateDetailEl.innerHTML=`<strong>${info.label}</strong> · 저장된 정상값이 없어 환율을 표시하지 않습니다.<br>다음 행동: ${info.action}`;
+ }
+}
 
-    function renderHistory() {
-      const history = getHistory();
+async function fetchLiveRecord(){
+ const response=await fetch(API_URL,{cache:"no-store"});
+ if(!response.ok){
+   if(response.status===401||response.status===403)throw{fixtureCode:"auth"};
+   if(response.status===429)throw{fixtureCode:"limit"};
+   throw new Error("HTTP "+response.status);
+ }
+ const data=await response.json();
+ if(data.base!=="USD"||!data.rates||typeof data.rates.KRW!=="number")throw{fixtureCode:"schema"};
+ const sourceObservedAt=typeof data.timestamp==="number"?new Date(data.timestamp*1000).toISOString():(data.date?`${data.date}T00:00:00Z`:null);
+ if(!sourceObservedAt)throw{fixtureCode:"schema"};
+ return {sourceUrl:API_URL,sourceObservedAt,normalizedValue:data.rates.KRW,unit:"KRW",checkedAt:kstParts().full};
+}
 
-      if (history.length === 0) {
-        historyListEl.innerHTML =
-          '<div class="history-empty">정상 환율을 조회하면 오늘 기록이 저장됩니다.</div>';
-        return;
-      }
+async function runSyntheticFixture(name){
+ modeBannerEl.className="mode-banner show";
+ const f=FIXTURES[name];
+ modeBannerEl.textContent=`합성 검증 모드 · ${f?.label || "검증 데이터 재생 중"} · 실제 날짜 기록과 분리되어 저장됩니다.`;
+ if(!f){showFailure("schema");return}
+ if(f.kind==="reset"){
+   localStorage.removeItem(SYNTH_HISTORY_KEY);localStorage.removeItem(SYNTH_LAST_NORMAL_KEY);
+   rateEl.textContent="--";dataDateEl.textContent="--";checkedAtEl.textContent="--";
+   setStatus("loading","합성 상태 초기화");clearStateDetail();renderHistory();return;
+ }
+ if(f.kind==="failure"){showFailure(f.code);return}
+ const record={sourceUrl:"synthetic://aleph-t04-fixture",sourceObservedAt:f.sourceObservedAt,normalizedValue:f.value,unit:"KRW",checkedAt:kstParts().full};
+ setLastNormal(record);showNormal(record);saveTodayOnce(record);
+}
 
-      const sorted = [...history].sort((a, b) => a.date.localeCompare(b.date));
+async function loadRate(){
+ retryEl.disabled=true;clearStateDetail();setStatus("loading","조회 중");
+ try{
+   if(isSyntheticMode){await runSyntheticFixture(fixtureParam);return}
+   modeBannerEl.className="mode-banner";modeBannerEl.textContent="";
+   const record=await fetchLiveRecord();
+   setLastNormal(record);showNormal(record);saveTodayOnce(record);
+ }catch(error){
+   if(!navigator.onLine)showFailure("offline");
+   else if(error&&error.fixtureCode)showFailure(error.fixtureCode);
+   else showFailure("timeout");
+   console.error(error);
+ }finally{retryEl.disabled=false}
+}
 
-      historyListEl.innerHTML = sorted.map((item, index) => {
-        const rate = Number(item.rate).toLocaleString("ko-KR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-
-        let changeText = "—";
-        let changeClass = "change-same";
-
-        if (index > 0) {
-          const previous = sorted[index - 1];
-
-          if (item.unit === previous.unit) {
-            const currentRounded = Math.round(Number(item.rate) * 100) / 100;
-            const previousRounded = Math.round(Number(previous.rate) * 100) / 100;
-            const difference = Math.round((currentRounded - previousRounded) * 100) / 100;
-            const absolute = Math.abs(difference).toLocaleString("ko-KR", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            });
-
-            if (difference > 0) {
-              changeText = `▲ ${absolute} ${item.unit} 증가`;
-              changeClass = "change-up";
-            } else if (difference < 0) {
-              changeText = `▼ ${absolute} ${item.unit} 감소`;
-              changeClass = "change-down";
-            } else {
-              changeText = `→ 0.00 ${item.unit} 변동 없음`;
-            }
-          } else {
-            changeText = "단위 불일치";
-          }
-        }
-
-        return `
-          <div class="history-row">
-            <span>${item.date}</span>
-            <span class="history-change ${changeClass}">${changeText}</span>
-            <strong>${rate} ${item.unit}</strong>
-            <time>${item.checkedAt} KST</time>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function koreanTime() {
-      return new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      }).format(new Date());
-    }
-
-    function setStatus(kind, text) {
-      statusEl.className = "status " + kind;
-      statusEl.textContent = text;
-    }
-
-    async function loadRate() {
-      retryEl.disabled = true;
-      messageEl.textContent = "";
-      setStatus("loading", "조회 중");
-
-      try {
-        const response = await fetch(API_URL, { cache: "no-store" });
-
-        if (!response.ok) {
-          throw new Error("HTTP " + response.status);
-        }
-
-        const data = await response.json();
-
-        if (
-          data.base !== "USD" ||
-          !data.rates ||
-          typeof data.rates.KRW !== "number"
-        ) {
-          throw new Error("응답 형식이 예상과 다릅니다.");
-        }
-
-        rateEl.textContent = data.rates.KRW.toLocaleString("ko-KR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-
-        if (typeof data.timestamp === "number") {
-          const sourceDate = new Date(data.timestamp * 1000);
-          dataDateEl.textContent = new Intl.DateTimeFormat("ko-KR", {
-            timeZone: "Asia/Seoul",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-          }).format(sourceDate);
-        } else {
-          dataDateEl.textContent = "최신 제공값";
-        }
-
-        checkedAtEl.textContent = koreanTime() + " KST";
-        setStatus("ok", "현재 데이터");
-        saveTodayOnce(data.rates.KRW);
-      } catch (error) {
-        rateEl.textContent = "--";
-        dataDateEl.textContent = "--";
-        checkedAtEl.textContent = koreanTime() + " KST";
-        setStatus("error", "조회 실패");
-        messageEl.textContent =
-          "현재 환율을 불러오지 못했습니다. 네트워크 연결을 확인한 뒤 다시 조회해 주세요.";
-        console.error(error);
-      } finally {
-        retryEl.disabled = false;
-      }
-    }
-
-    retryEl.addEventListener("click", loadRate);
-    renderHistory();
-    loadRate();
-  </script>
+retryEl.addEventListener("click",loadRate);
+renderHistory();
+loadRate();
+</script>
 </body>
 </html>
