@@ -186,6 +186,23 @@
       font-size: 12px;
       font-weight: 700;
     }
+
+    button.clear-history-btn {
+      margin-top: 0;
+      padding: 8px 12px;
+      border: 1px solid #cfd7e5;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #202c45;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    button.clear-history-btn:hover {
+      background: #f4f6fa;
+    }
     .history-list {
       display: grid;
       gap: 8px;
@@ -374,6 +391,7 @@
         <div class="history-head">
           <h3 id="historyTitle">날짜별 기록</h3>
           <p class="history-zone">기준 시간대 · Asia/Seoul (KST)</p>
+          <button id="clearHistory" class="clear-history-btn" type="button">기록 전체 삭제</button>
         </div>
         <div id="historyList" class="history-list">
           <div class="history-empty">정상 환율을 조회하면 오늘 기록이 저장됩니다.</div>
@@ -396,6 +414,7 @@ const checkedAtEl=document.getElementById("checkedAt");
 const statusEl=document.getElementById("status");
 const messageEl=document.getElementById("message");
 const retryEl=document.getElementById("retry");
+const clearHistoryEl=document.getElementById("clearHistory");
 const historyListEl=document.getElementById("historyList");
 const stateDetailEl=document.getElementById("stateDetail");
 const modeBannerEl=document.getElementById("modeBanner");
