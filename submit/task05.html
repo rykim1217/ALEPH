@@ -234,6 +234,21 @@
       font-size: 14px;
       text-align: center;
     }
+
+    .feature-guide {
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      background: #f7f9fc;
+      color: #5e697b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .feature-guide strong {
+      color: #202c45;
+    }
     @media (max-width: 620px) {
       .history-row {
         grid-template-columns: 1fr;
@@ -393,6 +408,7 @@
           <p class="history-zone">기준 시간대 · Asia/Seoul (KST)</p>
           <button id="clearHistory" class="clear-history-btn" type="button">기록 전체 삭제</button>
         </div>
+        <p class="feature-guide"><strong>개선 기능 · 기록 전체 삭제</strong> — 저장된 날짜별 기록을 모두 지우려면 '기록 전체 삭제' 버튼을 누르세요.</p>
         <div id="historyList" class="history-list">
           <div class="history-empty">정상 환율을 조회하면 오늘 기록이 저장됩니다.</div>
         </div>
