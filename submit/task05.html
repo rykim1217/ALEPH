@@ -496,6 +496,14 @@ function renderHistory(){
  }).join("");
 }
 
+
+function clearHistory(){
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+
+clearHistoryEl.addEventListener("click",clearHistory);
+
 function showNormal(record){
  rateEl.textContent=Number(record.normalizedValue).toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
  dataDateEl.textContent=formatSourceObservedAt(record.sourceObservedAt);
