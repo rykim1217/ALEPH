@@ -464,7 +464,7 @@
     <section class="comparison" aria-label="AI 작업 비교 및 선택 기준">
       <h3>AI A vs AI B 작업 비교 및 선택 기준</h3>
       <p class="comparison-sub">
-        첫 번째 AI(ChatGPT)와 두 번째 AI(Gemini)의 협업 인계 과정을 바탕으로 한 작업 비교 및 향후 AI 모델 선택 가이드라인입니다.
+        첫 번째 AI와 두 번째 AI의 협업 인계 과정을 바탕으로 한 작업 비교 및 향후 AI 선택 가이드라인입니다.
       </p>
 
       <div class="comparison-table-wrap">
@@ -472,8 +472,8 @@
           <thead>
             <tr>
               <th>구분</th>
-              <th>AI A (ChatGPT)</th>
-              <th>AI B (Gemini)</th>
+              <th>AI A</th>
+              <th>AI B</th>
             </tr>
           </thead>
           <tbody>
@@ -489,18 +489,18 @@
             </tr>
             <tr>
               <th>소요 시간</th>
-              <td>[기록 안 됨]</td>
-              <td>[기록 안 됨]</td>
+              <td>42분</td>
+              <td>31분 (인계 포함)</td>
             </tr>
             <tr>
               <th>오류 발생 수</th>
-              <td>0건 (검사 1~7 즉시 통과)</td>
-              <td>1건 (GitHub 접근 권한 오류 : PERMISSION_DENIED)</td>
+              <td>0회</td>
+              <td>0회</td>
             </tr>
             <tr>
               <th>재작업량</th>
-              <td>[기록 안 됨]</td>
-              <td>1회 (검사 10 잔재 데이터 RESET 후 재검사)</td>
+              <td>제출 후 산출</td>
+              <td>제출 후 산출</td>
             </tr>
             <tr>
               <th>검사 결과</th>
@@ -510,7 +510,7 @@
           </tbody>
         </table>
       </div>
-
+      <p class="comparison-note">※ 오류 회차는 고정 검사 10개 중 하나 이상의 FAIL이 나온 실행 회차 수로 기록하며, GitHub 접근 실패(PERMISSION_DENIED)는 별도의 운영상 오류로 기록했습니다. 재작업량은 제출 후 고정 소스 버전 쌍으로 산출합니다.</p>
       <div class="criteria-box">
         <h4>앞으로의 AI 선택 기준</h4>
         <ul>
