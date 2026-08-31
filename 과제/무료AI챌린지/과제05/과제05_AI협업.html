@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 달러 환율</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      color: #172033;
+      background: #13233f;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #13233f;
+    }
+    main {
+      width: min(900px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #667085;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: #ffffff;
+      font-size: clamp(34px, 7vw, 54px);
+      letter-spacing: -0.04em;
+    }
+    .purpose {
+      margin: 16px 0 28px;
+      color: #667085;
+      line-height: 1.7;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      color: #d7dfec;
+    }
+    .card {
+      padding: 30px;
+      border: 1px solid #e2e6ee;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(30, 45, 80, 0.08);
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .pair {
+      margin: 0 0 6px;
+      color: #667085;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .status {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .loading { background: #fff1bd; color: #6b5400; }
+    .ok { background: #dcf7e7; color: #17613b; }
+    .error { background: #ffe3e3; color: #8c2929; }
+    .value {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 10px;
+      margin: 42px 0 34px;
+    }
+    .value span:first-child {
+      color: #596579;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    #rate {
+      font-size: clamp(42px, 9vw, 72px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .unit {
+      color: #4f5d72;
+      font-size: 18px;
+      font-weight: 800;
+    }
+    dl {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid #e6e9ef;
+      border-radius: 16px;
+      background: #e6e9ef;
+    }
+    dl > div {
+      padding: 18px;
+      background: #fff;
+    }
+    dt {
+      margin-bottom: 7px;
+      color: #7b8493;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    dd {
+      margin: 0;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    a {
+      color: #3858d6;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+    button {
+      margin-top: 22px;
+      padding: 12px 17px;
+      border: 0;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #202c45;
+      border: 1px solid #cfd7e5;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .55; cursor: default; }
+    #message {
+      min-height: 0;
+      margin: 8px 0 0;
+      color: #8c2929;
+      font-size: 14px;
+    }
+    .note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: #eef2f8;
+      color: #5e697b;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    @media (max-width: 620px) {
+      main { width: min(100% - 22px, 900px); padding-top: 36px; }
+      .card { padding: 22px; }
+      dl { grid-template-columns: 1fr; }
+    }
+  
+    .history {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e6e9ef;
+    }
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .history h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .history-zone {
+      margin: 0;
+      color: #7b8493;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    button.clear-history-btn {
+      margin-top: 0;
+      padding: 8px 12px;
+      border: 1px solid #cfd7e5;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #202c45;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    button.clear-history-btn:hover {
+      background: #f4f6fa;
+    }
+    .history-list {
+      display: grid;
+      gap: 8px;
+    }
+    .history-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      background: #fafbfc;
+      font-size: 14px;
+    }
+    .history-row strong {
+      text-align: right;
+    }
+    .history-row time {
+      color: #6d7788;
+      text-align: right;
+      font-size: 13px;
+    }
+    .history-empty {
+      padding: 16px;
+      border: 1px dashed #d9dee8;
+      border-radius: 12px;
+      color: #7b8493;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .feature-guide {
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      background: #f7f9fc;
+      color: #5e697b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .feature-guide strong {
+      color: #202c45;
+    }
+
+    .assignment-status {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      color: #d7dfec;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .assignment-status strong {
+      color: #ffffff;
+    }
+
+    .status-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-right: 6px;
+    }
+    .tag-a { background: #3858d6; color: #fff; }
+    .tag-b { background: #17613b; color: #fff; }
+
+    @media (max-width: 620px) {
+      .history-row {
+        grid-template-columns: 1fr;
+      }
+      .history-row strong,
+      .history-row time {
+        text-align: left;
+      }
+    }
+
+    .comparison {
+      margin-top: 24px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      color: #d7dfec;
+    }
+    .comparison h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      color: #ffffff;
+    }
+    .comparison-sub {
+      margin: 0 0 16px;
+      color: #a0aec0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .comparison-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .comparison-table th {
+      background: rgba(255,255,255,0.1);
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .comparison-table td {
+      background: rgba(0,0,0,0.15);
+    }
+    .criteria-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .criteria-box h4 {
+      margin: 0 0 10px;
+      color: #ffffff;
+      font-size: 15px;
+    }
+    .criteria-box ul {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .history-change {
+      text-align: center;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .change-up { color: #d84a4a; }
+    .change-down { color: #356fd1; }
+    .change-same { color: #7b8493; }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button.retry-mini {
+      margin-top: 0;
+      padding: 8px 12px;
+      border: 1px solid #cfd7e5;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #202c45;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    button.retry-mini:hover {
+      background: #f4f6fa;
+    }
+
+    button.retry-mini:disabled {
+      opacity: .55;
+      cursor: default;
+    }
+
+    .mode-banner{display:none;margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fff4cf;color:#765d13;font-size:13px;font-weight:800;text-align:center}
+    .mode-banner.show{display:block}
+    .state-detail{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;background:#fff7df;color:#705a18;font-size:13px;line-height:1.6}
+    .state-detail.show{display:block}
+    .state-detail strong{color:#59460f}
+
+  </style>
+</head>
+<body>
+  <main>
+    <h1>오늘의 달러 환율</h1>
+    <p class="purpose">
+      이 정보판은 미국 달러 대비 원화 환율의 현재값과 일별 변화를 확인하기 위한 것이다.
+    </p>
+    <div id="modeBanner" class="mode-banner" aria-live="polite"></div>
+
+    <section class="card">
+      <div class="top">
+        <div>
+          <p class="pair">USD → KRW</p>
+          <h2>현재 환율</h2>
+        </div>
+        <div class="top-actions">
+          <span id="status" class="status loading">조회 중</span>
+          <button id="retry" class="retry-mini" type="button" aria-label="환율 다시 조회">↻ 다시 조회</button>
+        </div>
+      </div>
+
+      <div class="value">
+        <span>1 USD =</span>
+        <strong id="rate">--</strong>
+        <span class="unit">KRW</span>
+      </div>
+
+      <dl>
+        <div>
+          <dt>출처 관측 시각</dt>
+          <dd id="dataDate">--</dd>
+        </div>
+        <div>
+          <dt>마지막 조회 시각</dt>
+          <dd id="checkedAt">--</dd>
+        </div>
+        <div>
+          <dt>기준 시간대</dt>
+          <dd>Asia/Seoul (KST)</dd>
+        </div>
+        <div>
+          <dt>출처</dt>
+          <dd>
+            <a href="https://www.exchangerate.fun/converter/" target="_blank" rel="noopener noreferrer">
+              exchangerate.fun/converter/ ↗
+            </a>
+          </dd>
+        </div>
+      </dl>
+
+      <p id="message" aria-live="polite"></p>
+      <div id="stateDetail" class="state-detail" aria-live="polite"></div>
+
+      <section class="history" aria-labelledby="historyTitle">
+        <div class="history-head">
+          <h3 id="historyTitle">날짜별 기록</h3>
+          <p class="history-zone">기준 시간대 · Asia/Seoul (KST)</p>
+          <button id="clearHistory" class="clear-history-btn" type="button">기록 전체 삭제</button>
+        </div>
+        <p class="feature-guide"><strong>개선 기능 · 기록 전체 삭제</strong> — 저장된 날짜별 기록을 모두 지우려면 '기록 전체 삭제' 버튼을 누르세요.</p>
+        <div id="historyList" class="history-list">
+          <div class="history-empty">정상 환율을 조회하면 오늘 기록이 저장됩니다.</div>
+        </div>
+      </section>
+
+    </section>
+
+    <div class="assignment-status" aria-label="T05 AI 작업 이력">
+      <div><span class="status-tag tag-a">AI A 최종 상태</span> 요청 5/5 · 계획 중단 · 기록 전체 삭제 기능 구현 완료 · 검사 1~7 통과</div>
+      <div style="margin-top: 6px;"><span class="status-tag tag-b">AI B 최종 상태</span> 인계 받아 검사 8~10 회귀 검증 완료 · <strong>검사 10/10 전체 통과</strong> · 기존 환율 및 삭제 기능 정상 동작 확인</div>
+    </div>
+
+    <section class="comparison" aria-label="AI 작업 비교 및 선택 기준">
+      <h3>AI A vs AI B 작업 비교 및 선택 기준</h3>
+      <p class="comparison-sub">
+        첫 번째 AI와 두 번째 AI의 협업 인계 과정을 바탕으로 한 작업 비교 및 향후 AI 선택 가이드라인입니다.
+      </p>
+
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>AI A</th>
+              <th>AI B</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>주요 역할</th>
+              <td>기능 구현 (기록 전체 삭제, UI 및 안내 추가)</td>
+              <td>인계 문서 및 코드 분석, 회귀 검증 (검사 8~10)</td>
+            </tr>
+            <tr>
+              <th>요청 횟수</th>
+              <td>5회 / 5회 (계획된 시점 중단)</td>
+              <td>5회 / 5회 (최종 완료)</td>
+            </tr>
+            <tr>
+              <th>소요 시간</th>
+              <td>42분</td>
+              <td>31분 (인계 포함)</td>
+            </tr>
+            <tr>
+              <th>오류 발생 수</th>
+              <td>0회</td>
+              <td>0회</td>
+            </tr>
+            <tr>
+              <th>재작업량</th>
+              <td>제출 후 산출</td>
+              <td>제출 후 산출</td>
+            </tr>
+            <tr>
+              <th>검사 결과</th>
+              <td>7 / 10 통과</td>
+              <td>10 / 10 통과 (최종 완료)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="comparison-note">※ 오류 회차는 고정 검사 10개 중 하나 이상의 FAIL이 나온 실행 회차 수로 기록하며, GitHub 접근 실패(PERMISSION_DENIED)는 별도의 운영상 오류로 기록했습니다. 재작업량은 제출 후 고정 소스 버전 쌍으로 산출합니다.</p>
+      <div class="criteria-box">
+        <h4>앞으로의 AI 선택 기준</h4>
+        <ul>
+          <li><strong>초기 단일 기능 구현 (AI A 방식):</strong> 목표가 명확하고 인터페이스 추가 작업이 필요한 경우, 계획된 요청 횟수 내에서 신속하게 코드를 작성하고 검사 항목을 나누어 인계 문서를 작성하는 방식이 유용합니다.</li>
+          <li><strong>회귀 검증 및 인계 작업 (AI B 방식):</strong> 이전 대화 이력 없이 인계 문서와 소스 코드만으로 현재 상태를 파악하고, 기존 기능의 손상(Side-effect) 없이 미완료된 검사 항목(8~10)을 정밀하게 수행할 때 효과적입니다.</li>
+          <li><strong>연속 작업 시 원칙:</strong> 기존에 잘 작동하는 코드 영역은 건드리지 않는 정밀 수정을 원칙으로 하며, 검증 도구(Fixture 모드 등)를 활용하여 단계별로 명확히 검증을 수행하는 모델을 선택하는 것이 안전합니다.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+const API_URL="https://api.exchangerate.fun/latest?base=USD";
+const LIVE_HISTORY_KEY="usd-krw-daily-history-v1";
+const LIVE_LAST_NORMAL_KEY="usd-krw-last-normal-v2";
+const SYNTH_HISTORY_KEY="usd-krw-synthetic-history-v1";
+const SYNTH_LAST_NORMAL_KEY="usd-krw-synthetic-last-normal-v1";
+
+const rateEl=document.getElementById("rate");
+const dataDateEl=document.getElementById("dataDate");
+const checkedAtEl=document.getElementById("checkedAt");
+const statusEl=document.getElementById("status");
+const messageEl=document.getElementById("message");
+const retryEl=document.getElementById("retry");
+const clearHistoryEl=document.getElementById("clearHistory");
+const historyListEl=document.getElementById("historyList");
+const stateDetailEl=document.getElementById("stateDetail");
+const modeBannerEl=document.getElementById("modeBanner");
+
+const params=new URLSearchParams(location.search);
+const fixtureParam=(params.get("fixture")||"").trim().toUpperCase();
+const isSyntheticMode=fixtureParam.length>0;
+const HISTORY_KEY=isSyntheticMode?SYNTH_HISTORY_KEY:LIVE_HISTORY_KEY;
+const LAST_NORMAL_KEY=isSyntheticMode?SYNTH_LAST_NORMAL_KEY:LIVE_LAST_NORMAL_KEY;
+
+const FIXTURES={
+ "T04-NORMAL-D1-A":{kind:"success",label:"정상 데이터 재생 중",sourceObservedAt:"2026-01-01T09:00:00+09:00",value:1300.00},
+ "T04-NORMAL-D1-B":{kind:"success",label:"같은 날짜 정상 데이터 재생 중",sourceObservedAt:"2026-01-01T11:00:00+09:00",value:1301.00},
+ "T04-NORMAL-D2":{kind:"success",label:"다음 날짜 정상 데이터 재생 중",sourceObservedAt:"2026-01-02T09:00:00+09:00",value:1305.00},
+ "T04-RECOVER-D2":{kind:"success",label:"정상 복구 재생 중",sourceObservedAt:"2026-01-02T10:00:00+09:00",value:1305.00},
+ "T04-TIMEOUT":{kind:"failure",label:"응답 시간 초과 재생 중",code:"timeout"},
+ "T04-AUTH-401":{kind:"failure",label:"인증 실패 재생 중",code:"auth"},
+ "T04-AUTH-403":{kind:"failure",label:"인증 실패 재생 중",code:"auth"},
+ "T04-RATE-429":{kind:"failure",label:"호출 제한 재생 중",code:"limit"},
+ "T04-OFFLINE":{kind:"failure",label:"오프라인 재생 중",code:"offline"},
+ "T04-SCHEMA-BREAK":{kind:"failure",label:"응답 형식 변경 재생 중",code:"schema"},
+ "RESET":{kind:"reset",label:"합성 검증 상태 초기화"}
+};
+
+const FAILURE_INFO={
+ timeout:{label:"응답 시간 초과",message:"외부 원천의 응답이 제한 시간 안에 도착하지 않았습니다.",action:"잠시 후 다시 조회해 주세요."},
+ auth:{label:"외부 원천 인증 실패",message:"외부 원천이 401/403으로 요청을 거절했습니다.",action:"출처 상태를 확인한 뒤 다시 조회해 주세요."},
+ limit:{label:"호출 제한",message:"외부 원천의 호출 제한에 도달했습니다.",action:"잠시 기다린 뒤 다시 조회해 주세요."},
+ offline:{label:"오프라인",message:"네트워크 연결이 없어 외부 원천에 접근할 수 없습니다.",action:"인터넷 연결을 확인한 뒤 다시 조회해 주세요."},
+ schema:{label:"응답 형식 변경",message:"외부 원천의 응답 형식이 예상한 구조와 달라 값을 읽지 못했습니다.",action:"출처 응답 형식을 확인한 뒤 다시 조회해 주세요."}
+};
+
+function kstParts(date=new Date()){
+ const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(date);
+ const get=t=>parts.find(p=>p.type===t)?.value||"";
+ return {date:`${get("year")}-${get("month")}-${get("day")}`,time:`${get("hour")}:${get("minute")}:${get("second")}`,full:`${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}:${get("second")} KST`};
+}
+function formatSourceObservedAt(v){
+ const d=new Date(v);
+ return Number.isNaN(d.getTime())?"출처 시각 확인 불가":kstParts(d).full;
+}
+function getHistory(){try{const p=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");return Array.isArray(p)?p:[]}catch{return[]}}
+function getLastNormal(){try{return JSON.parse(localStorage.getItem(LAST_NORMAL_KEY)||"null")}catch{return null}}
+function setLastNormal(r){localStorage.setItem(LAST_NORMAL_KEY,JSON.stringify(r))}
+function setStatus(kind,text){statusEl.className="status "+kind;statusEl.textContent=text}
+function clearStateDetail(){messageEl.textContent="";stateDetailEl.className="state-detail";stateDetailEl.innerHTML=""}
+
+function saveTodayOnce(record){
+ const history=getHistory();
+ const dateKey=isSyntheticMode?record.sourceObservedAt.slice(0,10):kstParts().date;
+ if(history.some(item=>item.date===dateKey))return;
+ history.push({date:dateKey,sourceUrl:record.sourceUrl,sourceObservedAt:record.sourceObservedAt,normalizedValue:Number(record.normalizedValue),unit:record.unit,checkedAt:record.checkedAt});
+ history.sort((a,b)=>a.date.localeCompare(b.date));
+ localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+ renderHistory();
+}
+
+function renderHistory(){
+ const history=getHistory();
+ if(history.length===0){historyListEl.innerHTML='<div class="history-empty">정상 환율을 조회하면 오늘 기록이 저장됩니다.</div>';return}
+ const sorted=[...history].sort((a,b)=>a.date.localeCompare(b.date));
+ historyListEl.innerHTML=sorted.map((item,index)=>{
+   const value=Number(item.normalizedValue??item.rate);
+   const rate=value.toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+   let changeText="—",changeClass="change-same";
+   if(index>0){
+     const prev=sorted[index-1];
+     const cv=Number(item.normalizedValue??item.rate),pv=Number(prev.normalizedValue??prev.rate);
+     if(item.unit===prev.unit){
+       const cr=Math.round(cv*100)/100,pr=Math.round(pv*100)/100;
+       const diff=Math.round((cr-pr)*100)/100;
+       const abs=Math.abs(diff).toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+       if(diff>0){changeText=`▲ ${abs} ${item.unit} 증가`;changeClass="change-up"}
+       else if(diff<0){changeText=`▼ ${abs} ${item.unit} 감소`;changeClass="change-down"}
+       else changeText=`→ 0.00 ${item.unit} 변동 없음`;
+     }else changeText="단위 불일치";
+   }
+   return `<div class="history-row"><span>${item.date}</span><span class="history-change ${changeClass}">${changeText}</span><strong>${rate} ${item.unit||"KRW"}</strong><time>${item.checkedAt||"기록 시각 없음"}</time></div>`;
+ }).join("");
+}
+
+function clearHistory(){
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+
+clearHistoryEl.addEventListener("click",clearHistory);
+
+function showNormal(record){
+ rateEl.textContent=Number(record.normalizedValue).toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+ dataDateEl.textContent=formatSourceObservedAt(record.sourceObservedAt);
+ checkedAtEl.textContent=record.checkedAt;
+ setStatus("ok","현재 데이터");
+ clearStateDetail();
+}
+function showFailure(code){
+ const info=FAILURE_INFO[code]||{label:"조회 실패",message:"현재 데이터를 불러오지 못했습니다.",action:"잠시 후 다시 조회해 주세요."};
+ const last=getLastNormal();
+ messageEl.textContent=info.message;
+ if(last){
+   rateEl.textContent=Number(last.normalizedValue).toLocaleString("ko-KR",{minimumFractionDigits:2,maximumFractionDigits:2});
+   dataDateEl.textContent=formatSourceObservedAt(last.sourceObservedAt);
+   checkedAtEl.textContent=last.checkedAt;
+   setStatus("error","오래된 데이터");
+   stateDetailEl.className="state-detail show";
+   stateDetailEl.innerHTML=`<strong>${info.label}</strong> · 마지막 정상값을 표시하고 있습니다.<br>다음 행동: ${info.action}<br>마지막 정상 조회: ${last.checkedAt}`;
+ }else{
+   rateEl.textContent="--";dataDateEl.textContent="--";checkedAtEl.textContent="--";
+   setStatus("error","데이터 없음");
+   stateDetailEl.className="state-detail show";
+   stateDetailEl.innerHTML=`<strong>${info.label}</strong> · 저장된 정상값이 없어 환율을 표시하지 않습니다.<br>다음 행동: ${info.action}`;
+ }
+}
+
+async function fetchLiveRecord(){
+ const response=await fetch(API_URL,{cache:"no-store"});
+ if(!response.ok){
+   if(response.status===401||response.status===403)throw{fixtureCode:"auth"};
+   if(response.status===429)throw{fixtureCode:"limit"};
+   throw new Error("HTTP "+response.status);
+ }
+ const data=await response.json();
+ if(data.base!=="USD"||!data.rates||typeof data.rates.KRW!=="number")throw{fixtureCode:"schema"};
+ const sourceObservedAt=typeof data.timestamp==="number"?new Date(data.timestamp*1000).toISOString():(data.date?`${data.date}T00:00:00Z`:null);
+ if(!sourceObservedAt)throw{fixtureCode:"schema"};
+ return {sourceUrl:API_URL,sourceObservedAt,normalizedValue:data.rates.KRW,unit:"KRW",checkedAt:kstParts().full};
+}
+
+async function runSyntheticFixture(name){
+ modeBannerEl.className="mode-banner show";
+ const f=FIXTURES[name];
+ modeBannerEl.textContent=`합성 검증 모드 · ${f?.label || "검증 데이터 재생 중"} · 실제 날짜 기록과 분리되어 저장됩니다.`;
+ if(!f){showFailure("schema");return}
+ if(f.kind==="reset"){
+   localStorage.removeItem(SYNTH_HISTORY_KEY);localStorage.removeItem(SYNTH_LAST_NORMAL_KEY);
+   rateEl.textContent="--";dataDateEl.textContent="--";checkedAtEl.textContent="--";
+   setStatus("loading","합성 상태 초기화");clearStateDetail();renderHistory();return;
+ }
+ if(f.kind==="failure"){showFailure(f.code);return}
+ const record={sourceUrl:"synthetic://aleph-t04-fixture",sourceObservedAt:f.sourceObservedAt,normalizedValue:f.value,unit:"KRW",checkedAt:kstParts().full};
+ setLastNormal(record);showNormal(record);saveTodayOnce(record);
+}
+
+async function loadRate(){
+ retryEl.disabled=true;clearStateDetail();setStatus("loading","조회 중");
+ try{
+   if(isSyntheticMode){await runSyntheticFixture(fixtureParam);return}
+   modeBannerEl.className="mode-banner";modeBannerEl.textContent="";
+   const record=await fetchLiveRecord();
+   setLastNormal(record);showNormal(record);saveTodayOnce(record);
+ }catch(error){
+   if(!navigator.onLine)showFailure("offline");
+   else if(error&&error.fixtureCode)showFailure(error.fixtureCode);
+   else showFailure("timeout");
+   console.error(error);
+ }finally{retryEl.disabled=false}
+}
+
+retryEl.addEventListener("click",loadRate);
+renderHistory();
+loadRate();
+</script>
+</body>
+</html>
