@@ -7,9 +7,7 @@ const scopeStore = new AsyncLocalStorage();
 const DEFAULT_PERSONA = 'synthetic-a';
 const DEFAULT_PLAN = 'plan-study-001';
 const SCOPE_COOKIE = 't06_review_session';
-const scopeInfo = scope => scope === 'B'
-  ? { scope:'B', personaId:'synthetic-b', planId:'plan-study-b-001' }
-  : { scope:'A', personaId:'synthetic-a', planId:'plan-study-001' };
+const scopeUsername = scope => scope === 'B' ? 'test' : 'rayeon';
 const currentPersona = () => scopeStore.getStore()?.personaId || DEFAULT_PERSONA;
 const currentPlan = () => scopeStore.getStore()?.planId || DEFAULT_PLAN;
 
@@ -433,22 +431,27 @@ async function saveDo(client, body) {
 }
 
 
+async function resolveAccountScope(client,label){
+  const scope=label==='B'?'B':'A';
+  const username=scopeUsername(scope);
+  const q=await client.query('SELECT user_id,username,primary_plan_id FROM users WHERE LOWER(username)=LOWER($1)',[username]);
+  if(!q.rowCount) throw new Error(`${username} 계정을 찾을 수 없어요. 과제7 DB 연결을 확인해주세요.`);
+  const row=q.rows[0];
+  if(!row.primary_plan_id) throw new Error(`${username} 계정의 primary_plan_id가 없어요.`);
+  const plan=await client.query('SELECT plan_id FROM plans WHERE plan_id=$1 AND persona_id=$2',[row.primary_plan_id,row.user_id]);
+  if(!plan.rowCount) throw new Error(`${username} 계정의 현재 Plan을 찾을 수 없어요.`);
+  return {scope,personaId:row.user_id,planId:row.primary_plan_id,username:row.username};
+}
 async function selectedScope(client, req){
   const token=cookiesOf(req)[SCOPE_COOKIE];
   if(!token) return null;
-  const q=await client.query('SELECT persona_id,scope_label FROM review_sessions WHERE session_token=$1',[token]);
+  const q=await client.query('SELECT scope_label FROM review_sessions WHERE session_token=$1',[token]);
   if(!q.rowCount) return null;
   const label=q.rows[0].scope_label==='B'?'B':'A';
-  return {...scopeInfo(label), token};
-}
-async function ensurePersonaSeed(client, info){
-  const q=await client.query('SELECT COUNT(*)::int AS n FROM plans WHERE persona_id=$1',[info.personaId]);
-  if(Number(q.rows[0].n)>0)return;
-  await scopeStore.run({personaId:info.personaId,planId:info.planId,scope:info.scope}, async()=>seedInitial(client));
+  return {...await resolveAccountScope(client,label), token};
 }
 async function activateScope(client,res,label){
-  const info=scopeInfo(label);
-  await ensurePersonaSeed(client,info);
+  const info=await resolveAccountScope(client,label);
   const token=crypto.randomBytes(24).toString('hex');
   await client.query('INSERT INTO review_sessions(session_token,persona_id,scope_label) VALUES($1,$2,$3)',[token,info.personaId,info.scope]);
   setScopeCookie(res,token);
@@ -466,12 +469,9 @@ async function deleteCurrentPersonaDataset(client){
   await client.query('DELETE FROM plans WHERE persona_id=$1',[persona]);
 }
 async function resetSelectedScope(client){
-  await client.query('BEGIN');
-  try{
-    await deleteCurrentPersonaDataset(client);
-    await seedInitial(client);
-    await client.query('COMMIT');
-  }catch(e){await client.query('ROLLBACK');throw e;}
+  const e=new Error('A/B는 과제7 계정 자료를 직접 사용하므로 합성 seed 초기화는 안전을 위해 막아두었어요.');
+  e.code='ACCOUNT_DATA_PROTECTED';
+  throw e;
 }
 
 module.exports = async (req, res) => {
@@ -619,12 +619,14 @@ module.exports = async (req, res) => {
 
     if (action === 'update-plan' && req.method === 'PATCH') {
       await client.query('BEGIN');
-      const beforeQ = await client.query('SELECT * FROM plans WHERE plan_id=$1', [currentPlan()]);
+      const beforeQ = await client.query('SELECT * FROM plans WHERE plan_id=$1 AND persona_id=$2', [currentPlan(), currentPersona()]);
       if(!beforeQ.rowCount)throw new Error('현재 Plan을 찾을 수 없어요.');
       const before = beforeQ.rows[0];
-      const beforeValues = { period:{startDate:dateOnly(before.start_date),endDate:dateOnly(before.end_date)}, priority:before.priority, successCriterion:before.success_criterion, estimatedMinutes:before.estimated_minutes };
-      const afterValues = { period:{startDate:body.startDate,endDate:body.endDate}, priority:body.priority, successCriterion:body.successCriterion, estimatedMinutes:Number(body.estimatedMinutes) };
-      await client.query(`UPDATE plans SET start_date=$1,end_date=$2,priority=$3,success_criterion=$4,estimated_minutes=$5,updated_at=NOW() WHERE plan_id=$6`, [body.startDate,body.endDate,body.priority,body.successCriterion,Number(body.estimatedMinutes),currentPlan()]);
+      const title=String(body.title||'').trim();
+      if(!title)throw new Error('계획 이름을 입력해주세요.');
+      const beforeValues = { title:before.title, period:{startDate:dateOnly(before.start_date),endDate:dateOnly(before.end_date)}, priority:before.priority, successCriterion:before.success_criterion, estimatedMinutes:before.estimated_minutes };
+      const afterValues = { title, period:{startDate:body.startDate,endDate:body.endDate}, priority:body.priority, successCriterion:body.successCriterion, estimatedMinutes:Number(body.estimatedMinutes) };
+      await client.query(`UPDATE plans SET title=$1,start_date=$2,end_date=$3,priority=$4,success_criterion=$5,estimated_minutes=$6,updated_at=NOW() WHERE plan_id=$7 AND persona_id=$8`, [title,body.startDate,body.endDate,body.priority,body.successCriterion,Number(body.estimatedMinutes),currentPlan(),currentPersona()]);
       const rev = await client.query('SELECT COALESCE(MAX(revision),0)+1 AS n FROM plan_history WHERE plan_id=$1 AND persona_id=$2', [currentPlan(), currentPersona()]);
       await client.query(`INSERT INTO plan_history(plan_id,persona_id,revision,source_schema_version,event,change_reason,before_values,after_values) VALUES($1,$2,$3,2,'plan_updated',$4,$5::jsonb,$6::jsonb)`, [currentPlan(), currentPersona(), Number(rev.rows[0].n), body.changeReason || '계획 수정', JSON.stringify(beforeValues), JSON.stringify(afterValues)]);
       await client.query('COMMIT');
@@ -652,8 +654,8 @@ module.exports = async (req, res) => {
       await client.query('COMMIT');
       return json(res,200,{snapshot:await snapshot(client)});
     }
-    if (action === 'update-todo' && req.method === 'PATCH') {if (!body.todoId) return bad(res,'todoId가 필요해요.');const fields=[], vals=[]; let i=1;const map = { text:'text', dueDate:'due_date', priority:'priority', estimatedMinutes:'estimated_minutes', status:'status' };for (const [k,col] of Object.entries(map)) if (body[k] !== undefined) { fields.push(`${col}=$${i++}`); vals.push(body[k]); }if (body.tags !== undefined) { fields.push(`tags=$${i++}::jsonb`); vals.push(JSON.stringify(body.tags)); }if (!fields.length) return bad(res,'수정할 값이 없어요.');vals.push(body.todoId, currentPlan());await client.query(`UPDATE todos SET ${fields.join(',')},updated_at=NOW() WHERE todo_id=$${i++} AND plan_id=$${i} AND deleted_at IS NULL`, vals);return json(res, 200, await snapshot(client));}
-    if (action === 'delete-todo' && req.method === 'DELETE') {await client.query('UPDATE todos SET deleted_at=NOW(),updated_at=NOW() WHERE todo_id=$1 AND plan_id=$2', [body.todoId, currentPlan()]);return json(res, 200, await snapshot(client));}
+    if (action === 'update-todo' && req.method === 'PATCH') {if (!body.todoId) return bad(res,'todoId가 필요해요.');const fields=[], vals=[]; let i=1;const map = { text:'text', dueDate:'due_date', priority:'priority', estimatedMinutes:'estimated_minutes', status:'status' };for (const [k,col] of Object.entries(map)) if (body[k] !== undefined) { fields.push(`${col}=$${i++}`); vals.push(body[k]); }if (body.tags !== undefined) { fields.push(`tags=$${i++}::jsonb`); vals.push(JSON.stringify(body.tags)); }if (!fields.length) return bad(res,'수정할 값이 없어요.');vals.push(body.todoId, currentPlan(), currentPersona());await client.query(`UPDATE todos SET ${fields.join(',')},updated_at=NOW() WHERE todo_id=$${i++} AND plan_id=$${i++} AND persona_id=$${i} AND deleted_at IS NULL`, vals);return json(res, 200, await snapshot(client));}
+    if (action === 'delete-todo' && req.method === 'DELETE') {await client.query('UPDATE todos SET deleted_at=NOW(),updated_at=NOW() WHERE todo_id=$1 AND plan_id=$2 AND persona_id=$3', [body.todoId, currentPlan(), currentPersona()]);return json(res, 200, await snapshot(client));}
     if (action === 'create-do' && req.method === 'POST') {const result = await saveDo(client, body);const snap = await snapshot(client);return json(res, 200, { ...snap, doResult: result });}
     if (action === 'carry-see-adjustment' && req.method === 'POST') {
       const text=String(body.adjustmentText||'').trim(),startDate=String(body.startDate||'').trim(),endDate=String(body.endDate||'').trim();
