@@ -1,0 +1,9 @@
+{
+  "name": "t07-plan-do-see-diary-auth",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "pg": "^8.13.1"
+  }
+}

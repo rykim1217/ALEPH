@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/pds.js": {
+      "maxDuration": 10
+    }
+  }
+}

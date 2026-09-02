@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>플랜두씨 다이어리 2 — 로그인</title>
+<style>
+:root{--paper:#fbfaf7;--ink:#171b18;--muted:#646c66;--line:#d9d9d2;--green:#315e43;--green-soft:#e5eee7;--gold:#9a7537;--gold-soft:#f4ebd9;--blue:#456887;--blue-soft:#e8eff5;--red:#9f3f47;--white:#fffefa}
+*{box-sizing:border-box} html,body{height:100%;overflow:hidden} body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,"Noto Sans KR","Malgun Gothic",sans-serif}.page{width:min(1380px,calc(100% - 56px));height:100vh;margin:auto;padding:18px 0 14px;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:11px;flex:0 0 auto}.eyebrow{font-size:12px;letter-spacing:.16em;color:#6b716c;margin-bottom:7px}h1{font-size:36px;font-weight:400;letter-spacing:-.045em;margin:0}.header-note{font-size:12px;line-height:1.7;text-align:right;color:var(--muted)}.header-tools{display:flex;flex-direction:column;align-items:flex-end;gap:7px}.scope-row{display:flex;align-items:center;gap:10px}.public-note{font-size:12px;color:#4f5751;white-space:nowrap}.scope-bar{display:flex;align-items:center;gap:5px;padding:4px 5px 4px 9px;border:1px solid #d6d9d3;background:#f4f4ef;min-height:32px}.scope-caption{font-size:11px;color:var(--muted);margin-right:3px;white-space:nowrap}.scope-btn{height:24px;min-width:30px;padding:0 9px;border:1px solid #c5cac4;background:#fffefa;color:#48514b;font:inherit;font-size:11px;cursor:pointer}.scope-btn.active{background:var(--green);border-color:var(--green);color:white;font-weight:600}.scope-reset{height:24px;padding:0 7px;border:0;border-left:1px solid #d6d9d3;background:transparent;color:#6b716c;font:inherit;font-size:11px;cursor:pointer;margin-left:2px}.scope-reset:hover{text-decoration:underline}
+.tab-row{display:flex;align-items:center;gap:14px;margin:12px 0 12px;min-height:38px;flex:0 0 auto}.tabs{display:flex;gap:8px;margin:0}.tab{border:1px solid var(--line);background:transparent;padding:9px 17px;font-size:13px;color:var(--muted)}.tab.active{background:var(--ink);color:white;border-color:var(--ink)}.tab.locked{opacity:.48}
+.notice{visibility:hidden;opacity:0;flex:1;min-width:0;padding:9px 12px;border-left:3px solid var(--red);background:#f7e9e8;color:#7d3338;font-size:12px;transition:opacity .15s}.notice.show{visibility:visible;opacity:1}.notice.ok{border-color:var(--green);background:var(--green-soft);color:#234c33}
+.plan-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,.75fr);gap:14px;align-items:stretch}.panel{background:var(--white);border:1px solid #e1e1da;padding:16px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:11px}.panel-actions{display:flex;align-items:center;gap:10px}.next-view-btn{display:none;border:1px solid #bdc5be;height:36px;min-height:36px;padding:0 13px;background:transparent;color:#344238;font-size:13px;line-height:34px;white-space:nowrap;align-items:center;justify-content:center}.next-view-btn:hover{background:#f4f4ef;text-decoration:none}.next-plan-modal .plan-title{white-space:nowrap}.next-plan-modal .meta{min-width:0}.next-plan-modal .meta strong{display:block;white-space:nowrap;font-size:14px}.next-plan-modal .criterion{white-space:nowrap}.next-plan-modal .criterion p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.next-plan-modal .next-plan-box{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.panel h2{font-size:20px;font-weight:400;margin:0}.kicker{font-size:11px;letter-spacing:.12em;color:var(--muted);margin-bottom:4px}.btn{border:1px solid #bdc5be;background:transparent;color:#344238;min-height:36px;padding:0 12px;cursor:pointer}.btn.primary{background:var(--green);border-color:var(--green);color:#fff}.btn.danger{color:var(--red);border-color:#d8b8bb}.btn.small{min-height:30px;font-size:12px;padding:0 9px;white-space:nowrap}.btn:disabled{opacity:.45;cursor:not-allowed}
+.plan-headline{display:flex;align-items:center;gap:10px;min-width:0}.plan-title{font-size:24px;margin:2px 0 12px;font-weight:500}.plan-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.meta{padding:8px 10px;border-top:1px solid var(--line)}.meta span{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}.meta strong{font-size:14px;font-weight:500}.criterion{margin-top:10px;padding:9px 12px;background:var(--green-soft);display:flex;align-items:center;gap:12px;white-space:nowrap;overflow:hidden}.criterion span{display:inline-block;font-size:11px;color:#526058;margin:0;flex:0 0 auto}.criterion p{margin:0;line-height:1.4;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history{display:flex;flex-direction:column;gap:6px;height:158px;min-height:158px;max-height:158px;overflow-y:auto;padding-right:5px;scrollbar-gutter:stable}.history-item{padding:8px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}.history-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px}.revision{font-weight:bold}.history-time{color:var(--muted)}.change{font-size:13px;line-height:1.6}.empty{color:var(--muted);font-size:13px;padding:16px 0}
+.todo-section{margin-top:12px;min-height:0;display:flex;flex-direction:column;flex:1}.todo-toolbar{display:grid;grid-template-columns:minmax(300px,1fr) 150px 166px 174px 64px 104px;gap:8px;margin:9px 0 8px;align-items:center;width:100%}.todo-toolbar input,.todo-toolbar select,.form input,.form select,.form textarea{width:100%;border:1px solid #bfc6c0;background:white;padding:0 11px;height:40px;font:inherit;color:var(--ink);outline:none}.todo-toolbar select,.form select{-webkit-appearance:none;appearance:none;padding-right:38px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23171b18' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:12px 8px}.todo-toolbar input:focus,.todo-toolbar select:focus,.form input:focus,.form select:focus,.form textarea:focus{border-color:var(--green)}
+.table-wrap{flex:1;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}.todo-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}.todo-table th{font-size:11px;color:var(--muted);font-weight:400;padding:8px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;position:sticky;top:0;background:var(--white);z-index:1}.todo-table td{padding:9px 8px;border-bottom:1px solid #e5e5df;vertical-align:middle}.todo-table th:last-child{padding-right:0;text-align:center}.todo-table td:last-child{padding-right:0}.todo-title{font-weight:500;font-size:15px;line-height:1.35}.tags{color:var(--blue);font-size:12px}.status-pill,.priority-pill{display:inline-block;padding:4px 8px;border-radius:20px;font-size:11px;background:#edf0ed}.status-pill.done{background:var(--green-soft);color:#245033}.priority-pill.high{background:#f5e5e2;color:#87423b}.priority-pill.medium{background:var(--gold-soft);color:#73561f}.row-actions{display:flex;gap:5px;flex-wrap:nowrap;justify-content:flex-end;width:100%;white-space:nowrap}.summary{font-size:12px;color:var(--muted);margin-left:10px}
+.modal-back{position:fixed;inset:0;background:rgba(20,24,21,.28);display:none;align-items:center;justify-content:center;padding:22px;z-index:10}.modal-back.show{display:flex}.modal{width:min(650px,100%);background:var(--paper);border:1px solid #cfd2cc;padding:21px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.modal h3{margin:0;font-size:20px;font-weight:400}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form .full{grid-column:1/-1}.form label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px}.form textarea{height:76px;padding-top:9px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:16px}.footer{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:center;gap:24px;font-size:11px;color:var(--muted);flex:0 0 auto}
+
+.do-section{margin-top:0;min-height:0;display:flex;flex-direction:column;flex:0 0 auto}.do-grid{display:block}.do-form{border:1px solid #deded6;padding:14px;background:#f5f3ed}.do-form input,.do-form select{background:#fffefa}.do-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}.do-saved-section{margin-top:12px;height:auto;min-height:0;display:flex;flex-direction:column;flex:1}.do-list-head{display:flex;justify-content:space-between;align-items:flex-end;margin:0 0 8px}.do-table-wrap{flex:1;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}.do-tab-note{font-size:12px;color:var(--muted)}.do-saved-section .todo-table{font-size:14px}.do-saved-section .todo-table th{font-size:12px}.do-saved-section .todo-table td{line-height:1.45}
+.see-content{gap:10px}.see-summary{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.see-stat{border:1px solid #e1e1da;background:var(--white);padding:12px 13px;min-width:0}.see-stat.clickable{cursor:pointer}.see-stat.clickable:hover,.see-stat.active{border-color:#6f8c76;background:#f1f5f0}.see-evidence-note{font-size:12px;color:var(--muted);margin:-2px 0 8px}.see-stat span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.see-stat strong{font-size:21px;font-weight:500;white-space:nowrap}.see-stat.diff strong{color:var(--green)}.see-review{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.see-review-note{font-size:12px;color:var(--muted)}.see-source{flex:1;min-height:0;display:flex;flex-direction:column}.see-source .table-wrap{min-height:110px}.see-adjust{display:grid;grid-template-columns:minmax(0,1fr) 155px 155px auto;gap:8px;align-items:end}.see-adjust label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}.see-adjust input{width:100%;height:40px;border:1px solid #bfc6c0;background:white;padding:0 11px;font:inherit}.see-adjust .date-field{min-width:0}.modal.next-plan-modal{width:min(980px,calc(100% - 44px));padding:24px}.next-plan-modal .plan-meta{grid-template-columns:minmax(280px,1.65fr) minmax(110px,.65fr) minmax(120px,.7fr) minmax(260px,1.35fr);gap:14px}.next-plan-modal .meta{padding-left:12px;padding-right:12px}.next-plan-modal .meta:last-child{padding-right:12px}.next-plan-modal .meta:last-child strong{font-size:13px;overflow:hidden;text-overflow:ellipsis}.next-plan-modal .criterion,.next-plan-modal .next-plan-box{width:100%;margin-left:0;margin-right:0}.next-plan-box{margin-top:9px;padding:9px 11px;background:var(--green-soft);font-size:12px;line-height:1.5}.next-plan-box strong{font-weight:600}.next-plan-box.compact{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}.see-chip{display:inline-block;padding:3px 7px;border-radius:18px;background:#edf0ed;font-size:11px}.see-chip.done{background:var(--green-soft);color:#245033}.see-chip.late{background:#f5e5e2;color:#87423b}.see-chip.blocked{background:var(--gold-soft);color:#73561f}.blocked-reason-line+ .blocked-reason-line{margin-top:6px;padding-top:6px;border-top:1px solid #ecece6}
+#planContent,#doContent,#seeContent,#dataContent{flex:1;min-height:0;overflow:hidden;flex-direction:column}#planContent{display:flex}.plan-grid{flex:0 0 auto}
+.data-content{gap:10px}.data-status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.data-stat{border:1px solid #e1e1da;background:var(--white);padding:13px 14px}.data-stat span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.data-stat strong{font-size:22px;font-weight:500}.data-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.file-label{display:inline-flex;align-items:center;justify-content:center;border:1px solid #bdc5be;min-height:36px;padding:0 12px;cursor:pointer;color:#344238;background:transparent;font-size:13px}.file-label:hover{background:#f4f4ef}.hidden-file{display:none}.data-note{font-size:12px;color:var(--muted);line-height:1.6}.data-danger{background:#fff7f7;border-color:#d9bfc2}.fixture-section{flex:1;min-height:0;display:flex;flex-direction:column}.fixture-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:9px;flex-wrap:wrap}.fixture-files{font-size:12px;color:var(--muted)}.fixture-table-wrap{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}.fixture-table-wrap .fixture-table th{position:sticky;top:0;z-index:2}.fixture-table{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:auto}.fixture-table th{font-size:11px;color:var(--muted);font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;background:var(--white);white-space:normal}.fixture-table td{padding:6px 8px;border-bottom:1px solid #e5e5df;vertical-align:top;line-height:1.35;white-space:normal;overflow-wrap:normal;word-break:normal}.fixture-table th:first-child,.fixture-table td:first-child,.fixture-table th:last-child,.fixture-table td:last-child{white-space:nowrap}.fixture-table th:nth-child(2),.fixture-table td:nth-child(2){white-space:nowrap}.fixture-table th:nth-child(3),.fixture-table td:nth-child(3){white-space:normal}.fixture-table td strong{overflow-wrap:normal;word-break:normal}.fixture-table .data-note{font-size:11px;line-height:1.35;overflow-wrap:anywhere;word-break:break-word}.test-pass{color:#245033;font-weight:600}.test-fail{color:var(--red);font-weight:600}.test-ref{color:var(--blue);font-weight:600}.data-result{margin-top:8px;padding:9px 11px;background:#f5f3ed;font-size:12px;color:#4f5751;min-height:36px}.data-panel-head{align-items:center}.data-panel-head .panel-actions{flex-wrap:wrap;justify-content:flex-end}
+#dataContent{justify-content:flex-start;align-items:stretch}.isolation-view{justify-content:flex-start;align-self:stretch;flex:0 0 auto}
+.data-subtabs{display:none;gap:7px;align-items:center;margin-left:7px;padding-left:9px;border-left:1px solid var(--line);flex:0 0 auto}.data-subtabs.show{display:flex}.data-subtab{height:31px;padding:0 12px;border:1px solid #cfd2cc;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer}.data-subtab.active{background:#eef2ed;border-color:#aeb9b0;color:#244b33;font-weight:600}.isolation-view{display:none;flex:1;min-height:0;flex-direction:column;gap:10px}.isolation-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:0}.isolation-card{border:0;background:transparent;padding:14px;min-width:0}.isolation-card h3{font-size:16px;font-weight:500;margin:0 0 8px}.isolation-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}.isolation-table th{font-size:11px;color:var(--muted);font-weight:400;text-align:left;padding:7px;border-bottom:1px solid var(--line)}.isolation-table td{padding:8px 7px;border-bottom:1px solid #e5e5df;vertical-align:middle}.isolation-summary{display:flex;gap:18px;font-size:12px;margin-top:8px;color:var(--muted)}.isolation-summary strong{color:var(--ink)}.isolation-pass{color:#245033;font-weight:700}.isolation-wait{color:var(--muted)}.spoof-panel{border:1px solid #e1e1da;background:var(--white);padding:16px}.spoof-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:0 0 8px}.spoof-head h3{font-size:20px;font-weight:400;margin:0}.spoof-head+.data-note{margin:0}.spoof-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:auto}.spoof-table th{color:var(--muted);font-weight:400;text-align:left;padding:6px 7px;border-bottom:1px solid var(--line)}.spoof-table td{padding:6px 7px;border-bottom:1px solid #e5e5df;white-space:nowrap}.spoof-summary{display:flex;gap:18px;font-size:12px;margin:-2px 0 0;color:var(--muted)}.spoof-summary strong{color:var(--ink)}
+.test-results{display:none}.test-results.open{display:block}.test-close{display:none;margin-left:8px}.test-close.show{display:inline-flex}.page.scroll-tests{height:auto;min-height:100vh;overflow:visible}html.scroll-tests,body.scroll-tests{height:auto;min-height:100%;overflow-y:auto}
+
+.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}.account-box{border:1px solid #e1e1da;background:#fffefa;padding:14px}.account-box h3{font-size:16px;font-weight:500;margin:0 0 8px}.account-form{display:grid;gap:8px}.account-form label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}.account-form input{width:100%;height:38px;border:1px solid #bfc6c0;background:#fff;padding:0 10px;font:inherit}.account-actions{display:flex;justify-content:flex-end;margin-top:4px}.account-danger-note{color:#8b2e36}.account-result{margin-top:8px;font-size:12px;color:#4f5751;line-height:1.6}@media(max-width:900px){.account-grid{grid-template-columns:1fr}}
+@media(max-width:1000px){html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}.page{height:auto;min-height:100vh;overflow:visible}.data-status{grid-template-columns:repeat(2,1fr)}.see-summary{grid-template-columns:repeat(4,1fr)}.plan-grid{grid-template-columns:1fr}.do-grid{grid-template-columns:1fr}.todo-section{flex:0 0 auto}.todo-toolbar{grid-template-columns:1fr 1fr}.todo-toolbar .grow{grid-column:1/-1}.plan-meta{grid-template-columns:1fr 1fr}.header-note{display:none}}
+@media(max-width:680px){.data-status{grid-template-columns:1fr 1fr}.see-summary{grid-template-columns:repeat(2,1fr)}.see-adjust{grid-template-columns:1fr}.page{width:min(100% - 24px,1380px)}h1{font-size:31px}.todo-toolbar{grid-template-columns:1fr}.todo-toolbar .grow{grid-column:auto}.plan-meta{grid-template-columns:1fr}.todo-table:not(.todo-list-table){min-width:850px}.table-wrap:not(.todo-list-wrap){overflow-x:auto}.form{grid-template-columns:1fr}.form .full{grid-column:auto}
+.todo-list-wrap{overflow:visible!important;max-height:none}.todo-list-table{display:block!important;min-width:0!important;width:100%;table-layout:auto;border-collapse:separate;border-spacing:0}.todo-list-table colgroup,.todo-list-table thead{display:none}.todo-list-table tbody{display:grid!important;grid-template-columns:1fr;gap:10px;width:100%}.todo-list-table tr{display:grid!important;grid-template-columns:1fr 1fr;gap:7px 14px;width:100%;border:1px solid #deded6;background:#fffefa;padding:12px 13px}.todo-list-table td{display:block!important;width:auto!important;position:relative;border:0;padding:17px 0 2px;min-height:38px;white-space:normal;word-break:keep-all;overflow-wrap:break-word}.todo-list-table td::before{content:attr(data-label);position:absolute;left:0;top:0;width:auto;color:var(--muted);font-size:10px;font-weight:400}.todo-list-table td[data-label="할 일"]{grid-column:1/-1;padding-top:18px;padding-bottom:5px}.todo-list-table td[data-label="할 일"] .todo-title{font-size:16px;line-height:1.4;word-break:keep-all}.todo-list-table td[data-label="관리"]{grid-column:1/-1;padding-top:18px}.todo-list-table .row-actions{justify-content:flex-start;flex-wrap:wrap}.todo-list-table .empty{grid-column:1/-1;padding:16px 0;text-align:center}.todo-list-table .empty::before{display:none}}
+
+#dataIsolationView > .panel > #isolationResults{margin-top:4px}
+#dataIsolationView > .panel > #isolationResults .isolation-card:first-child{padding-left:0}
+#dataIsolationView > .panel > #isolationResults .isolation-card:last-child{padding-right:0}
+
+#dataIsolationView > .panel > #isolationResults .isolation-card{
+  padding-top:6px;
+  padding-bottom:0;
+}
+#dataIsolationView > .panel > #isolationResults .isolation-card:first-child{
+  padding-left:0;
+  padding-right:12px;
+}
+#dataIsolationView > .panel > #isolationResults .isolation-card:last-child{
+  padding-left:12px;
+  padding-right:0;
+}
+
+#dataIsolationView > .isolation-summary{
+  margin-top:2px !important;
+  margin-bottom:8px !important;
+}
+
+#isolationSummary[hidden]{
+  display:none !important;
+}
+
+
+/* 범위 위조 검사: 설명과 표 사이 간격 - 결과 컨테이너 자체를 이동 */
+#spoofResults{
+  margin-top:10px !important;
+}
+
+/* 공개 격리 검사 요약줄: 검사 후에도 flex 유지 → 교차 요청 줄과 동일한 가로 간격 */
+.spoof-summary.open{
+  display:flex !important;
+  gap:18px !important;
+}
+
+.auth-gate{position:fixed;inset:0;z-index:50;background:var(--paper);display:flex;align-items:center;justify-content:center;padding:28px}
+.auth-gate.hidden{display:none}.auth-card{width:min(540px,100%);background:var(--white);border:1px solid #d9d9d2;padding:28px}
+.auth-brand{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:20px}.auth-brand .eyebrow{margin-bottom:8px}.auth-brand h1{font-size:30px}
+.auth-copy{font-size:13px;line-height:1.7;color:var(--muted);margin:0 0 18px}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.auth-secondary{height:43px;border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.auth-form{display:grid;gap:12px}.auth-form[hidden]{display:none}.auth-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}.auth-field input{width:100%;height:42px;border:1px solid #bfc6c0;background:#fff;padding:0 11px;font:inherit}
+.auth-field input:focus{outline:none;border-color:var(--green)}.auth-submit{height:43px;border:1px solid var(--green);background:var(--green);color:#fff;font:inherit;cursor:pointer}
+.auth-message{min-height:20px;margin-top:12px;font-size:12px;color:var(--red);line-height:1.5;white-space:nowrap}.auth-message.ok{color:var(--green)}
+.auth-note{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);font-size:11px;line-height:1.6;color:var(--muted);white-space:nowrap}
+.user-tools{display:flex;align-items:center;gap:10px}.user-email{font-size:18px;font-weight:700;color:#4f5751}.logout-btn{height:30px;border:1px solid #bdc5be;background:transparent;padding:0 10px;font:inherit;font-size:12px;cursor:pointer}
+.scope-bar{display:none!important}.page.auth-hidden{visibility:hidden}
+
+
+#dataIsolationTab{display:none!important}
+.fixture-section{display:none!important}
+@media (max-width:760px){.auth-message,.auth-note{white-space:normal}}
+
+@media(max-width:1000px){
+  .todo-list-wrap{overflow:visible!important;max-height:none!important;}
+  .todo-list-table{display:block!important;min-width:0!important;width:100%!important;table-layout:auto!important;border-collapse:separate!important;border-spacing:0!important;}
+  .todo-list-table colgroup,.todo-list-table thead{display:none!important;}
+  .todo-list-table tbody{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;width:100%!important;}
+  .todo-list-table tr{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px 16px!important;width:100%!important;border:1px solid #deded6!important;background:#fffefa!important;padding:13px 14px!important;}
+  .todo-list-table td{display:block!important;width:auto!important;position:relative!important;border:0!important;padding:17px 0 3px!important;min-height:38px!important;white-space:normal!important;word-break:keep-all!important;overflow-wrap:break-word!important;}
+  .todo-list-table td::before{content:attr(data-label);position:absolute;left:0;top:0;color:var(--muted);font-size:10px;font-weight:400;}
+  .todo-list-table td[data-label="할 일"]{grid-column:1/-1!important;padding-top:18px!important;padding-bottom:6px!important;}
+  .todo-list-table td[data-label="할 일"] .todo-title{font-size:16px!important;line-height:1.45!important;word-break:keep-all!important;overflow-wrap:normal!important;}
+  .todo-list-table td[data-label="관리"]{grid-column:1/-1!important;padding-top:18px!important;}
+  .todo-list-table .row-actions{justify-content:flex-start!important;flex-wrap:wrap!important;}
+  .todo-list-table .empty{grid-column:1/-1!important;padding:16px 0!important;text-align:center!important;}
+  .todo-list-table .empty::before{display:none!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-gate" id="authGate">
+  <section class="auth-card" aria-labelledby="authTitle">
+    <div class="auth-brand"><div class="eyebrow">PLAN · DO · SEE DIARY 2</div><h1 id="authTitle">내 다이어리 로그인</h1></div>
+    <p class="auth-copy">내 계획과 기록은 로그인 뒤에만 보입니다.<br>처음 사용하는 경우 회원가입한 뒤 바로 다이어리를 열 수 있습니다.</p>
+    <form class="auth-form" id="loginForm">
+      <div class="auth-field"><label for="loginUsername">아이디</label><input id="loginUsername" type="text" autocomplete="username" maxlength="40" required></div>
+      <div class="auth-field"><label for="loginPassword">비밀번호</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+      <div class="auth-actions"><button class="auth-submit" type="submit">로그인</button><button class="auth-secondary" type="button" id="openSignupBtn">회원가입</button></div>
+    </form>
+    <form class="auth-form" id="signupForm" hidden>
+      <div class="auth-field"><label for="signupUsername">아이디</label><input id="signupUsername" type="text" autocomplete="username" maxlength="40" required></div>
+      <div class="auth-field"><label for="signupPassword">비밀번호</label><input id="signupPassword" type="password" autocomplete="new-password" required></div>
+      <div class="auth-field"><label for="signupPassword2">비밀번호 확인</label><input id="signupPassword2" type="password" autocomplete="new-password" required></div>
+      <div class="auth-actions"><button class="auth-submit" type="submit">회원가입</button><button class="auth-secondary" type="button" id="backToLoginBtn">취소</button></div>
+    </form>
+    <div class="auth-message" id="authMessage" role="status" aria-live="polite"></div>
+    <div class="auth-note">비밀번호 원문은 데이터베이스에 저장하지 않습니다. 로그인 세션은 HttpOnly 쿠키로 유지됩니다.</div>
+  </section>
+</div>
+
+<main class="page auth-hidden" id="appPage">
+<header><div><div class="eyebrow">PLAN · DO · SEE DIARY 2</div><h1>계획한 나와 실제의 나</h1></div><div class="header-tools"><div class="header-note">Asia/Seoul · 로그인한 내 자료만 표시</div><div class="user-tools"><span class="user-email" id="currentUsername"></span><button type="button" class="logout-btn" id="logoutBtn">로그아웃</button><div class="scope-bar" aria-hidden="true"><button type="button" id="scopeABtn">A</button><button type="button" id="scopeBBtn">B</button><button type="button" id="scopeResetBtn">초기화</button></div></div></div></header>
+<div class="tab-row"><nav class="tabs"><button class="tab active" id="planTab">PLAN</button><button class="tab" id="doTab">DO</button><button class="tab" id="seeTab">SEE</button><button class="tab" id="dataTab">DATA</button></nav><div id="notice" class="notice"></div></div>
+<div id="planContent"><section class="plan-grid">
+  <article class="panel">
+    <div class="panel-head"><div><div class="kicker">CURRENT PLAN</div><div class="plan-headline"><h2>현재 계획</h2></div></div><div class="panel-actions"><button class="btn next-view-btn" id="nextPlanViewBtn">다음 Plan 보기&nbsp;›</button><button class="btn primary" id="editPlanBtn">Plan 수정</button></div></div>
+    <div id="planView"></div>
+  </article>
+  <aside class="panel">
+    <div class="panel-head"><div><div class="kicker">HISTORY</div><h2>Plan 수정 이력</h2></div><span id="historyCount" class="summary"></span></div>
+    <div class="history" id="historyList"></div>
+  </aside>
+</section>
+<section class="panel todo-section">
+ <div class="panel-head"><div><div class="kicker">TODO</div><h2>할 일 <span class="summary" id="todoSummary"></span></h2></div></div>
+ <div class="todo-toolbar">
+   <input class="grow" id="searchInput" placeholder="할 일·태그 검색">
+   <select id="statusFilter"><option value="all">상태 전체</option><option value="todo">진행중</option><option value="done">완료</option></select>
+   <select id="priorityFilter"><option value="all">우선순위 전체</option><option value="high">높음</option><option value="medium">보통</option><option value="low">낮음</option></select>
+   <select id="sortSelect"><option value="dueAsc">마감일 빠른순</option><option value="priority">우선순위 높은순</option><option value="estimated">예상시간 긴순</option><option value="created">최근 생성순</option></select>
+   <button class="btn" id="resetFilters">초기화</button>
+   <button class="btn primary" id="addTodoBtn">＋ ToDo 추가</button>
+ </div>
+ <div class="data-note" style="margin:0 0 7px">정렬 기준: 선택한 기준 우선, 값이 같으면 마감일 빠른 순 → 생성일 빠른 순</div><div class="table-wrap todo-list-wrap"><table class="todo-table todo-list-table"><colgroup><col style="width:110px"><col><col style="width:120px"><col style="width:120px"><col style="width:180px"><col style="width:76px"><col style="width:170px"></colgroup><thead><tr><th>상태</th><th>할 일</th><th>마감일</th><th>우선순위</th><th>태그</th><th>예상</th><th>관리</th></tr></thead><tbody id="todoBody"></tbody></table></div>
+</section></div>
+<div id="doContent" style="display:none">
+<section class="panel do-section">
+  <div class="panel-head"><div><div class="kicker">DO RECORD</div><h2>실행 기록</h2></div><div style="display:flex;align-items:center;gap:10px"><span id="doSummary" class="summary" style="margin-left:0"></span><button class="btn primary" type="submit" form="doForm">Do 저장</button></div></div>
+  <div class="do-grid">
+    <form id="doForm" class="form do-form">
+      <div class="full"><label>연결 ToDo</label><select id="doTodo" required></select></div>
+      <div><label>시작 시각</label><input type="datetime-local" id="doStart" required></div>
+      <div><label>종료 시각</label><input type="datetime-local" id="doEnd" required></div>
+      <div><label>실제 시간(분)</label><input type="number" id="doMinutes" min="0" required></div>
+      <div><label>막힌 이유</label><input id="doBlocked" maxlength="160" placeholder="없으면 비워두기"></div>
+    </form>
+  </div>
+</section>
+<section class="panel do-saved-section">
+  <div class="do-list-head"><div><div class="kicker">SAVED DO</div><h2>저장된 실행 기록</h2></div><span id="seeCount" class="summary"></span></div>
+  <div class="table-wrap do-table-wrap"><table class="todo-table"><colgroup><col style="width:25%"><col style="width:15%"><col style="width:15%"><col style="width:10%"><col style="width:35%"></colgroup><thead><tr><th>연결 ToDo</th><th>시작</th><th>종료</th><th>실제</th><th>막힌 이유</th></tr></thead><tbody id="doBody"></tbody></table></div>
+</section>
+</div>
+<div id="seeContent" class="see-content" style="display:none">
+  <section class="see-summary" id="seeSummaryCards"></section>
+  <section class="panel see-source">
+    <div class="see-review"><div><div class="kicker">SEE REVIEW</div><h2 style="margin:0">계획과 실제 비교</h2></div><div class="see-review-note" id="seeReviewDate"></div></div><div class="see-evidence-note" id="seeEvidenceNote">집계 숫자를 누르면 해당 숫자의 근거 기록만 표시됩니다.</div>
+    <div class="table-wrap"><table class="todo-table see-source-table"><colgroup><col style="width:28%"><col style="width:11%"><col style="width:8%"><col style="width:7%"><col style="width:7%"><col style="width:8%"><col style="width:31%"></colgroup><thead><tr><th>원본 ToDo</th><th>마감일</th><th>상태</th><th>예상</th><th>실제</th><th>판정</th><th>막힌 이유 원본</th></tr></thead><tbody id="seeSourceBody"></tbody></table></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head" style="margin-bottom:9px"><div><div class="kicker">NEXT PLAN</div><h2>다음 계획 조정</h2></div></div>
+    <form id="seeAdjustmentForm" class="see-adjust"><div><label>See에서 정한 조정 한 줄</label><input id="seeAdjustment" maxlength="180" placeholder="예: 기출문제 복습 예상 시간을 다음 계획에서 늘린다." required></div><div class="date-field"><label>다음 Plan 시작일</label><input type="date" id="nextStartDate" required></div><div class="date-field"><label>다음 Plan 종료일</label><input type="date" id="nextEndDate" required></div><button class="btn primary" type="submit">다음 Plan으로 넘기기</button></form>
+    <div id="nextPlanBox"></div>
+  </section>
+</div>
+<div id="dataContent" class="data-content" style="display:none">
+  <div id="dataBackupView" style="display:flex;flex:1;min-height:0;flex-direction:column;gap:10px">
+  <section class="data-status" id="dataStatusCards">
+    <div class="data-stat"><span>Plan</span><strong>—</strong></div><div class="data-stat"><span>ToDo</span><strong>—</strong></div><div class="data-stat"><span>Do</span><strong>—</strong></div><div class="data-stat"><span>See</span><strong>—</strong></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head data-panel-head"><div><div class="kicker">BACKUP · RESTORE</div><h2>전체 자료 백업</h2></div><div class="panel-actions data-actions"><button class="btn primary" id="exportDataBtn">전체 백업 내보내기</button><label class="file-label" for="importDataInput">백업 가져오기</label><input class="hidden-file" id="importDataInput" type="file" accept=".json,application/json"><button class="btn danger data-danger" id="deleteAllDataBtn">전체 삭제</button></div></div>
+    <div class="data-note">로그인한 내 Plan · Plan 이력 · ToDo · Do · See · 다음 Plan 연결을 한 파일로 보존합니다. 전체 삭제 뒤에도 초기 샘플이 자동으로 다시 생기지 않도록 서버에서 삭제 상태를 유지합니다.</div>
+    <div class="data-result" id="dataResult">먼저 전체 백업을 내보낸 뒤 삭제·복원 검사를 진행하세요.</div>
+  </section>
+  <section class="panel">
+    <div class="panel-head data-panel-head"><div><div class="kicker">ACCOUNT</div><h2>계정 관리</h2></div><div class="summary">로그인한 계정만 변경</div></div>
+    <div class="data-note">현재 계정: <strong id="accountUsername">-</strong> · 비밀번호 변경과 계정 삭제는 현재 비밀번호를 한 번 더 확인한 뒤 처리합니다. 계정을 삭제하면 이 계정의 계획, 할 일, 실행 기록, 돌아보기 기록이 함께 삭제됩니다.</div>
+    <div class="account-grid">
+      <div class="account-box"><h3>비밀번호 변경</h3><form id="changePasswordForm" class="account-form"><div><label>현재 비밀번호</label><input id="currentPassword" type="password" autocomplete="current-password" required></div><div><label>새 비밀번호</label><input id="newPassword" type="password" autocomplete="new-password" required></div><div><label>새 비밀번호 확인</label><input id="newPassword2" type="password" autocomplete="new-password" required></div><div class="account-actions"><button class="btn primary" type="submit">비밀번호 변경</button></div></form></div>
+      <div class="account-box"><h3>계정 삭제</h3><div class="data-note account-danger-note">계정을 삭제하면 이 계정의 계획, 할 일, 실행 기록, 돌아보기 기록이 함께 삭제됩니다. 계정 삭제는 되돌릴 수 없습니다.</div><form id="deleteAccountForm" class="account-form"><div><label>현재 비밀번호</label><input id="deletePassword" type="password" autocomplete="current-password" required></div><div><label>확인 문구</label><input id="deleteConfirm" placeholder="DELETE" required></div><div class="account-actions"><button class="btn danger data-danger" type="submit">내 계정 삭제</button></div></form></div>
+    </div>
+    <div class="account-result" id="accountResult"></div>
+  </section>
+  <section class="panel fixture-section">
+    <div class="panel-head" style="margin-bottom:9px"><div><div class="kicker">PUBLIC FIXTURE CHECK</div><h2>공개 검사 자료 대조</h2></div><div class="summary">Asia/Seoul · Monday</div></div>
+    <div class="fixture-toolbar"><label class="file-label" for="fixtureFilesInput">검사 JSON 선택</label><input class="hidden-file" id="fixtureFilesInput" type="file" accept=".json,application/json" multiple><button class="btn primary" id="runFixtureBtn">선택 파일 검사</button><span class="fixture-files" id="fixtureFileCount">선택 0개</span></div>
+    <div class="data-note" style="margin-bottom:7px">압축을 푼 fixtures 폴더에서 legacy-v1, expected-v2, 잘못된 파일 4종, week-boundary, month-boundary를 한 번에 선택할 수 있습니다. 잘못된 파일은 DB 변경 0건인지 함께 확인합니다.</div>
+    <div class="fixture-table-wrap"><table class="fixture-table"><colgroup><col><col><col style="width:34%"><col></colgroup><thead><tr><th>파일 / asset</th><th>실제 결과</th><th>대조 내용</th><th>판정</th></tr></thead><tbody id="fixtureBody"><tr><td colspan="4" class="empty">아직 검사한 파일이 없습니다.</td></tr></tbody></table></div>
+  </section>
+</div>
+  <div id="dataIsolationView" class="isolation-view">
+    <section class="panel">
+      <div class="panel-head" style="margin-bottom:8px"><div><div class="kicker">SERVER SCOPE ISOLATION</div><h2>A/B 범위 격리 검사</h2></div><div><button class="btn primary" id="runIsolationBtn">교차 접근 7건 검사</button></div></div>
+      <div class="data-note">화면에서 숨기는 검사가 아니라 서버가 행의 persona 범위를 확인합니다. 읽기·수정·삭제·다음 Plan 복사를 직접 시도하고 반대 범위 DB가 그대로인지 함께 확인합니다.</div>
+    <div id="isolationResults" class="test-results">
+      <div class="isolation-grid">
+        <section class="isolation-card"><h3>A → B 직접 요청</h3><table class="isolation-table"><colgroup><col><col style="width:76px"><col style="width:82px"></colgroup><thead><tr><th>요청</th><th>HTTP</th><th>판정</th></tr></thead><tbody id="isoAB"><tr><td colspan="3" class="empty">검사 전</td></tr></tbody></table></section>
+        <section class="isolation-card"><h3>B → A 직접 요청</h3><table class="isolation-table"><colgroup><col><col style="width:76px"><col style="width:82px"></colgroup><thead><tr><th>요청</th><th>HTTP</th><th>판정</th></tr></thead><tbody id="isoBA"><tr><td colspan="3" class="empty">검사 전</td></tr></tbody></table></section>
+      </div>
+    </div>
+    </section>
+    <div class="isolation-summary" id="isolationSummary" hidden><span>교차 요청 <strong id="isoTotal">—</strong></span><span>반대 범위 자료 변화 <strong id="isoChanged">—</strong></span><span>전체 <strong id="isoVerdict">검사 전</strong></span></div>
+<section class="spoof-panel"><div class="spoof-head"><div><div class="kicker">SESSION SCOPE SPOOFING</div><h3>주소 · 헤더 · 본문 범위 위조 검사</h3></div><div><button class="btn primary" id="runSpoofBtn">범위 위조 6건 검사</button></div></div><div class="data-note">주소·요청 헤더·본문에 반대 범위를 적어도 서버가 브라우저 임시 검토 세션만 사용하고, 반대 범위 자료와 새 행이 0건인지 확인합니다.</div><div id="spoofResults" class="test-results"><table class="spoof-table"><thead><tr><th>검사</th><th>위조 값</th><th>서버 적용 범위</th><th>반대 범위 새 행</th><th>판정</th></tr></thead><tbody id="spoofBody"><tr><td colspan="5" class="empty">검사 전</td></tr></tbody></table></div></section><div id="spoofSummary" class="spoof-summary test-results"><span>공개 격리 검사 <strong id="spoofTotal">—</strong></span><span>반대 범위 자료 변화 <strong id="spoofChanged">—</strong></span><span>반대 범위 새 행 <strong id="spoofNewRows">—</strong></span><span>전체 <strong id="spoofVerdict">검사 전</strong></span></div>
+  </div>
+</div>
+<div class="footer"><span>Plan 수정 전 값은 history에 보존</span><span>ToDo는 planId로 Plan과 연결</span><span>Do는 별도 레코드로 저장</span><span>See 집계는 서버 DB 기준</span></div>
+</main>
+
+<div class="modal-back" id="planModal"><div class="modal"><div class="modal-head"><h3>Plan 수정</h3></div><form id="planForm" class="form">
+ <div class="full"><label>계획 이름</label><input id="planTitle" maxlength="120" required></div>
+ <div><label>시작일</label><input type="date" id="planStart" required></div><div><label>종료일</label><input type="date" id="planEnd" required></div>
+ <div><label>우선순위</label><select id="planPriority"><option value="high">높음</option><option value="medium">보통</option><option value="low">낮음</option></select></div><div><label>예상 시간(분)</label><input type="number" id="planMinutes" min="1" required></div>
+ <div class="full"><label>성공 기준</label><textarea id="planCriterion" maxlength="300" required></textarea></div>
+ <div class="full"><label>변경 이유</label><input id="planReason" maxlength="120" placeholder="예: 학습 범위를 실제 일정에 맞게 조정" required></div>
+ <div class="modal-actions full"><button type="button" class="btn" data-close="planModal">취소</button><button class="btn primary" type="submit">수정 저장</button></div>
+</form></div></div>
+
+<div class="modal-back" id="nextPlanModal"><div class="modal next-plan-modal"><div class="modal-head"><div><div class="kicker">NEXT PLAN</div><h3>다음 계획</h3></div></div><div id="nextPlanView"></div><div class="modal-actions"><button type="button" class="btn primary" data-close="nextPlanModal">확인</button></div></div></div>
+
+<div class="modal-back" id="todoModal"><div class="modal"><div class="modal-head"><h3 id="todoModalTitle">ToDo 추가</h3></div><form id="todoForm" class="form">
+ <input type="hidden" id="todoId"><div class="full"><label>할 일</label><input id="todoText" maxlength="120" required></div>
+ <div><label>마감일</label><input type="date" id="todoDue" required></div><div><label>우선순위</label><select id="todoPriority"><option value="high">높음</option><option value="medium">보통</option><option value="low">낮음</option></select></div>
+ <div><label>태그 (쉼표 구분)</label><input id="todoTags" placeholder="예: 이론, ALEPH"></div><div><label>예상 시간(분)</label><input type="number" id="todoMinutes" min="1" required></div>
+ <div class="modal-actions full"><button type="button" class="btn" data-close="todoModal">취소</button><button class="btn primary" type="submit">저장</button></div>
+</form></div></div>
+<script>
+const $=id=>document.getElementById(id); const priorityRank={high:3,medium:2,low:1}; const priorityText={high:'높음',medium:'보통',low:'낮음'};
+let state={plan:null,nextPlan:null,todos:[],doRecords:[],see:{plannedCount:0,completedCount:0,delayedCount:0,blockedCount:0,expectedMinutes:0,actualMinutes:0,differenceMinutes:0}}; let reviewScope=null;
+function esc(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
+function notify(text,type=''){const n=$('notice');n.textContent=text;n.className='notice show'+(type==='ok'?' ok':'');clearTimeout(window.__noticeTimer);window.__noticeTimer=setTimeout(()=>n.classList.remove('show'),5000)}
+async function api(action,method='GET',body){const opt={method,headers:{'Content-Type':'application/json'}};if(body)opt.body=JSON.stringify(body);const r=await fetch('/api/pds?action='+encodeURIComponent(action),opt);let data={};try{data=await r.json()}catch{}if(!r.ok){const e=new Error(data.error||`서버 오류 ${r.status}`);e.status=r.status;e.code=data.code;e.data=data;throw e}return data}
+function renderScope(){}
+function setAuthMode(mode){const login=mode==='login';$('loginForm').hidden=!login;$('signupForm').hidden=login;$('authTitle').textContent=login?'내 다이어리 로그인':'회원가입';$('authMessage').textContent='';}
+function showAuth(message=''){$('authGate').classList.remove('hidden');$('appPage').classList.add('auth-hidden');$('authMessage').textContent=message;}
+function showApp(username){$('authGate').classList.add('hidden');$('appPage').classList.remove('auth-hidden');$('currentUsername').textContent=username||'';if($('accountUsername'))$('accountUsername').textContent=username||'-';}
+async function load(){try{const me=await api('auth-me');showApp(me.user?.username||'');const data=await api('bootstrap');state=data;reviewScope='USER';render()}catch(e){if(e.status===401){showAuth();return}showAuth('서버 DB에 연결할 수 없어요. DATABASE_URL 설정을 확인해주세요. · '+e.message)}}
+function render(){renderPlan();renderHistory();renderTodos();renderDo();renderSee()}
+function renderPlan(){const p=state.plan;$('nextPlanViewBtn').style.display=state.nextPlan?'inline-flex':'none';if(!p){$('planView').innerHTML='<div class="empty">Plan 데이터가 없습니다.</div>';return}$('planView').innerHTML=`<div class="plan-title">${esc(p.title)}</div><div class="plan-meta"><div class="meta"><span>기간</span><strong>${esc(p.startDate)} → ${esc(p.endDate)}</strong></div><div class="meta"><span>우선순위</span><strong>${priorityText[p.priority]||esc(p.priority)}</strong></div><div class="meta"><span>예상 시간</span><strong>${Math.round(p.estimatedMinutes/60*10)/10}시간</strong></div><div class="meta"><span>Plan ID</span><strong>${esc(p.planId)}</strong></div></div><div class="criterion"><span>성공 기준</span><p>${esc(p.successCriterion)}</p></div>`}
+function historyChanges(x){const b=x.beforeValues,a=x.afterValues;if(!b||!a)return[];const rows=[];if(b.title!==a.title)rows.push(`계획 이름 ${esc(b.title||'')} → ${esc(a.title||'')}`);if(b.period?.startDate!==a.period?.startDate)rows.push(`시작일 ${esc(b.period?.startDate)} → ${esc(a.period?.startDate)}`);if(b.period?.endDate!==a.period?.endDate)rows.push(`종료일 ${esc(b.period?.endDate)} → ${esc(a.period?.endDate)}`);if(b.priority!==a.priority)rows.push(`우선순위 ${esc(priorityText[b.priority]||b.priority)} → ${esc(priorityText[a.priority]||a.priority)}`);if(Number(b.estimatedMinutes)!==Number(a.estimatedMinutes))rows.push(`예상 시간 ${esc(b.estimatedMinutes)}분 → ${esc(a.estimatedMinutes)}분`);if(b.successCriterion!==a.successCriterion)rows.push(`성공 기준 ${esc(b.successCriterion)} → ${esc(a.successCriterion)}`);return rows}
+function renderHistory(){const h=state.plan?.history||[];$('historyCount').textContent=h.length+'개';$('historyList').innerHTML=h.length?h.map(x=>{const changes=historyChanges(x);return `<div class="history-item"><div class="history-top"><span class="revision">v${x.revision} · ${esc(x.event)}</span><span class="history-time">${esc(x.changedAtLocal||x.changedAt)}</span></div><div class="change">${esc(x.changeReason||'변경 이유 없음')}</div>${changes.map(c=>`<div class="change" style="color:#667069;margin-top:3px">${c}</div>`).join('')}</div>`}).join(''):'<div class="empty">아직 수정 이력이 없습니다.</div>'}
+function filteredTodos(){let list=[...state.todos];const q=$('searchInput').value.trim().toLowerCase(),s=$('statusFilter').value,p=$('priorityFilter').value;if(q)list=list.filter(t=>(t.text+' '+(t.tags||[]).join(' ')).toLowerCase().includes(q));if(s!=='all')list=list.filter(t=>t.status===s);if(p!=='all')list=list.filter(t=>t.priority===p);const sort=$('sortSelect').value;const tie=(a,b)=>a.dueDate.localeCompare(b.dueDate)||String(a.createdAt||'').localeCompare(String(b.createdAt||''));if(sort==='dueAsc')list.sort((a,b)=>tie(a,b));if(sort==='priority')list.sort((a,b)=>priorityRank[b.priority]-priorityRank[a.priority]||tie(a,b));if(sort==='estimated')list.sort((a,b)=>b.estimatedMinutes-a.estimatedMinutes||tie(a,b));if(sort==='created')list.sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))||a.dueDate.localeCompare(b.dueDate));return list}
+function renderTodos(){const list=filteredTodos();$('todoSummary').textContent=`${list.length}/${state.todos.length}건 · 완료 ${state.todos.filter(t=>t.status==='done').length}건`;$('todoBody').innerHTML=list.length?list.map(t=>`<tr><td data-label="상태"><span class="status-pill ${t.status==='done'?'done':''}">${t.status==='done'?'완료':'진행중'}</span></td><td data-label="할 일"><div class="todo-title">${esc(t.text)}</div></td><td data-label="마감일">${esc(t.dueDate)}</td><td data-label="우선순위"><span class="priority-pill ${esc(t.priority)}">${priorityText[t.priority]||esc(t.priority)}</span></td><td data-label="태그" class="tags">${esc((t.tags||[]).join(' · '))}</td><td data-label="예상">${esc(t.estimatedMinutes)}분</td><td data-label="관리"><div class="row-actions"><button class="btn small" onclick="toggleTodo('${esc(t.todoId)}')">${t.status==='done'?'진행':'완료'}</button><button class="btn small" onclick="editTodo('${esc(t.todoId)}')">수정</button><button class="btn small danger" onclick="deleteTodo('${esc(t.todoId)}')">삭제</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">조건에 맞는 ToDo가 없습니다.</td></tr>'}
+function openModal(id){$(id).classList.add('show')}function closeModal(id){$(id).classList.remove('show')}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+$('editPlanBtn').onclick=()=>{const p=state.plan;if(!p)return;$('planTitle').value=p.title||'';$('planStart').value=p.startDate;$('planEnd').value=p.endDate;$('planPriority').value=p.priority;$('planMinutes').value=p.estimatedMinutes;$('planCriterion').value=p.successCriterion;$('planReason').value='';openModal('planModal')};
+$('nextPlanViewBtn').onclick=()=>{const p=state.nextPlan;if(!p)return;$('nextPlanView').innerHTML=`<div class="plan-title">${esc(p.title)}</div><div class="plan-meta"><div class="meta"><span>기간</span><strong>${esc(p.startDate)} → ${esc(p.endDate)}</strong></div><div class="meta"><span>우선순위</span><strong>${priorityText[p.priority]||esc(p.priority)}</strong></div><div class="meta"><span>예상 시간</span><strong>${Math.round(p.estimatedMinutes/60*10)/10}시간</strong></div><div class="meta"><span>Plan ID</span><strong>${esc(p.planId)}</strong></div></div><div class="next-plan-box" style="margin-top:12px"><strong>See에서 넘긴 조정</strong> · ${esc(p.adjustmentText||'조정 내용 없음')}</div>`;openModal('nextPlanModal')};
+$('planForm').onsubmit=async e=>{e.preventDefault();try{const data=await api('update-plan','PATCH',{title:$('planTitle').value.trim(),startDate:$('planStart').value,endDate:$('planEnd').value,priority:$('planPriority').value,estimatedMinutes:Number($('planMinutes').value),successCriterion:$('planCriterion').value.trim(),changeReason:$('planReason').value.trim()});state=data;closeModal('planModal');render();notify('Plan을 수정했고, 수정 전 값은 이력에 보존했어요.','ok')}catch(e){notify(e.message)}};
+$('addTodoBtn').onclick=()=>{$('todoForm').reset();$('todoId').value='';$('todoModalTitle').textContent='ToDo 추가';$('todoPriority').value='medium';openModal('todoModal')};
+window.editTodo=id=>{const t=state.todos.find(x=>x.todoId===id);if(!t)return;$('todoId').value=t.todoId;$('todoText').value=t.text;$('todoDue').value=t.dueDate;$('todoPriority').value=t.priority;$('todoTags').value=(t.tags||[]).join(', ');$('todoMinutes').value=t.estimatedMinutes;$('todoModalTitle').textContent='ToDo 수정';openModal('todoModal')};
+$('todoForm').onsubmit=async e=>{e.preventDefault();const id=$('todoId').value;const body={todoId:id||undefined,text:$('todoText').value.trim(),dueDate:$('todoDue').value,priority:$('todoPriority').value,tags:$('todoTags').value.split(',').map(x=>x.trim()).filter(Boolean),estimatedMinutes:Number($('todoMinutes').value)};try{state=await api(id?'update-todo':'create-todo',id?'PATCH':'POST',body);closeModal('todoModal');render();notify(id?'ToDo를 수정했어요.':'ToDo를 생성했어요.','ok')}catch(e){notify(e.message)}};
+window.toggleTodo=async id=>{const t=state.todos.find(x=>x.todoId===id);try{if(t.status==='done'){const d=await api('reopen-todo','POST',{todoId:id});state=d.snapshot;render();notify('진행 상태로 되돌렸어요.','ok')}else{const d=await api('complete-todo','POST',{todoId:id,idempotencyKey:`complete:${id}`});state=d.snapshot;render();notify(d.completionResult?.inserted?'완료 기록 1건을 저장했어요.':'같은 완료 요청이라 완료 기록을 추가하지 않았어요.','ok')}}catch(e){notify(e.message)}};
+window.deleteTodo=async id=>{if(!confirm('이 ToDo를 삭제할까요?'))return;try{state=await api('delete-todo','DELETE',{todoId:id});render();notify('ToDo를 삭제했어요.','ok')}catch(e){notify(e.message)}};
+['searchInput','statusFilter','priorityFilter','sortSelect'].forEach(id=>$(id).addEventListener(id==='searchInput'?'input':'change',renderTodos));$('resetFilters').onclick=()=>{$('searchInput').value='';$('statusFilter').value='all';$('priorityFilter').value='all';$('sortSelect').value='dueAsc';renderTodos()};
+
+function toLocalInputValue(date){const d=new Date(date);if(Number.isNaN(d.getTime()))return'';const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`}
+function fmtDateTime(v){if(!v)return'-';const d=new Date(v);if(Number.isNaN(d.getTime()))return esc(v);return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)}
+function renderDo(){
+ const todos=state.todos||[], records=state.doRecords||[];
+ $('doTodo').innerHTML=todos.length?todos.map(t=>`<option value="${esc(t.todoId)}">${esc(t.text)}</option>`).join(''):'<option value="">ToDo 없음</option>';
+ $('doSummary').textContent=`Do ${records.length}건`;
+ $('seeCount').textContent=`See 완료 수 ${state.see?.completedCount??0}건`;
+ $('doBody').innerHTML=records.length?records.map(r=>`<tr><td>${esc(r.todoText||r.todoId)}</td><td>${fmtDateTime(r.startedAt)}</td><td>${fmtDateTime(r.endedAt)}</td><td>${esc(r.actualMinutes)}분</td><td>${esc(r.blockedReason||'없음')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">저장된 Do 기록이 없습니다.</td></tr>';
+}
+function addDays(dateStr,days){const [y,m,d]=String(dateStr).split('-').map(Number);const x=new Date(Date.UTC(y,m-1,d));x.setUTCDate(x.getUTCDate()+days);return x.toISOString().slice(0,10)}
+function setDoDefaults(){const now=new Date(), end=new Date(now.getTime()+30*60000);$('doStart').value=toLocalInputValue(now);$('doEnd').value=toLocalInputValue(end);$('doMinutes').value=30;$('doBlocked').value=''}
+let seeEvidenceFilter='all';
+function setSeeEvidenceFilter(kind){seeEvidenceFilter=kind;renderSee();document.querySelector('.see-source')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function renderSee(){
+ const see=state.see||{}, todos=state.todos||[], records=state.doRecords||[];
+ const diff=Number(see.differenceMinutes||0), diffText=`${diff>0?'+':''}${diff}분`;
+ const stats=[['계획',see.plannedCount??0,'건','all'],['완료',see.completedCount??0,'건','done'],['지연',see.delayedCount??0,'건','late'],['막힘',see.blockedCount??0,'건','blocked'],['예상',see.expectedMinutes??0,'분','estimated'],['실제',see.actualMinutes??0,'분','actual'],['차이',diffText,'','all']];
+ $('seeSummaryCards').innerHTML=stats.map((x,i)=>`<div class="see-stat clickable ${i===6?'diff':''} ${seeEvidenceFilter===x[3]&&i!==6?'active':''}" onclick="setSeeEvidenceFilter('${x[3]}')" role="button"><span>${x[0]}</span><strong>${esc(x[1])}${x[2]}</strong></div>`).join('');
+ $('seeReviewDate').textContent=`KST 검토 기준일 ${see.reviewDate||'-'} · 차이 = 실제 − 예상`;
+ const doByTodo=new Map();
+ records.forEach(r=>{const cur=doByTodo.get(r.todoId)||{minutes:0,blockedReasons:[]};cur.minutes+=Number(r.actualMinutes||0);const reason=String(r.blockedReason||'').trim();if(reason&&!cur.blockedReasons.includes(reason))cur.blockedReasons.push(reason);doByTodo.set(r.todoId,cur)});
+ const evidence=todos.map(t=>{const rec=doByTodo.get(t.todoId)||{minutes:0,blockedReasons:[]};const late=t.status!=='done'&&see.reviewDate&&t.dueDate<see.reviewDate;return {t,rec,late}}).filter(x=>seeEvidenceFilter==='all'||(seeEvidenceFilter==='done'&&x.t.status==='done')||(seeEvidenceFilter==='late'&&x.late)||(seeEvidenceFilter==='blocked'&&x.rec.blockedReasons.length)||(seeEvidenceFilter==='estimated'&&Number(x.t.estimatedMinutes)>0)||(seeEvidenceFilter==='actual'&&Number(x.rec.minutes)>0));
+ const names={all:'전체 계획',done:'완료',late:'지연',blocked:'막힘',estimated:'예상 시간',actual:'실제 시간'};
+ $('seeEvidenceNote').textContent=`근거 보기: ${names[seeEvidenceFilter]||'전체'} · 집계 숫자를 누르면 해당 기록만 확인할 수 있습니다.`;
+ $('seeSourceBody').innerHTML=evidence.length?evidence.map(({t,rec,late})=>{const judgments=[];if(t.status==='done')judgments.push('<span class="see-chip done">완료</span>');if(late)judgments.push('<span class="see-chip late">지연</span>');if(rec.blockedReasons.length)judgments.push('<span class="see-chip blocked">막힘</span>');if(!judgments.length)judgments.push('<span class="see-chip">진행</span>');return `<tr><td><div class="todo-title">${esc(t.text)}</div></td><td>${esc(t.dueDate)}</td><td>${t.status==='done'?'완료':'진행중'}</td><td>${esc(t.estimatedMinutes)}분</td><td>${esc(rec.minutes)}분</td><td>${judgments.join(' ')}</td><td>${rec.blockedReasons.length?rec.blockedReasons.map(x=>`<div class="blocked-reason-line">${esc(x)}</div>`).join(''):'없음'}</td></tr>`}).join(''):'<tr><td colspan="7" class="empty">이 집계에 해당하는 근거 기록이 없습니다.</td></tr>';
+ const adj=see.adjustment;
+ $('nextPlanBox').innerHTML=adj?`<div class="next-plan-box compact"><strong>전달 완료</strong> · ${esc(adj.targetTitle||'다음 Plan')} (${esc(adj.targetStartDate)} → ${esc(adj.targetEndDate)}) · ${esc(adj.text)}</div>`:'';
+ if(adj&&!$('seeAdjustment').value)$('seeAdjustment').value=adj.text||'';
+ if(state.plan){const minNext=addDays(state.plan.endDate,1);const savedStart=adj?.targetStartDate||'';const savedEnd=adj?.targetEndDate||'';const savedValid=savedStart&&savedEnd&&savedStart>state.plan.endDate&&savedEnd>=savedStart;if(!$('nextStartDate').value)$('nextStartDate').value=savedValid?savedStart:minNext;if(!$('nextEndDate').value)$('nextEndDate').value=savedValid?savedEnd:'';}
+}
+function switchView(view){
+ const isPlan=view==='plan', isDo=view==='do', isSee=view==='see', isData=view==='data';
+ $('planContent').style.display=isPlan?'flex':'none';$('doContent').style.display=isDo?'flex':'none';$('seeContent').style.display=isSee?'flex':'none';$('dataContent').style.display=isData?'flex':'none';
+ $('planTab').classList.toggle('active',isPlan);$('doTab').classList.toggle('active',isDo);$('seeTab').classList.toggle('active',isSee);$('dataTab').classList.toggle('active',isData);
+ if(isDo&&(!$('doStart').value||!$('doEnd').value))setDoDefaults();
+ if(isData)refreshDataStatus();
+}
+$('planTab').onclick=()=>switchView('plan');$('doTab').onclick=()=>switchView('do');$('seeTab').onclick=()=>switchView('see');$('dataTab').onclick=()=>switchView('data');
+$('doStart').addEventListener('change',()=>{if(!$('doStart').value||!$('doEnd').value)return;const a=new Date($('doStart').value),b=new Date($('doEnd').value);if(b>=a)$('doMinutes').value=Math.round((b-a)/60000)});
+$('doEnd').addEventListener('change',()=>{if(!$('doStart').value||!$('doEnd').value)return;const a=new Date($('doStart').value),b=new Date($('doEnd').value);if(b>=a)$('doMinutes').value=Math.round((b-a)/60000)});
+function doPayload(){return {todoId:$('doTodo').value,startedAt:new Date($('doStart').value).toISOString(),endedAt:new Date($('doEnd').value).toISOString(),actualMinutes:Number($('doMinutes').value),blockedReason:$('doBlocked').value.trim()}}
+$('doForm').onsubmit=async e=>{e.preventDefault();try{const data=await api('create-do','POST',doPayload());state=data;render();notify(data.doResult?.inserted?'Do 기록을 저장했어요.':'같은 요청이라 새 기록을 만들지 않았어요.','ok')}catch(e){notify(e.message)}};
+$('seeAdjustmentForm').onsubmit=async e=>{e.preventDefault();const startDate=$('nextStartDate').value,endDate=$('nextEndDate').value;if(!startDate||!endDate)return notify('다음 Plan 기간을 입력해주세요.');if(endDate<startDate)return notify('다음 Plan 종료일은 시작일보다 빠를 수 없어요.');try{state=await api('carry-see-adjustment','POST',{adjustmentText:$('seeAdjustment').value.trim(),startDate,endDate});render();notify('조정 내용과 기간을 다음 Plan으로 넘겼어요.','ok')}catch(e){notify(e.message)}};
+
+
+let fixtureFiles=[];
+function renderDataCounts(c={}){$('dataStatusCards').innerHTML=[['Plan',c.plans??0],['ToDo',c.todos??0],['Do',c.dos??0],['See',c.sees??0]].map(x=>`<div class="data-stat"><span>${x[0]}</span><strong>${esc(x[1])}건</strong></div>`).join('')}
+async function refreshDataStatus(){try{const d=await api('data-status');renderDataCounts(d.counts);return d.counts}catch(e){$('dataResult').textContent='DB 현황 확인 실패 · '+e.message;return null}}
+function downloadJson(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+$('exportDataBtn').onclick=async()=>{try{const d=await api('export-data');downloadJson(d.backup,`t06-pds-backup-${new Date().toISOString().slice(0,10)}.json`);renderDataCounts(d.counts);$('dataResult').textContent=`백업 완료 · Plan ${d.counts.plans} / ToDo ${d.counts.todos} / Do ${d.counts.dos} / See ${d.counts.sees}건을 한 파일로 내보냈어요.`;notify('전체 백업 파일을 내보냈어요.','ok')}catch(e){notify(e.message)}};
+$('importDataInput').onchange=async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{const rawText=await file.text();const d=await api('import-data','POST',{rawText});state=d.snapshot||await api('bootstrap');render();renderDataCounts(d.afterCounts);$('dataResult').textContent=`복원 완료 · Plan ${d.afterCounts.plans} / ToDo ${d.afterCounts.todos} / Do ${d.afterCounts.dos} / See ${d.afterCounts.sees}건. 같은 파일을 다시 가져와도 기존 자료를 교체 복원하므로 중복 행이 늘지 않아요.`;notify('백업 파일에서 전체 자료를 복원했어요.','ok')}catch(e){$('dataResult').textContent='가져오기 거부 · '+e.message;await refreshDataStatus();notify(e.message)}};
+$('deleteAllDataBtn').onclick=async()=>{if(!confirm(`현재 검토 범위 ${reviewScope}의 Plan·ToDo·Do·See 전체 자료를 서버 DB에서 삭제할까요? 먼저 백업 파일을 내려받았는지 확인해주세요.`))return;if(!confirm('정말 전체 삭제할까요? 이 작업 뒤에는 백업 가져오기로 복원해야 합니다.'))return;try{const d=await api('delete-all-data','DELETE');state=d.snapshot;render();renderDataCounts(d.counts);$('dataResult').textContent=`전체 삭제 완료 · Plan ${d.counts.plans} / ToDo ${d.counts.todos} / Do ${d.counts.dos} / See ${d.counts.sees}건`;notify('합성 인물 전체 자료를 삭제했어요.','ok')}catch(e){notify(e.message)}};
+$('fixtureFilesInput').onchange=e=>{fixtureFiles=[...(e.target.files||[])];$('fixtureFileCount').textContent=`선택 ${fixtureFiles.length}개`};
+function expectedForFile(name){name=name.toLowerCase();if(name.includes('invalid-malformed'))return 'IMPORT_JSON_MALFORMED · DB 변경 0';if(name.includes('invalid-missing-required'))return 'IMPORT_REQUIRED_FIELD_MISSING · DB 변경 0';if(name.includes('invalid-duplicate-id'))return 'IMPORT_DUPLICATE_ID · DB 변경 0';if(name.includes('invalid-date'))return 'IMPORT_INVALID_DATE · DB 변경 0';if(name.includes('legacy-v1'))return 'schemaVersion 2 · 논리 객체 8건 · expected-v2 정확 일치';if(name.includes('week-boundary'))return '주 시작 2026-08-17 / 2026-08-24 · 버킷 2';if(name.includes('month-boundary'))return '월 2026-08 / 2026-09 · 버킷 2';return '공개 계약 기준'}
+function fixtureDetail(r){if(r.kind==='week'){const a=r.result?.rows||[];return `${a.map(x=>`${x.sampleId}: ${x.weekStartLocalDate}`).join(' · ')} · 버킷 ${r.result?.distinctBucketCount}`};if(r.kind==='month'){const a=r.result?.rows||[];return `${a.map(x=>`${x.sampleId}: ${x.monthKey}`).join(' · ')} · 버킷 ${r.result?.distinctBucketCount}`};if(r.assetId==='t06-schema-migration-v1-to-v2')return `v${r.schemaVersion} · 논리 객체 ${r.databaseChangeCount}건 · expected 정확 일치 ${r.exactExpectedMatch?'YES':'NO'} · 검사 후 원 DB ${r.databaseChanged?'변경됨':'복구됨'}`;if(r.code)return `${r.code} · DB ${r.databaseChanged?'변경됨':'변경 0'}`;return r.message||r.status}
+$('runFixtureBtn').onclick=async()=>{if(!fixtureFiles.length)return notify('검사할 JSON 파일을 선택해주세요.');const expectedFile=fixtureFiles.find(f=>f.name.toLowerCase().includes('expected-v2'));const expectedRawText=expectedFile?await expectedFile.text():'';const rows=[];for(const file of fixtureFiles){if(file===expectedFile){rows.push({filename:file.name,status:'REFERENCE',detail:'legacy-v1 정확 일치 비교 기준 파일',expected:'비교 기준',assetId:'expected-v2'});continue}try{const rawText=await file.text();const r=await api('fixture-check','POST',{filename:file.name,rawText,expectedRawText});rows.push({filename:file.name,status:r.status,detail:fixtureDetail(r),expected:expectedForFile(file.name),assetId:r.assetId||''})}catch(e){rows.push({filename:file.name,status:'FAIL',detail:e.message,expected:expectedForFile(file.name),assetId:''})}}$('fixtureBody').innerHTML=rows.map(r=>{const cls=r.status==='PASS'||r.status==='REJECTED'?'test-pass':r.status==='REFERENCE'?'test-ref':'test-fail';const label=r.status==='REJECTED'?'PASS':r.status;return `<tr><td><strong>${esc(r.filename)}</strong>${r.assetId?`<div class="data-note">${esc(r.assetId)}</div>`:''}</td><td>${esc(r.detail)}</td><td>${esc(r.expected)}</td><td class="${cls}">${esc(label)}</td></tr>`}).join('');const wrap=document.querySelector('.fixture-table-wrap');wrap.scrollTop=0;await refreshDataStatus();notify('선택한 공개 검사 자료를 대조했어요.','ok')};
+
+
+function isoRows(rows,dir){return rows.filter(x=>x.direction===dir).map(x=>`<tr><td>${esc(x.label)}</td><td>${esc(x.httpStatus)}</td><td class="${x.pass?'isolation-pass':'test-fail'}">${x.pass?'PASS':'FAIL'}</td></tr>`).join('')}
+function syncTestScroll(){const both=$('isolationResults').classList.contains('open')&&$('spoofResults').classList.contains('open');document.documentElement.classList.toggle('scroll-tests',both);document.body.classList.toggle('scroll-tests',both);document.querySelector('.page').classList.toggle('scroll-tests',both)}
+function showIsolationResults(show){$('isolationResults').classList.toggle('open',show);syncTestScroll()}
+function showSpoofResults(show){$('spoofResults').classList.toggle('open',show);$('spoofSummary').classList.toggle('open',show);syncTestScroll()}
+$('runIsolationBtn').onclick=async()=>{try{$('runIsolationBtn').disabled=true;showIsolationResults(true);$('isoVerdict').textContent='검사 중';const r=await api('scope-isolation-check','POST');$('isoAB').innerHTML=isoRows(r.results,'A→B');$('isoBA').innerHTML=isoRows(r.results,'B→A');$('isolationSummary').hidden=false;$('isoTotal').textContent=`${r.results.filter(x=>x.pass).length}/${r.results.length}건 거부`;$('isoChanged').textContent=`${r.crossScopeDatabaseChanges}건`;$('isoVerdict').textContent=r.pass?'PASS':'FAIL';$('isoVerdict').className=r.pass?'isolation-pass':'test-fail';notify(r.pass?'A/B 교차 접근 7건이 모두 서버에서 거부됐어요.':'격리 검사에서 확인이 필요한 항목이 있어요.',r.pass?'ok':'')}catch(e){notify(e.message)}finally{$('runIsolationBtn').disabled=false}};
+$('runSpoofBtn').onclick=async()=>{try{$('runSpoofBtn').disabled=true;showSpoofResults(true);$('spoofVerdict').textContent='검사 중';const r=await api('scope-spoof-check','POST',{syntheticScope:'B'});$('spoofBody').innerHTML=r.results.map(x=>`<tr><td>${esc(x.label)}</td><td>${esc(x.attempt)}</td><td>${esc(x.applied)}</td><td>${esc(x.oppositeRows??0)}건</td><td class="${x.pass?'isolation-pass':'test-fail'}">${x.pass?'PASS':'FAIL'}</td></tr>`).join('');$('spoofTotal').textContent=`${r.totalIsolationChecks}/13건`;$('spoofChanged').textContent=`${r.oppositeScopeDatabaseChanges}건`;$('spoofNewRows').textContent=`${r.oppositeScopeNewRows}건`;$('spoofVerdict').textContent=r.pass?'PASS':'FAIL';$('spoofVerdict').className=r.pass?'isolation-pass':'test-fail';notify(r.pass?'주소·헤더·본문 위조 6건이 임시 검토 세션을 바꾸지 못했어요.':'범위 위조 검사에서 확인이 필요한 항목이 있어요.',r.pass?'ok':'')}catch(e){notify(e.message)}finally{$('runSpoofBtn').disabled=false}};
+
+
+$('openSignupBtn').onclick=()=>setAuthMode('signup');
+$('backToLoginBtn').onclick=()=>setAuthMode('login');
+$('changePasswordForm').onsubmit=async e=>{e.preventDefault();$('accountResult').textContent='';const p1=$('newPassword').value,p2=$('newPassword2').value;if(p1!==p2){$('accountResult').textContent='새 비밀번호 확인이 일치하지 않습니다.';return}try{const r=await api('auth-change-password','POST',{currentPassword:$('currentPassword').value,newPassword:p1});$('changePasswordForm').reset();state={plan:null,nextPlan:null,todos:[],doRecords:[],see:{}};setAuthMode('login');showAuth(r.message||'비밀번호를 변경했습니다. 다시 로그인해주세요.');notify('비밀번호를 변경했어요. 다시 로그인해주세요.','ok')}catch(err){$('accountResult').textContent=err.message}};
+$('deleteAccountForm').onsubmit=async e=>{e.preventDefault();$('accountResult').textContent='';if($('deleteConfirm').value!=='DELETE'){$('accountResult').textContent='확인 문구 DELETE를 입력해주세요.';return}if(!confirm('현재 계정과 이 계정의 모든 자료를 삭제할까요?'))return;try{const r=await api('auth-delete-account','DELETE',{currentPassword:$('deletePassword').value,confirmText:$('deleteConfirm').value});$('deleteAccountForm').reset();state={plan:null,nextPlan:null,todos:[],doRecords:[],see:{}};setAuthMode('login');showAuth(r.message||'계정이 삭제되었습니다.');notify('계정과 자료를 삭제했어요.','ok')}catch(err){$('accountResult').textContent=err.message}};
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('authMessage').textContent='';try{const d=await api('auth-login','POST',{username:$('loginUsername').value.trim(),password:$('loginPassword').value});$('loginForm').reset();showApp(d.user?.username||'');const data=await api('bootstrap');state=data;reviewScope='USER';render();notify('로그인했어요.','ok')}catch(err){$('authMessage').textContent=err.message}};
+$('signupForm').onsubmit=async e=>{e.preventDefault();$('authMessage').textContent='';const p1=$('signupPassword').value,p2=$('signupPassword2').value;if(p1!==p2){$('authMessage').textContent='비밀번호 확인이 일치하지 않습니다.';return}try{await api('auth-signup','POST',{username:$('signupUsername').value.trim(),password:p1});$('signupForm').reset();setAuthMode('login');$('authMessage').textContent='회원가입이 완료되었습니다. 로그인해주세요.';notify('회원가입이 완료되었습니다. 로그인해주세요.','ok')}catch(err){$('authMessage').textContent=err.message}};
+$('logoutBtn').onclick=async()=>{try{await api('auth-logout','POST')}catch{}state={plan:null,nextPlan:null,todos:[],doRecords:[],see:{}};setAuthMode('login');showAuth('로그아웃되었습니다. 같은 자료 주소를 다시 열어도 로그인 전에는 기록이 보이지 않습니다.')};
+$('scopeABtn').onclick=()=>{};
+$('scopeBBtn').onclick=()=>{};
+$('scopeResetBtn').onclick=()=>{};
+
+load();
+</script>
+</body></html>
