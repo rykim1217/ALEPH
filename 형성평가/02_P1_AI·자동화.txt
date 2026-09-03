@@ -27,3 +27,375 @@
     print(f"{name}의 점수: {score}점")
     ```
   홍길동의 점수: 95점 (f-string 안의 {변수}가 값으로 교체됨).
+
+
+3차시 — 조건문(if/elif/else)과 복합 조건
+
+1. 파이썬에서 블록(코드 그룹)을 만드는 방법은?
+  들여쓰기(공백 4칸). 탭 대신 스페이스 4칸을 권장한다.
+2. (O/X) `elif`는 `if` 없이 단독으로 사용할 수 있다.
+  X — elif는 반드시 if 뒤에만 쓸 수 있다.
+3. `level = 8`일 때 아래 코드의 출력은?
+    ```python
+    if level >= 10:
+        print("심각")
+    elif level >= 7:
+        print("주의")
+    else:
+        print("정상")
+    ```   
+  주의 — level=8이 >= 10은 거짓, >= 7은 참이므로 elif 블록 실행.
+4. `A and B`에서 전체가 참(True)이 되려면?
+  A와 B 둘 다 참이어야 한다. 하나라도 거짓이면 전체 거짓.
+
+
+4차시 — 반복문·리스트와 for 순회
+
+1. 리스트 `[10, 20, 30]`에서 첫 번째 값을 꺼내는 코드는?
+  리스트[0] — [10, 20, 30][0] 또는 nums = [10, 20, 30]; nums[0].
+2. `len(["a", "b", "c", "d"])`의 결과는?
+  4 — 항목이 4개
+3. (O/X) `for` 반복문은 리스트가 끝나도 계속 실행된다.
+  X — 리스트의 모든 항목을 처리하면 자동으로 종료.
+4. 다음 코드의 출력을 예상하라:  
+    ```python
+    nums = [1, 2, 3]
+    for n in nums:
+        print(n * 2)
+    ```
+  2 / 4 / 6 — 각 항목에 2를 곱해 출력.
+
+
+5차시 — 딕셔너리·JSON과 함수 재사용 블록
+
+1. `{"level": 10, "ip": "1.1.1.1"}`에서 IP를 꺼내는 코드는?
+  d["ip"] 또는 alert["ip"].
+2. `json.dumps()`와 `json.loads()`의 차이는?
+  dumps = 딕셔너리 → JSON 문자열(직렬화), loads = JSON 문자열 → 딕셔너리(역직렬화).
+3. (O/X) 함수는 `return` 없이도 정상 실행된다.
+  O — return 없으면 None을 반환하지만 실행 자체는 된다. 단, 반환값을 쓰려면 return 필요.
+4. 다음 코드의 출력은?
+    ```python
+    def double(n):
+        return n * 2
+    print(double(5))
+    ```
+  10 (5 × 2 = 10).
+5. JSON 문자열 `'{"rule":5712,"level":10}'`을 파싱해 `level`만 출력하는 코드를 작성하라.
+  import json; print(json.loads('{"rule":5712,"level":10}')["level"]) → 10.
+
+
+6차시 — 파일·예외 처리와 라이브러리(requests)
+
+1. 파일 쓰기 모드 `"w"`와 추가 모드 `"a"`의 차이는?
+  "w" = 기존 내용 덮어쓰기 / "a" = 기존 내용 뒤에 추가. "w"는 기존 파일이 있으면 내용이 사라지니 주의.
+2. `encoding="utf-8"`을 파일 열기에 지정하는 이유는?
+  한글(UTF-8) 인코딩을 명시해야 한글 파일이 깨지지 않는다.
+3. (O/X) `try/except`가 있으면 에러가 나도 프로그램이 계속 실행된다.
+  O — except가 에러를 잡아 처리하면, except 블록 이후 코드가 계속 실행된다.
+4. `requests.get("https://api.github.com").status_code`가 200이면 무엇을 의미하나?
+  HTTP 요청 성공 — 서버가 정상 응답했다는 의미. 실패 시 404(없음)·500(서버 오류) 등.
+
+
+7차시 — 딕셔너리 기초·키-값 접근
+
+1. 딕셔너리에서 키 `"level"`의 값을 꺼내는 코드 한 줄은?
+  alert["level"]
+2. 리스트와 딕셔너리의 차이를 "꺼내는 방법" 기준으로 설명하라.
+  리스트는 인덱스(숫자 0·1·2) 로 꺼내고, 딕셔너리는 키(이름) 으로 꺼낸다.
+3. (O/X) `d["new_key"] = 99` 는 오류가 난다. (존재하지 않는 키에 값 넣기)
+  X — 없는 키에 값을 대입하면 새 키가 추가된다(오류 아님).
+4. 딕셔너리를 `for k, v in d.items():` 로 순회할 때 `k`와 `v`는 각각 무엇인가?
+  k = 키(이름표), v = 값.
+
+
+8차시 — JSON 직렬화·역직렬화·API 언어 연결
+
+1. 딕셔너리를 JSON 문자열로 만드는 함수 이름은?
+  json.dumps()
+2. JSON 문자열을 딕셔너리로 복원하는 함수 이름은?
+  json.loads()
+3. (O/X) `json.dumps({"level": 10})` 의 결과 타입은 `dict`다.
+  X — 결과는 str(문자열). 딕셔너리로 복원하려면 json.loads() 필요.
+4. `ensure_ascii=False`가 필요한 이유를 한 줄로 쓰라.
+  ensure_ascii=False가 없으면 한글이 안 같은 유니코드 이스케이프로 출력되어 사람이 읽기 어렵다.
+5. (실습) `{"이름": "김보안", "점수": 95}` 를 JSON 문자열로 변환하고, 다시 딕셔너리로 복원해 `점수`만 출력하라.
+    ```python
+    import json
+    d = {"이름": "김보안", "점수": 95}
+    s = json.dumps(d, ensure_ascii=False)
+    print(json.loads(s)["점수"])   # 95
+    ```
+
+
+9차시 — 함수 정의·인자·return
+
+1. 파이썬에서 함수를 만드는 키워드는?
+  def
+2. 함수에서 결과를 돌려주는 키워드는?
+  return
+3. (O/X) `return`이 없는 함수를 호출하면 오류가 난다.
+  X — 오류 없이 None 을 반환한다. print(함수()) 하면 None 이 출력됨.
+4. `severity(7)` 을 호출하면 어떤 값이 반환되는가?
+  level >= 7 조건에 해당하므로 "Medium".
+5. (실습) 숫자 `n`을 받아 짝수면 `"짝수"`, 홀수면 `"홀수"` 를 반환하는 함수 `parity(n)` 을 만들어 `parity(4)`와 `parity(7)` 을 출력하라.
+    ```python
+    def parity(n):
+        if n % 2 == 0: return "짝수"
+        return "홀수"
+    print(parity(4))   # 짝수
+    print(parity(7))   # 홀수
+    ```
+
+
+10차시 — 함수 응용·기본값 인자·리스트 연계
+
+1. `def f(x, n=5):` 에서 `f(3)` 을 호출하면 `n` 의 값은?
+  5 (기본값 적용).
+2. 함수 안에서 다른 함수를 호출하는 패턴을 왜 쓰는가? (한 줄)
+  재사용 — 이미 만든 함수를 부품으로 씀으로써 중복 코드를 없앤다.
+3. (O/X) `classify(alert)` 에서 `alert` 는 딕셔너리여야 한다.
+  O — alert["level"] 과 alert["ip"] 가 필요하므로 딕셔너리여야 한다.
+4. `for a in alerts:` 에서 `a` 는 무엇을 가리키는가?
+  alerts 리스트의 원소 하나(딕셔너리).
+5. (실습) 아래 `alerts` 목록을 `classify` 로 처리하여 `severity` 가 `"High"` 인 항목만 출력하라.
+    ```python
+    def severity(level):
+        if level >= 10: return "High"
+        if level >= 7:  return "Medium"
+        return "Low"
+    def classify(alert):
+        sev = severity(alert["level"])
+        return {"ip": alert["ip"], "severity": sev}
+    
+    alerts = [{"level":11,"ip":"5.5.5.5"},{"level":6,"ip":"6.6.6.6"}]
+    for a in alerts:
+        r = classify(a)
+        if r["severity"] == "High":
+            print(r)
+    # {'ip': '5.5.5.5', 'severity': 'High'}
+    ```
+
+
+11차시 — 파일 읽기·쓰기·with 문
+
+1. `with open("f.txt", "w", encoding="utf-8") as f:` 에서 `"w"` 는 무슨 뜻인가?
+  write(쓰기) 모드 — 파일이 없으면 생성, 있으면 덮어씀.
+2. `with` 문을 쓰면 `close()` 를 직접 호출하지 않아도 되는 이유는?
+  with 블록이 끝날 때 자동으로 close() 가 호출된다.
+3. (O/X) `"w"` 모드로 열면 파일이 이미 있어도 오류 없이 **덮어쓴다**.
+  O — "w" 는 무조건 덮어씀. 기존 내용이 사라지므로 주의.
+4. `line.strip()` 이 제거하는 것은?
+  줄 끝의 개행 문자(\n) (와 앞뒤 공백).
+5. (실습) `["brute_force","port_scan","sql_injection"]` 리스트를 `attacks.txt` 파일에 한 줄씩 쓰고, 다시 읽어 화면에 출력하라.
+    ```python
+    attacks = ["brute_force", "port_scan", "sql_injection"]
+    with open("attacks.txt", "w", encoding="utf-8") as f:
+        for a in attacks:
+            f.write(a + "\n")
+    with open("attacks.txt", encoding="utf-8") as f:
+        for line in f:
+            print(line.strip())
+    ```
+    출력: `brute_force` / `port_scan` / `sql_injection`
+
+
+12차시 — try/except·예외 처리·에러 친숙화
+
+1. `try` 블록에서 에러가 나면 파이썬은 어디로 이동하는가?
+  해당하는 except 블록으로 이동한다.
+2. (O/X) `except Exception as e:` 는 `FileNotFoundError` 도 잡을 수 있다.
+  O — Exception 은 거의 모든 예외의 부모 클래스여서 모든 에러를 잡는다.
+3. 없는 딕셔너리 키를 접근할 때 발생하는 예외 이름은?
+  KeyError
+4. `except` 를 쓰지 않으면 에러가 났을 때 어떻게 되는가? (한 줄)
+  에러 메시지를 출력하고 프로그램이 강제 종료된다.
+5. (실습) `int("abc")` 를 `try/except ValueError:` 로 감싸서 "형변환 실패" 를 출력하고, 프로그램이 멈추지 않는 것을 확인하라.
+    ```python
+    try:
+        result = int("abc")
+    except ValueError:
+        print("형변환 실패")
+    print("프로그램 계속")
+    ```
+    출력: `형변환 실패` / `프로그램 계속`
+
+
+13차시 — pip·requests·공개 API 첫 호출
+
+1. `pip install requests` 와 `import requests` 의 차이는 무엇인가?
+  pip install은 설치(한 번만), import는 불러오기(코드 실행마다). 설치를 안 하면 ModuleNotFoundError.
+2. `r.status_code`가 `200`이면 무슨 의미인가?
+  성공. 서버가 요청을 정상 처리했다는 HTTP 상태코드.
+3. (O/X) `requests`는 파이썬에 기본 포함된 표준 라이브러리다.
+  X — requests는 외부 라이브러리. pip install로 별도 설치 필요. (json, os는 표준 라이브러리)
+4. `r.json()`이 반환하는 자료형은 무엇인가?
+  딕셔너리 (<class 'dict'>). JSON 응답을 파이썬 딕셔너리로 자동 변환.
+
+
+14차시 — API · HTTP · GET/POST · 상태코드
+
+1. API는 무엇의 약자이고, 어떤 역할을 하는가?
+  API = Application Programming Interface. 프로그램이 다른 서비스를 호출하는 창구(메뉴판) 역할.
+2. HTTP에서 **GET**과 **POST**의 사용 목적 차이는?
+  GET = 데이터 조회(읽기, URL에 조건). POST = 데이터 전송·생성(바디에 데이터 담음).
+3. 상태코드 **401**이 뜨면 무엇이 문제일 가능성이 높은가?
+  인증 실패 — API 키나 로그인 자격증명이 없거나 틀림.
+4. (O/X) 상태코드 404는 서버가 다운됐다는 뜻이다.
+  X — 404는 요청한 URL 경로(리소스)가 없다는 뜻. 서버 다운은 500번대.
+5. (실습) `https://api.github.com/nope404_test`에 GET 요청을 보내 상태코드를 출력하라. 몇 번이 나오는가?
+  404. URL 경로가 존재하지 않으므로 Not Found.
+
+
+15차시 — POST · 요청 헤더 · 응답 구조
+
+1. POST 요청에서 실제 데이터는 어디에 담기는가? (URL vs 바디)
+  바디(body). GET은 URL 쿼리스트링에, POST는 본문(body)에 데이터를 담는다.
+2. `headers={"Content-Type": "application/json"}` 의 역할은 무엇인가?
+  서버에게 "내가 보내는 본문은 JSON 형식이다"라고 알리는 역할. 서버가 올바르게 파싱할 수 있게 함.
+3. `requests.post(url, json=payload)` 에서 `json=` 파라미터가 자동으로 해주는 일은?
+  딕셔너리를 JSON 문자열로 자동 직렬화(json.dumps 자동 실행) 후 바디에 넣는다. Content-Type: application/json도 자동 설정.
+4. (O/X) httpbin.org는 받은 요청 내용을 그대로 돌려주므로 내가 보낸 데이터 확인에 유용하다.
+  O — httpbin.org는 에코(echo) 테스트 서버로, 받은 요청 전체를 JSON 응답으로 돌려준다. 실습용으로 안전.
+
+
+16차시 — r.json() · 중첩 구조 · 경보 추출
+
+1. `r.json()`이 반환하는 자료형은 무엇인가?
+  딕셔너리 (<class 'dict'>). 응답 JSON을 파이썬 딕셔너리로 자동 변환.
+2. `json.loads()`와 `r.json()`의 차이는 무엇인가?
+  r.json() = HTTP 응답 객체에서 직접 변환. json.loads() = 어디서든 JSON 문자열을 딕셔너리로 변환. 역할은 같으나 입력이 다름.
+3. 아래 JSON에서 첫 번째 경보의 `ip` 값을 꺼내는 코드를 쓰라.
+    ```json
+    {"alerts": [{"id": 1, "ip": "1.1.1.1"}, {"id": 2, "ip": "2.2.2.2"}]}
+    ```
+  data["alerts"][0]["ip"] → "1.1.1.1" (또는 json.loads(...)["alerts"][0]["ip"])
+4. (O/X) `json.loads()`는 딕셔너리를 JSON 문자열로 변환한다.
+  X — json.loads()는 JSON 문자열 → 딕셔너리(역방향). 딕셔너리 → JSON 문자열은 json.dumps().
+
+
+17차시 — Webhook 개념 · 폴링 vs 이벤트
+
+1. **폴링**과 **Webhook**의 가장 큰 차이는 누가 먼저 요청을 시작하는가이다. 각각 누가 먼저인가?
+  폴링 = 클라이언트(우리) 가 먼저. Webhook = 서버(상대) 가 먼저 POST로 알림.
+2. Webhook에서 데이터를 받는 URL을 무엇이라 하는가?
+  엔드포인트(endpoint) 또는 Webhook URL.
+3. (O/X) Webhook은 GET 요청으로 데이터를 전달한다.
+  X — Webhook은 POST 요청으로 데이터를 전달한다. GET은 주로 조회 목적.
+4. n8n에서 Webhook 노드를 실행 대기 상태로 만들려면 무엇을 눌러야 하는가?
+  "Listen for test events" 버튼 (또는 "Test workflow" 실행). 이 상태에서만 수신 대기.
+
+
+18차시 — Webhook → Function 노드 연결 · 경보 분류
+
+1. n8n **Function 노드**에서 이전 노드의 데이터를 읽을 때 쓰는 변수 이름은?
+  $json. n8n에서 이전 노드의 출력 데이터를 담는 내장 변수.
+2. Function 노드의 코드가 값을 내보낼 때 사용하는 형식은? (힌트: `return [ ... ]`)
+  return [{ json: { ...출력할_객체 } }] — 배열 안에 json 키를 가진 객체를 담아 반환.
+3. `{ ...$json.body, severity }` 에서 `...` 의 역할은 무엇인가?
+  스프레드 연산자 — $json.body의 기존 필드를 모두 펼쳐 복사. 기존 필드를 유지하면서 새 필드(severity)를 추가하는 효과.
+4. (O/X) n8n Function 노드는 파이썬으로 코드를 작성한다.
+  X — n8n Function 노드는 JavaScript로 작성. 파이썬이 아님(단, 로직·사고방식은 동일).
+5. (실습) Function 노드를 수정해 `level >= 10`이면 `priority: 1`, `level >= 7`이면 `priority: 2`, 그 외는 `priority: 3`을 출력 JSON에 추가하라.
+    ```jsx
+    const level = $json.body.level;
+    let priority = 3;
+    if (level >= 10) priority = 1;
+    else if (level >= 7) priority = 2;
+    return [{ json: { ...$json.body, priority } }];
+    ```
+    출력 예: level 10 → `priority: 1`.
+
+
+19차시 — CLI 스크립트와 스케줄 자동 실행
+
+1. **CLI**란 무엇인가? 한 줄로 설명하라.
+  CLI: 명령줄 인터페이스 — 텍스트 명령어로 컴퓨터를 제어하는 방식.
+2. **스크립트**가 함수와 다른 점은?
+  스크립트: 함수는 "부품(재사용 블록)", 스크립트는 함수·처리 로직을 묶어 한 번에 실행하는 완성 파일. python 파일명.py로 직접 실행 가능한 것이 스크립트.
+3. (O/X) `python detect.py`는 터미널에서 실행한다.
+  O — VS Code 내 터미널 또는 별도 명령 프롬프트 모두 해당.
+4. cron 표현식 `0 9 * * *`의 의미를 한국어로 설명하라.
+  매일 오전 9시 0분에 실행 (0=0분, 9=9시, * * *=매일·매월·요일 무관).
+5. (서술) 스케줄러가 없다면 보안 담당자는 어떻게 해야 하는가?
+  매일 직접 터미널을 열고 명령을 실행해야 하며, 빠트리거나 실수가 생길 수 있다. 스케줄러는 이 반복 작업을 자동화해 인적 오류를 제거한다.
+
+
+20차시 — n8n 워크플로우 수집·처리 파이프라인
+
+1. **노드(Node)**란 무엇인가?
+  노드: 파이프라인 한 단계를 담당하는 블록 — 입력을 받아 처리 후 출력을 내보낸다.
+2. n8n에서 파이프라인을 시작하는 노드 종류의 이름은?
+  트리거 노드 (Webhook, Schedule, 이메일 수신 등).
+3. (O/X) Function 노드에서 이전 노드의 데이터는 `$json`으로 접근한다.
+  O — $json은 n8n Function 노드에서 이전 노드 출력 데이터 객체를 가리킨다.
+4. level 8이 입력됐을 때 위 Function 코드의 출력 `severity`는?
+  "Medium" — level 8은 >= 10 조건 불충족, >= 7 조건 충족.
+5. (실습) curl로 `{"ip":"3.3.3.3","level":5}`를 전송했을 때 `severity`는?
+  "Low" — level 5는 어떤 조건도 충족하지 않으므로 기본값 "Low".
+6. 노코드 자동화의 장점 한 가지를 말하라.
+  코딩 없이 GUI로 흐름을 구성할 수 있다 / 비개발자도 자동화 가능 / 시각적으로 파이프라인 흐름을 파악하기 쉽다
+
+
+21차시 — 워크플로우 완성·Markdown 리포트 자동 생성
+
+1. Markdown에서 표의 헤더와 구분선을 만드는 기호는?
+  | (파이프) — 열 구분, |---|---|---| 은 헤더와 데이터 구분선.
+2. (O/X) `f.write("\n")`은 줄 바꿈을 파일에 쓴다.
+  O — "\n"은 줄 바꿈 문자. 파일에 쓰면 다음 줄로 넘어간다.
+3. `datetime.now().strftime("%Y-%m-%d")`의 출력 형태는?
+  2026-09-03. %Y=4자리 연도, %m=월, %d=일.
+4. 파일명에 날짜를 넣으면 어떤 이점이 있는가?
+  실행할 때마다 새 파일이 생성돼 이전 리포트가 덮어쓰여 사라지지 않는다. 이력 관리·감사 추적에 유리.
+5. (서술) Part B에서 배운 자동화 흐름을 "경보 수신부터 리포트까지" 한 줄로 정리하라.
+  "Webhook으로 경보를 수신 → Function에서 severity 분류 → Markdown 파일로 리포트 생성"
+
+
+22차시 — LLM 원리·한계·검색 vs 생성
+
+1. **LLM**이 글을 생성하는 핵심 원리를 한 줄로 설명하라.
+  "앞 문장을 보고 다음에 올 단어를 확률로 예측하는 과정을 반복해 글을 생성한다."
+2. 검색 엔진과 LLM의 가장 큰 차이는?
+  검색 엔진은 기존 웹 문서의 링크를 찾아주고, LLM은 질문에 맞는 새 텍스트를 생성한다.
+3. (O/X) LLM은 같은 질문에 항상 동일한 답변을 출력한다.
+  X — 확률적 생성 과정이므로 같은 질문에 답변이 미묘하게 달라질 수 있다.
+4. **환각(Hallucination)**이란 무엇인가?
+  환각: LLM이 사실이 아닌 내용을 그럴듯하게, 자신 있게 출력하는 현상. 검증이 필요한 이유.
+5. LLM이 오늘 발생한 사건을 모르는 이유는?
+  학습 시점(Cutoff) 제한: 모델을 학습시킨 날짜 이후의 사건은 학습 데이터에 없어 알 수 없다.
+
+
+23차시 — 좋은 프롬프트 3요소·나쁜 vs 좋은 비교
+
+1. 좋은 프롬프트의 **3요소**를 쓰라.
+  역할(Role) + 맥락(Context) + 출력형식(Format).
+2. (O/X) "이 경보 분석해줘"는 좋은 프롬프트다.
+  X — 경보 데이터도 없고 출력형식도 없는 막연한 지시. 좋은 프롬프트가 아니다.
+3. 출력형식을 **JSON**으로 지정하는 이유는?
+  Python json.loads() 또는 r.json()으로 자동 파싱 가능. 자유 문장은 파싱이 어려워 자동화에 쓸 수 없다.
+4. "너는 보안 분석가다"처럼 역할을 명시하면 어떤 효과가 있는가?
+  AI가 해당 분야 전문가의 관점과 어휘로 답변한다. 보안 분석가 → 보안 용어·분류 기준으로, 법무 변호사 → 법적 관점으로.
+5. (서술) LLM 응답을 Python 코드가 자동 처리하려면 어떤 출력형식이 유리한가? 이유는?
+  JSON이 유리. 구조가 정해져 있어 키로 값을 꺼낼 수 있고(예: r["severity"]), 자동화 파이프라인에서 다음 단계로 바로 전달 가능.
+
+
+24차시 — 프롬프트 템플릿·재사용·반복 개선
+
+1. **프롬프트 템플릿**이란 무엇인가?
+  프롬프트 템플릿: 고정 지시문은 그대로 두고, 달라지는 데이터 부분만 변수로 비워둔 재사용 가능한 프롬프트 형식.
+2. Python에서 변수를 문자열 안에 삽입하는 문법의 이름은?
+  f-string (포맷 문자열 리터럴) — f"..." 안에 {변수}를 사용.
+3. (O/X) `f"안녕 {name}"` 에서 `name = "Alice"` 이면 출력은 `"안녕 Alice"` 이다.
+  O — f-string에서 {name}이 "Alice"로 치환되어 "안녕 Alice"` 출력.
+4. 프롬프트 템플릿을 함수로 만들면 어떤 이점이 있는가?
+  지시문을 한 곳에서만 관리(DRY)·경보 건수에 관계없이 한 번만 정의·지시문 수정 시 함수만 고치면 전체 적용.
+5. **반복 개선(Iteration)**이란 무엇인가?
+  반복 개선: 결과를 확인 → 문제점 파악 → 프롬프트 수정 → 재실행하는 사이클. 한 번에 완벽한 프롬프트를 쓸 필요 없이 점진적으로 개선한다.
+6. (실습) `make_prompt({"rule": 1002, "level": 8, "ip": "2.2.2.2"})` 의 출력을 적어라.
+    ```
+    너는 사이버 보안 분석가다.
+    아래 경보를 분석해 심각도·요약·권고를 포함한 JSON으로 답하라.
+    다른 설명 없이 JSON만 출력하라.
+    
+    경보: {'rule': 1002, 'level': 8, 'ip': '2.2.2.2'}
+    ```
