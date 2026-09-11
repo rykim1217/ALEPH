@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="김라연의 이야기와 기록, 대표작을 담은 포트폴리오">
+  <title>김라연 포트폴리오</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <style>
+    :root{
+      --navy:#2d3852;--blue:#315fdb;--blue-soft:#edf2ff;--ink:#172044;
+      --muted:#626b87;--line:#dce2f0;--paper:#f8f9fb;--surface:#eef1f5;
+    }
+    *{box-sizing:border-box}
+    html{margin:0;scroll-behavior:smooth;scroll-snap-type:y mandatory}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;overflow-x:hidden}
+    a{color:inherit}
+    .shell{width:min(1180px,calc(100% - 48px));margin:0 auto}
+    .hero{min-height:100svh;display:flex;flex-direction:column;background:var(--navy);color:#fff;scroll-snap-align:start;scroll-snap-stop:always;position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;width:520px;height:520px;right:-270px;bottom:-300px;border:1px solid rgba(255,255,255,.18);border-radius:50%;box-shadow:0 0 0 80px rgba(255,255,255,.025),0 0 0 160px rgba(255,255,255,.018)}
+    .nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.17);position:relative;z-index:2}
+    .mark{font-size:.8rem;font-weight:750;letter-spacing:.18em}
+    .navlinks{display:flex;gap:26px}
+    .navlinks a{font-size:.82rem;color:#cbd4ef;text-decoration:none}
+    .navlinks a:hover{color:#fff}
+    .hero-body{flex:1;display:flex;align-items:center;padding:56px 0 70px;position:relative;z-index:1}
+    .hero-copy{max-width:850px}
+    .eyebrow{margin:0 0 24px;color:#aebce5;font-size:.82rem;font-weight:700;letter-spacing:.16em}
+    h1{margin:0;font-size:clamp(5.2rem,10vw,9.2rem);line-height:.82;letter-spacing:-.065em;font-weight:800}
+    .tagline{max-width:690px;margin:42px 0 0;font-size:clamp(1.4rem,2.6vw,2.3rem);line-height:1.38;letter-spacing:-.035em;font-weight:650;word-break:keep-all}
+    .email{display:inline-flex;align-items:center;gap:10px;margin-top:34px;color:#fff;text-decoration:none;font-weight:650;border-bottom:1px solid #fff;padding-bottom:5px}
+    .email:after{content:"↗";color:#91abff}
+    .scroll{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-size:.7rem;color:#9facd1;letter-spacing:.18em}
+    .section{min-height:100svh;padding:72px 0;scroll-snap-align:start;scroll-snap-stop:always;display:flex;align-items:center}
+    .section.soft{background:var(--surface)}
+    .section-grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:72px}
+    .section-index{position:sticky;top:32px;height:max-content}
+    .num{display:block;color:var(--blue);font-size:.78rem;font-weight:800;letter-spacing:.18em;margin-bottom:14px}
+    .section-index h2{margin:0;color:var(--navy);font-size:1.4rem;line-height:1.35;letter-spacing:-.025em;word-break:keep-all}
+    .section-index:after{content:"";display:block;width:46px;height:3px;margin-top:22px;background:var(--blue)}
+    .story{max-width:none;font-size:1.06rem;line-height:1.66;letter-spacing:-.012em;word-break:keep-all}
+    .story-lead{margin:0 0 18px;font-size:1.31rem;line-height:1.5;color:var(--navy);font-weight:680}
+    .story-columns{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+    .story-column p{margin:0 0 .88em}
+    .story-column p:last-child{margin-bottom:0}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+    .metric{min-height:210px;padding:28px;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column}
+    .metric strong{color:var(--navy);font-size:3.2rem;line-height:1;font-weight:800;letter-spacing:-.05em}
+    .metric h3{margin:18px 0 7px;font-size:1rem}
+    .metric p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.55}
+    .metric small{margin-top:auto;padding-top:20px;color:#7a829b;font-size:.73rem}
+    .resilience{border-left:3px solid var(--blue);padding:18px 22px;background:var(--blue-soft);color:#344165;font-size:.92rem;line-height:1.7}
+    .abilities{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
+    .ability{padding:26px 24px;border-top:3px solid var(--navy);background:#fff;box-shadow:0 14px 38px rgba(16,26,63,.07)}
+    .ability span{color:var(--blue);font-size:.72rem;font-weight:800;letter-spacing:.12em}
+    .ability h3{margin:12px 0 10px;color:var(--navy);font-size:1.1rem}
+    .ability p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.65}
+    .works{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .work{min-height:310px;padding:32px;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
+    .work:hover{transform:translateY(-3px);border-color:#9cb0e8}
+    .work-label{color:var(--blue);font-size:.75rem;font-weight:800;letter-spacing:.14em}
+    .work h3{max-width:580px;margin:42px 0 14px;color:var(--navy);font-size:clamp(1.35rem,2.2vw,2rem);line-height:1.35;letter-spacing:-.035em;word-break:keep-all}
+    .work p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.7}
+    .work a,.work .pending{width:max-content;margin-top:auto;padding-top:28px;color:var(--blue);font-weight:750;text-decoration:none}
+    .work a:hover{text-decoration:underline}
+    .documents{display:flex;align-items:center;justify-content:space-between;gap:36px;padding:28px 32px;border:1px solid var(--line);background:#fff}
+    .documents h3{margin:0 0 8px;color:var(--navy);font-size:1.25rem}
+    .documents p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.6}
+    .doc-links{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    .doc-links span,.doc-links a{padding:11px 15px;border:1px solid var(--line);color:var(--navy);text-decoration:none;font-size:.84rem;font-weight:700;white-space:nowrap}
+    .doc-links span{color:#9299ad;background:#fafbfe}
+    footer{padding:48px 0;background:var(--navy);color:#b7c1df}
+    .footer-inner{display:flex;justify-content:space-between;gap:24px;font-size:.8rem}
+    .final-screen{min-height:100svh;scroll-snap-align:start;scroll-snap-stop:always;display:grid;grid-template-rows:1fr 1fr}
+    .final-band{display:flex;align-items:center;padding:38px 0}
+    .final-band.works-band{background:var(--paper)}
+    .final-band.docs-band{background:var(--surface)}
+    .final-band .section-grid{align-items:center}
+    .final-band .section-index{position:static}
+    .final-band .works{grid-template-columns:1fr 1fr}
+    .final-band .work{min-height:245px;padding:27px 30px}
+    .final-band .work h3{margin:28px 0 12px;font-size:clamp(1.25rem,1.8vw,1.72rem)}
+    .final-band .work a,.final-band .work .pending{padding-top:20px}
+    @media(max-width:860px){
+      html{scroll-snap-type:none}
+      .shell{width:min(100% - 36px,720px)}
+      .navlinks{display:none}
+      .hero-body{display:flex}
+      h1{font-size:clamp(4.2rem,21vw,7rem)}
+      .section{padding:78px 0}
+      .section-grid{grid-template-columns:1fr;gap:38px}
+      .section{min-height:auto;display:block}
+      .story-columns{grid-template-columns:1fr;gap:0}
+      .story{font-size:1rem;line-height:1.8}
+      .section-index{position:static}
+      .metrics,.abilities,.works{grid-template-columns:1fr}
+      .metric{min-height:185px}
+      .documents{align-items:flex-start;flex-direction:column}
+      .doc-links{justify-content:flex-start}
+      .footer-inner{flex-direction:column}
+      .final-screen{display:block;min-height:auto}
+      .final-band{padding:78px 0}
+      .final-band .works{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header class="hero" id="top">
+    <nav class="nav shell" aria-label="주요 메뉴">
+      <div class="mark">KIM RAYEON</div>
+      <div class="navlinks"><a href="#story">이야기</a><a href="#records">기록</a><a href="#works">대표작</a><a href="#documents">지원 문서</a></div>
+    </nav>
+    <div class="hero-body shell">
+      <div class="hero-copy">
+        <p class="eyebrow">COMPUTER ENGINEERING · PORTFOLIO</p>
+        <h1>KIM<br>RAYEON</h1>
+        <p class="tagline">꾸준히 배우고 문제를 해결하며,<br>맡은 일은 끝까지 완성하는 사람</p>
+        <a class="email" href="mailto:rykim1217@naver.com">rykim1217@naver.com</a>
+      </div>
+    </div>
+    <div class="scroll">SCROLL TO READ</div>
+  </header>
+
+  <main>
+    <section class="section" id="story">
+      <div class="shell section-grid">
+        <aside class="section-index"><span class="num">01 · STORY</span><h2>다시 배우며<br>만든 변화</h2></aside>
+        <article class="story">
+          <p class="story-lead">컴퓨터공학을 전공한 뒤 여러 경험을 거치며 내가 오래 일하며 성장할 수 있는 방향을 고민해 왔다.</p>
+          <div class="story-columns">
+            <div class="story-column">
+              <p>진로를 정하는 과정이 길어지면서 몇 년 동안 프로그래밍과도 멀어졌지만, 그 시간을 통해 앞으로 어떤 일을 하며 성장하고 싶은지 다시 생각하게 되었다. 이후 전공을 활용하는 쪽으로 진로를 구체화하고, 정보처리기사와 ALEPH 교육과정을 함께 준비했다.</p>
+              <p>8월 12일부터 시험을 앞둔 기간에는 정보처리기사 필기시험을 준비하며 수업과 병행해 남는 시간을 활용했다. 수업이 끝난 뒤에도 공부하고, 쉬는 시간에도 문제를 풀며 준비했다. 약 한 달 동안 공부한 끝에 필기시험에 합격했고 이후에는 바로 실기 준비를 시작했다. 계획한 분량을 모두 마치지 못한 날에는 계획을 포기하는 대신 가능한 분량으로 다시 조정했다. 상황에 맞게 계획을 바꾸면서도 해야 할 일을 계속 실행하는 자기조절력을 키운 경험이다.</p>
+              <p>ALEPH 과정에서는 새로운 프로그래밍 언어와 도구를 배우며 직접 결과물을 만들었다. 과제가 원하는 대로 동작하지 않거나 처음 보는 오류가 발생하면 오류가 난 위치와 원인을 확인하고 다른 방법을 시도했다. 한 번에 해결되지 않는 문제도 여러 번 수정하며 결과물을 완성했다. 현재까지 훈련일 22일을 모두 출석했고, 핵심 과제 11개를 완료했으며 학습과 행동을 돌아보는 리추얼도 36회 기록했다. 이 기록은 계획을 실제 행동으로 옮기고 과제를 끝까지 수행해 온 흔적이다.</p>
+            </div>
+            <div class="story-column">
+              <p>혼자 해결하는 것에 그치지 않고 주변과 함께 해결하는 태도도 중요하게 생각한다. 새로운 조가 만들어졌을 때 먼저 인사하고 활동에 필요한 채널을 만들었으며, 수업과 과제를 진행하면서 서로 막힌 부분을 질문하고 해결 방법을 함께 찾았다. 내가 아는 내용은 설명하고 모르는 부분은 도움을 요청하면서 정확하게 소통하고 진행 상황을 나누는 대인관계력을 길렀다.</p>
+              <p>과제10에서는 생성형 AI가 사용자의 잘못된 오류 전제를 그대로 따르는지 확인하기 위해 Python 코드 10개에 두 가지 조건을 적용하고 총 20회의 응답을 직접 기록했다. 예상과 다른 결과가 나왔지만 가설에 맞게 바꾸지 않고 실제 관찰 결과를 그대로 분석했다. 스스로 정한 실험을 끝까지 수행하고 예상과 다른 결과도 다음 판단의 근거로 받아들이면서 자기동기력을 확인할 수 있었다.</p>
+              <p>모든 답을 처음부터 알고 시작할 필요는 없다고 생각한다. 해야 할 일을 하나씩 실행하고, 문제가 생기면 해결 방법을 찾으며, 혼자 해결하기 어려울 때는 주변과 소통한다. 앞으로도 꾸준히 배우고 경험을 쌓으며 맡은 일을 끝까지 완성하는 사람이 되고 싶다.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section soft" id="records">
+      <div class="shell section-grid">
+        <aside class="section-index"><span class="num">02 · RECORDS</span><h2>말보다 먼저<br>남은 숫자</h2></aside>
+        <div>
+          <div class="metrics">
+            <article class="metric"><strong>100%</strong><h3>출석률</h3><p>훈련일 22일 모두 출석</p><small>내 출석 기록 · 2026.09.10</small></article>
+            <article class="metric"><strong>36</strong><h3>리추얼 기록</h3><p>학습과 행동을 돌아본 누적 기록</p><small>리추얼 기록 · 2026.09.10</small></article>
+            <article class="metric"><strong>11</strong><h3>핵심 과제 완료</h3><p>현재 공개된 핵심 과제 모두 완료</p><small>내 제출 현황 · 2026.09.10</small></article>
+          </div>
+          <div class="resilience">오랫동안 준비하던 방향을 재검토한 뒤에도 학습을 멈추지 않았습니다.<br>전공 공부를 다시 시작한 후 훈련일 22일을 모두 출석한 기록은 새로운 목표를 꾸준히 실행한 과정의 근거입니다.</div>
+          <div class="abilities">
+            <article class="ability"><span>ABILITY 01</span><h3>자기조절력</h3><p>계획대로 되지 않은 날에는 가능한 분량으로 다시 조정해 학습을 이어갔습니다.</p></article>
+            <article class="ability"><span>ABILITY 02</span><h3>대인관계력</h3><p>새로운 조에서 먼저 소통의 기반을 만들고, 질문과 답을 나누며 해결 방법을 함께 찾았습니다.</p></article>
+            <article class="ability"><span>ABILITY 03</span><h3>자기동기력</h3><p>예상과 다른 결과도 그대로 분석하며 정한 실험과 과제를 끝까지 완성했습니다.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="final-screen">
+      <section class="final-band works-band" id="works">
+        <div class="shell section-grid">
+          <aside class="section-index"><span class="num">03 · WORKS</span><h2>직접 확인하고<br>완성한 작업</h2></aside>
+          <div class="works">
+            <article class="work"><span class="work-label">RESEARCH</span><h3>잘못된 오류 전제가 생성형 AI의 코드 수정에 미치는 영향</h3><p>Python 코드 10개에 두 조건을 적용해 총 20회의 응답을 비교했습니다. 예상과 다른 결과도 바꾸지 않고 실제 관찰 내용 그대로 분석했습니다.</p><a href="files/task10-paper.pdf" target="_blank" rel="noopener">논문 보기 →</a></article>
+            <article class="work"><span class="work-label">APPLICATION</span><h3>DebugNote</h3><p>Python 코드를 직접 실행하고, 실제 오류가 발생한 경우 오류 위치·원인·힌트·수정 예시를 단계별로 확인할 수 있는 Python 학습 도구입니다.</p><a href="https://debugnote.vercel.app/" target="_blank" rel="noopener">DebugNote 열기 →</a></article>
+          </div>
+        </div>
+      </section>
+      <section class="final-band docs-band" id="documents">
+        <div class="shell section-grid">
+          <aside class="section-index"><span class="num">04 · DOCUMENTS</span><h2>지원 문서</h2></aside>
+          <div class="documents">
+            <div><h3>이력서와 경험 기록</h3><p>이력서, 자기소개서와 경력기술서를 바로 확인할 수 있습니다.</p></div>
+            <div class="doc-links"><a href="files/resume.pdf" target="_blank" rel="noopener">이력서 보기</a><a href="files/self-introduction.pdf" target="_blank" rel="noopener">자기소개서 보기</a><a href="files/experience.pdf" target="_blank" rel="noopener">경력기술서 보기</a></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer><div class="shell footer-inner"><span>© 2026 KIM RAYEON</span><span>rykim1217@naver.com</span></div></footer>
+</body>
+</html>

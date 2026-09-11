@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Python 코드를 직접 실행하고 오류 원인과 수정 방향을 이해하는 학습 도구 DebugNote" />
+  <title>DebugNote | Python 실행·오류 학습 도구</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="brand-mark">&gt;_</div>
+      <div>
+        <h1>DebugNote</h1>
+        <p>Python 실행 · 오류 이해 · 다시 실행</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div id="engineStatus" class="engine-status loading">첫 실행 때 Python 엔진을 불러옵니다</div>
+      <button id="researchConnectBtn" class="topbar-research-btn" type="button">연구와 앱 연결 보기 →</button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro card">
+      <div class="intro-main">
+        <span class="eyebrow">RESEARCH-BASED PROJECT</span>
+        <h2>Python 오류 메시지가 어렵다면, 이유부터 이해해 보세요.</h2>
+        <p>Python을 처음 배우는 학습자가 코드를 직접 실행하고, 실제 오류가 발생한 경우 오류 위치·원인·힌트·수정 예시를 단계별로 확인할 수 있습니다.</p>
+      </div>
+      <div class="research-note">
+        <span>연구 출발점</span>
+        <strong>잘못된 오류 전제가 생성형 AI의 Python 코드 수정 행동에 미치는 영향</strong>
+        <p>오류라고 단정해 바로 수정하기보다 실제 코드 상태를 먼저 확인하고, 정상 코드에는 불필요한 수정을 권하지 않으며 실제 오류가 확인된 경우에만 수정 방향을 제시하는 원칙을 반영했습니다.</p>
+      </div>
+    </section>
+
+    <section class="workspace card">
+      <div class="workspace-head">
+        <div>
+          <span class="section-label">PYTHON WORKSPACE</span>
+          <h3>코드 실행과 오류 학습</h3>
+        </div>
+        <div class="learning-flow" aria-label="사용 흐름">
+          <span><b>01</b> 코드 작성</span><i>→</i>
+          <span><b>02</b> 실행·확인</span><i>→</i>
+          <span><b>03</b> 오류 이해</span>
+        </div>
+      </div>
+
+      <div class="work-grid">
+        <section class="code-pane" aria-label="Python 코드 입력 영역">
+          <div class="pane-head">
+            <div>
+              <span class="pane-kicker">CODE</span>
+              <strong>Python 코드</strong>
+            </div>
+            <div class="pane-tools">
+              <div class="select-wrap compact-select">
+                <select id="exampleSelect" aria-label="예제 불러오기">
+                  <option value="">예제 불러오기</option>
+                  <optgroup label="기초 예제">
+                    <option value="print">출력</option>
+                    <option value="variable">변수</option>
+                    <option value="if">조건문</option>
+                    <option value="loop">반복문</option>
+                    <option value="function">함수</option>
+                    <option value="list">리스트</option>
+                  </optgroup>
+                  <optgroup label="오류 학습 예제">
+                    <option value="syntaxError">문법 오류 · 콜론</option>
+                    <option value="nameError">변수명 오류</option>
+                    <option value="typeError">자료형 오류</option>
+                    <option value="zeroError">0으로 나누기</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+          </div>
+          <textarea id="codeInput" class="code-input" spellcheck="false" aria-label="Python 코드 입력"></textarea>
+          <div class="code-actions">
+            <button id="clearBtn" class="button ghost" type="button">코드 지우기</button>
+            <div class="code-run-group">
+              <span class="shortcut">Ctrl + Enter 실행</span>
+              <button id="runBtn" class="button primary" type="button">▶ 실행</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="result-pane" aria-label="실행 결과와 학습 안내">
+          <div class="result-head">
+            <div class="result-tabs" role="tablist" aria-label="결과 보기">
+              <button id="resultTab" class="tab active" type="button" role="tab" aria-selected="true">실행 결과</button>
+              <button id="learnTab" class="tab" type="button" role="tab" aria-selected="false">오류 이해</button>
+            </div>
+            <button id="historyBtn" class="button history-button" type="button">실행 기록 <span id="historyCount" class="count-badge">0</span></button>
+          </div>
+
+          <div id="resultView" class="tab-view active" role="tabpanel">
+            <div id="emptyState" class="empty-state">
+              <div class="empty-icon">▶</div>
+              <strong>코드를 실행해 보세요.</strong>
+              <p>현재 입력창의 코드만 새 환경에서 실행합니다.<br>이전 실행의 변수 상태는 이어지지 않습니다.</p>
+            </div>
+            <div id="resultContent" class="result-content hidden">
+              <div id="resultStatus" class="status-line"></div>
+              <div class="output-block">
+                <span class="output-label">OUTPUT</span>
+                <pre id="outputText" class="output"></pre>
+              </div>
+            </div>
+          </div>
+
+          <div id="learnView" class="tab-view" role="tabpanel">
+            <div id="learnEmpty" class="empty-state compact">
+              <div class="empty-icon">?</div>
+              <strong>오류가 발생하면 설명이 표시됩니다.</strong>
+              <p>정상 코드에는 불필요한 수정 제안을 하지 않습니다.</p>
+            </div>
+            <div id="analysisPanel" class="analysis-panel hidden"></div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <aside id="researchModal" class="research-modal" aria-hidden="true">
+    <div class="research-backdrop" data-close-research></div>
+    <section class="research-dialog" role="dialog" aria-modal="true" aria-labelledby="researchDialogTitle">
+      <div class="research-dialog-head">
+        <div>
+          <span class="section-label">FROM RESEARCH TO APP</span>
+          <h3 id="researchDialogTitle">연구에서 앱으로</h3>
+        </div>
+        <button class="icon-close" type="button" aria-label="연구와 앱 연결 설명 닫기" data-close-research>×</button>
+      </div>
+      <p class="research-summary">논문에서는 정상 Python 코드에 <strong>“오류가 있다”는 잘못된 전제</strong>를 주어도 생성형 AI가 코드 자체를 확인하고 불필요한 수정을 하지 않는 결과가 나타났습니다.</p>
+      <p class="research-summary">DebugNote는 이 결과에서 <strong>‘오류라고 가정하기보다 실제 코드 상태를 먼저 확인한다’</strong>는 원칙을 가져왔습니다. 코드를 먼저 실행해 실제 오류 여부를 확인하고, 정상 코드에는 수정을 권하지 않으며 실제 오류가 발생한 경우에만 원인과 수정 방법을 제공합니다.</p>
+      <div class="research-map" aria-label="논문 결과와 앱 기능 연결">
+        <div><span>실제 코드 상태 확인</span><b>→</b><strong>Python 코드 직접 실행</strong></div>
+        <div><span>정상 코드의 불필요한 수정 없음</span><b>→</b><strong>정상 실행 시 수정 제안 없음</strong></div>
+        <div><span>실제 오류 확인 후 지원</span><b>→</b><strong>오류 위치·원인·힌트·수정 예시 제공</strong></div>
+      </div>
+      <p class="research-conclusion">그래서 DebugNote는 오류를 전제로 답을 제시하는 도구가 아니라, 먼저 실행해 확인하고 필요한 경우에만 수정을 돕는 Python 학습 도구로 설계했습니다.</p>
+    </section>
+  </aside>
+
+  <aside id="historyDrawer" class="history-drawer" aria-hidden="true">
+    <div class="drawer-backdrop" data-close-history></div>
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+      <div class="drawer-head">
+        <div>
+          <span class="section-label">LOCAL HISTORY</span>
+          <h3 id="historyTitle">최근 실행 기록</h3>
+        </div>
+        <button class="icon-close" type="button" aria-label="실행 기록 닫기" data-close-history>×</button>
+      </div>
+      <p class="drawer-help">최근 10개의 코드와 결과를 이 브라우저에만 저장합니다. 변수 상태는 저장하지 않습니다.</p>
+      <div id="historyList" class="history-list"></div>
+      <div class="drawer-footer">
+        <button id="clearHistoryBtn" class="button ghost danger" type="button">기록 전체 삭제</button>
+      </div>
+    </div>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>
