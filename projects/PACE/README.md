@@ -18,6 +18,18 @@ node server.js
 node --test
 ```
 
+## Vercel 배포
+
+- GitHub 저장소: `rykim1217/ALEPH`
+- Root Directory: `projects/PACE`
+- Framework Preset: `Other`
+- Build Command: `npm run build`
+- Output Directory: `dist` (Root Directory 기준)
+
+`npm run build`는 `index.html`과 실행에 필요한 `src/styles.css`, `src/app.js`, `src/calendar.js`, `src/data.js`만 `dist`에 복사합니다. 원본 파일 내용과 경로는 유지됩니다. 빌드할 때 이전 출력은 삭제하므로 오래된 파일이 남지 않습니다. README, 계획 문서, 테스트, 참고 이미지, 로컬 서버 및 빌드 스크립트는 공개 출력에 포함하지 않습니다. 외부 npm 패키지와 배포용 서버는 필요하지 않으며, Vercel은 `dist`의 정적 파일을 제공합니다. 폰트는 기존과 같이 jsDelivr에서 불러옵니다.
+
+`dist`는 생성 파일이므로 Git에 포함하지 않습니다. `vercel.json`에도 빌드 명령과 출력 경로를 지정했습니다. 로컬에서는 `node scripts/build.js`로도 동일한 출력을 만들 수 있습니다.
+
 - 이전/다음 달 버튼으로 월 이동 및 연도 경계를 확인합니다.
 - 오늘 버튼으로 현재 월과 오늘 날짜 선택 상태로 돌아옵니다.
 - 날짜를 클릭하여 학습 가능시간, 예정 학습, 총 시간, 특별 일정을 확인합니다.
