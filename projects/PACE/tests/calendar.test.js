@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dateKey, monthCells, shiftMonth, daysBetween, formatMinutes } from '../src/calendar.js';
-import { canSchedulePlanStudy, createDemoPlans, getDemoDay, studyColors } from '../src/data.js';
+import { getDaySummary } from '../src/data.js';
 test('월간 캘린더는 일요일부터 토요일까지 실제 날짜를 누락 없이 표시한다', () => {
   for (const [year, month] of [[2026, 9], [2024, 1], [2026, 1], [2026, 7]]) {
     const cells = monthCells(year, month);
@@ -19,68 +19,32 @@ test('날짜와 시간 표시', () => {
   assert.equal(daysBetween(new Date(2026, 9, 9), new Date(2026, 10, 14)), 36);
   assert.equal(formatMinutes(120), '2시간'); assert.equal(formatMinutes(90), '1시간 30분'); assert.equal(formatMinutes(0), '0시간');
 });
-test('시험·목표·휴식과 학습 유형이 예시 데이터에서 구분된다', () => {
-  const plan = createDemoPlans(new Date(2026, 9, 9))[0];
-  const today = getDemoDay(new Date(2026, 9, 9), plan);
-  assert.equal(today.total, 125); assert.equal(today.capacity, 145);
-  assert.equal(getDemoDay(new Date(2026, 9, 11), plan).rest, true);
-  const workingSunday = getDemoDay(new Date(2026, 9, 18), plan);
-  assert.equal(workingSunday.rest, false);
-  assert.deepEqual(workingSunday.items.map(item => item.type), ['review']);
-  assert.equal(plan.examDate, '2026-10-25');
-  assert.equal(plan.goalDate, '2026-10-16');
-  assert.equal(getDemoDay(new Date(2026, 9, 25), plan).special[0].title, '실기 시험');
-  assert.equal(getDemoDay(new Date(2026, 9, 25), plan).items.length, 0);
-  assert.equal(getDemoDay(new Date(2026, 9, 16), plan).special[0].title, '이론 완료 목표');
-  assert.deepEqual(getDemoDay(new Date(2026, 9, 9), plan).items.map(item => item.type), ['lecture', 'practice', 'review']);
-  assert.deepEqual(getDemoDay(new Date(2026, 9, 7), plan).items.map(item => item.type), ['practice']);
-  assert.equal(getDemoDay(new Date(2026, 9, 22), plan).special.length, 0);
-  assert.equal(today.items[0].color, studyColors.lecture);
-  assert.equal(today.items[1].color, studyColors.practice);
-  assert.equal(today.items[2].color, studyColors.review);
+
+test('6주 달력과 시험일까지 남은 날짜를 계산한다', () => { assert.equal(monthCells(2026, 7).length, 42); assert.equal(daysBetween(new Date(2026,9,9),new Date(2026,9,25)),16); });
+test('저장된 옛 예시 필드로 반복 학습·목표·휴식·가능 시간을 생성하지 않는다', () => {
+ const legacy = {id:'practical',name:'기존 자격증',examDate:'2026-10-25',subjects:['데이터베이스 7강','SQL 8강','프로그래밍 4강'],goalDate:'2026-10-16',goalName:'예시 목표',restDates:['2026-10-11']};
+ for(const date of [9,11,16,25]) { const day=getDaySummary(new Date(2026,9,date),[legacy]); assert.equal(day.items.length,0);assert.equal(day.capacity,null);assert.equal(day.total,null);assert.equal(day.rest,false);assert.equal(day.special.some(e=>e.type==='goal'),false); }
+ assert.equal(getDaySummary(new Date(2026,9,25),[legacy]).special[0].title,'기존 자격증 시험');assert.equal(legacy.subjects.length,3);
 });
-test('6주 캘린더 달과 실제 시험일까지 남은 날짜를 계산한다', () => {
-  const sixWeekMonth = monthCells(2026, 7);
-  assert.equal(sixWeekMonth.length, 42);
-  const plan = createDemoPlans(new Date(2026, 9, 9))[0];
-  assert.equal(daysBetween(new Date(2026, 9, 9), new Date(`${plan.examDate}T00:00:00`)), 16);
+test('명시적 실제 학습·가능 시간·목표만 집계하고 필터와 개인 일정을 유지한다',()=>{
+ const plans=[{id:'a',name:'A',examDate:null},{id:'b',name:'B',examDate:'2026-10-09'}],personal=[{id:'p',date:'2026-10-09',title:'예약'}];
+ const records={studyItems:[{id:'1',planId:'a',date:'2026-10-09',title:'실제 학습',minutes:30},{id:'2',planId:'b',date:'2026-10-09',minutes:40},{id:'3',planId:'a',date:'2026-10-09',minutes:48,source:'demo'}],availability:{'2026-10-09':120},goals:[{planId:'a',date:'2026-10-09',title:'실제 목표',source:'user'}]};
+ const all=getDaySummary(new Date(2026,9,9),plans,personal,records);assert.equal(all.total,70);assert.equal(all.capacity,120);
+ const filtered=getDaySummary(new Date(2026,9,9),[plans[0]],personal,records);assert.equal(filtered.total,30);assert.equal(filtered.capacity,120);assert.deepEqual(filtered.special.map(e=>e.type),['goal','personal']);
+ const empty=getDaySummary(new Date(2026,9,9),[],personal);assert.equal(empty.special[0].id,'p');assert.equal(empty.total,null);assert.equal(empty.capacity,null);
 });
-test('시험별 예시 학습 일정은 시험일 전까지만 생성하고 시험일 라벨은 유지한다', () => {
-  const [practical, language] = createDemoPlans(new Date(2026, 9, 9));
-  const day = (value, plan) => getDemoDay(new Date(`${value}T00:00:00`), plan);
-  assert.equal(canSchedulePlanStudy(new Date('2026-10-24T00:00:00'), practical), true);
-  assert.equal(day('2026-10-24', practical).items.length > 0, true);
-  assert.equal(canSchedulePlanStudy(new Date('2026-10-25T00:00:00'), practical), false);
-  assert.equal(day('2026-10-25', practical).items.length, 0);
-  assert.equal(day('2026-10-25', practical).special.find(item => item.type === 'exam').title, '실기 시험');
-  for (const date of ['2026-10-26', '2026-11-15', '2026-12-15']) {
-    assert.equal(day(date, practical).items.length, 0, `${date} has no practical-plan study items`);
-  }
-  assert.equal(day('2026-11-20', language).items.length > 0, true);
-  assert.equal(day('2026-11-22', language).items.length, 0);
+test('명시적인 0분과 미설정을 구분한다',()=>{assert.equal(getDaySummary(new Date(2026,9,9),[],[],{availability:{'2026-10-09':0}}).capacity,0);assert.equal(getDaySummary(new Date(2026,9,9),[],[],{availability:{'2026-10-09':-1}}).capacity,null);});
+import {detailPlacement} from '../src/calendar.js';
+test('상세 팝업은 위/아래/좌우에서 선택 칸을 가리지 않고 화면 안에 배치한다',()=>{for(const cell of [{left:400,right:600,top:180,bottom:350},{left:1000,right:1200,top:520,bottom:690},{left:1700,right:1900,top:850,bottom:1020}])for(const height of [450,720]){const p=detailPlacement(cell,364,height,1920,1080);assert.equal(p.fullscreen,undefined);assert.ok(p.x>=16&&p.y>=16&&p.x+364<=1904&&p.y+height<=1064);assert.ok(p.x>=cell.right||p.x+364<=cell.left||p.y>=cell.bottom||p.y+height<=cell.top);}assert.equal(detailPlacement({left:10,right:60,top:300,bottom:380},364,700,390,844).fullscreen,true);});
+import {attachedEditorPlacement} from '../src/calendar.js';
+test('옆 편집창은 상세 위치 변경 없이 화면 안에서 날짜 칸과 상세를 피한다',()=>{const cell={left:1700,right:1900,top:900,bottom:1060},detail={left:1540,right:1904,top:420,bottom:880};const p=attachedEditorPlacement(detail,cell,340,260,1920,1080);assert.equal(p.x,1190);assert.equal(p.y,420);assert.equal(attachedEditorPlacement(detail,cell,340,260,390,844).fullscreen,true);const leftDetail={left:600,right:964,top:400,bottom:860};const right=attachedEditorPlacement(leftDetail,{left:400,right:590,top:400,bottom:550},340,260,1920,1080);assert.equal(right.x,974);});
+import { datePickerPlacement } from '../src/calendar.js';
+test('날짜 선택 팝업은 아래 공간이 부족하면 위쪽에 표시하고 좌우 경계를 지킨다',()=>{
+  const bounds={left:650,right:1270,top:240,bottom:840};
+  assert.deepEqual(datePickerPlacement({left:673,top:350,bottom:393},bounds,300,292,1920,1080),{x:673,y:399});
+  assert.deepEqual(datePickerPlacement({left:1120,top:700,bottom:743},bounds,300,292,1920,1080),{x:958,y:402});
 });
-test('전체 일정은 시험별 학습을 합치되 학습 가능시간은 하루 기준으로 한 번만 계산한다', () => {
-  const plans = createDemoPlans(new Date(2026, 9, 9));
-  const day = getDemoDay(new Date(2026, 9, 9), plans);
-  assert.equal(day.items.length, 6);
-  assert.equal(day.capacity, 145);
-  assert.equal(new Set(day.items.map(item => item.planId)).size, 2);
-});
-test('개별 시험 필터는 해당 시험의 일정만 보여주고 개인 일정은 항상 포함한다', () => {
-  const [practical, language] = createDemoPlans(new Date(2026, 9, 9));
-  const appointment = { id: 'personal-1', date: '2026-10-16', title: '병원 예약' };
-  const practicalDay = getDemoDay(new Date(2026, 9, 16), [practical], [appointment]);
-  assert.equal(practicalDay.items.every(item => item.planId === 'practical'), true);
-  assert.deepEqual(practicalDay.special.map(item => item.type), ['goal', 'personal']);
-  assert.equal(practicalDay.capacity, 145);
-  const languageDay = getDemoDay(new Date(2026, 9, 16), [language], [appointment]);
-  assert.equal(languageDay.special.some(item => item.type === 'goal'), false);
-  assert.equal(languageDay.special.some(item => item.type === 'personal'), true);
-});
-test('시험일이 없는 상시 학습 계획은 날짜 경계 없이 학습을 표시할 수 있다', () => {
-  const plan = { id: 'toeic', name: 'TOEIC', examDate: null, subjects: ['독해', '문제풀이', '어휘'], restDates: [] };
-  const date = new Date('2026-12-07T00:00:00');
-  assert.equal(canSchedulePlanStudy(date, plan), true);
-  assert.equal(getDemoDay(date, plan).items.length, 2);
-  assert.equal(getDemoDay(date, plan).special.length, 0);
+test('작은 화면의 날짜 팝업은 화면 내부에 유지한다',()=>{
+  const p=datePickerPlacement({left:280,top:490,bottom:533},{left:12,right:378,top:20,bottom:620},300,292,390,640);
+  assert.ok(p.x>=12&&p.x+300<=378);assert.ok(p.y>=12&&p.y+292<=628);
 });

@@ -7,19 +7,19 @@
       <a class="brand" href="/" aria-label="PACE 홈"><span class="brand-mark" aria-hidden="true">✦</span><span>PACE</span></a>
       <div class="today-heading"><time id="today-date"></time><button class="today-pill" id="go-today-side">오늘</button></div>
       <section class="today-card" aria-labelledby="today-title">
-        <div class="card-heading"><span class="section-icon">▦</span><h2 id="today-title">오늘의 학습</h2><button class="card-arrow" id="today-detail" aria-label="오늘 학습 상세 보기">›</button></div>
-        <div class="stage-pill"><span>▥</span><span id="today-stage"></span></div>
-        <div class="availability"><span class="section-icon">◷</span><div><span>오늘 학습 가능시간</span><strong id="today-capacity"></strong></div><button class="change-capacity" id="change-time" disabled title="2차 개발 예정">2차 예정</button></div>
+        <div class="card-heading"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="calendar-days"><path d="M8 2v4m8-4v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg></span><h2 id="today-title">오늘의 학습</h2><button class="card-arrow" id="today-detail" aria-label="메인 달력의 오늘 날짜 보기">›</button></div>
+        <div class="availability"><h3 class="assigned-title">오늘 학습 가능시간</h3><div class="capacity-line"><div class="capacity-value"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="clock-3"><circle cx="12" cy="12" r="10"/><path d="M12 6v6h4"/></svg></span><strong id="today-capacity"></strong></div><div class="capacity-actions"><button class="today-pill" id="edit-today-time">변경</button></div></div></div>
         <h3 class="assigned-title">오늘 배정된 학습 항목</h3>
         <div id="today-items"></div>
-        <div class="today-total"><span>오늘 총 예정시간</span><strong id="today-total"></strong></div>
+        <div class="today-total"><h3 class="assigned-title">오늘 총 예정시간</h3><strong id="today-total"></strong></div>
       </section>
       <nav aria-label="주 메뉴">
-        <button class="nav-item active" id="schedule-nav" aria-current="page"><span>▦</span>일정</button>
-        <button class="nav-item" data-future="학습 항목"><span>⚑</span>학습 항목</button>
-        <button class="nav-item" data-future="학습 가능시간"><span>◷</span>학습 가능시간</button>
-        <button class="nav-item" data-future="시험 설정"><span>⚐</span>시험 설정</button>
-        <button class="nav-item settings-item" data-future="설정"><span>⚙</span>설정</button>
+        <button class="nav-item active" id="schedule-nav" aria-current="page"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="calendar-days"><path d="M8 2v4m8-4v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg></span>일정</button>
+        <button class="nav-item" id="study-settings"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="book-open"><path d="M12 7v14m-10-3V3h6a4 4 0 0 1 4 4 4 4 0 0 1 4-4h6v15h-6a4 4 0 0 0-4 3 4 4 0 0 0-4-3Z"/></svg></span>학습 항목</button>
+        <button class="nav-item" id="planning-nav"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="chart-no-axes-gantt"><path d="M8 6h10M6 12h9M11 18h7"/></svg></span>학습 계획</button>
+        <button class="nav-item" id="availability-settings"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="clock-3"><circle cx="12" cy="12" r="10"/><path d="M12 6v6h4"/></svg></span>학습 가능시간</button>
+        <button class="nav-item" id="certification-settings"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="graduation-cap"><path d="m2 9 10-5 10 5-10 5-10-5Zm4 2v6c4 3 8 3 12 0v-6M22 9v6"/></svg></span>시험 설정</button>
+        <button class="nav-item settings-item" id="backup-import-settings"><span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" data-icon="settings"><path d="M12.00,4.00 L13.95,2.19 L15.83,2.76 L16.44,5.35 L17.66,6.34 L20.31,6.44 L21.24,8.17 L19.85,10.44 L20.00,12.00 L21.81,13.95 L21.24,15.83 L18.65,16.44 L17.66,17.66 L17.56,20.31 L15.83,21.24 L13.56,19.85 L12.00,20.00 L10.05,21.81 L8.17,21.24 L7.56,18.65 L6.34,17.66 L3.69,17.56 L2.76,15.83 L4.15,13.56 L4.00,12.00 L2.19,10.05 L2.76,8.17 L5.35,7.56 L6.34,6.34 L6.44,3.69 L8.17,2.76 L10.44,4.15 Z"/><circle cx="12" cy="12" r="3"/></svg></span>설정</button>
       </nav>
     </aside>
     <main>
@@ -30,7 +30,7 @@
             <div class="exam-options" id="exam-options" role="listbox" aria-label="일정 필터" hidden></div>
           </div>
           <div class="month-navigation"><button class="month-arrow" id="previous-month" aria-label="이전 달">‹</button><div class="month-title-group"><h2 id="month-title" aria-live="polite"></h2><button class="year-view-toggle" id="year-view-toggle" type="button" aria-label="연간 달력 보기" title="연간 달력 보기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7.5 3.5v3M16.5 3.5v3M3.5 9h17M7.5 12.5h2M12 12.5h2M16.5 12.5h0M7.5 16h2M12 16h2"/></svg></button></div><button class="month-arrow" id="next-month" aria-label="다음 달">›</button></div>
-          <div class="legend"><span><i class="lecture"></i>학습 예정</span><span><i class="goal"></i>목표 일정</span><span><i class="exam"></i>시험 일정</span><span><i class="personal"></i>개인 일정</span></div>
+          <div class="legend"><span><i class="goal"></i>목표 일정</span><span><i class="exam"></i>시험 일정</span><span><i class="personal"></i>개인 일정</span><span><i class="rest"></i>휴식일</span></div>
         </div>
         <div class="calendar-body">
           <div class="weekdays" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
@@ -39,12 +39,22 @@
       </section>
     </main>
   </div>
-  <dialog id="date-dialog" aria-labelledby="detail-title"><div class="dialog-top"><h2 id="detail-title"></h2><button class="icon-button" id="close-dialog" aria-label="상세 정보 닫기">×</button></div><div id="detail-content"></div><p class="dialog-note" id="detail-notice" role="status">예시 일정입니다. 등록 및 변경 기능은 2차에서 제공됩니다.</p></dialog>
+  <dialog id="date-dialog" aria-labelledby="detail-title"><div class="dialog-top"><h2 id="detail-title"></h2><button class="icon-button" id="close-dialog" aria-label="상세 정보 닫기">×</button></div><div id="detail-content"></div><p class="dialog-note" id="detail-notice" role="status">개인 일정은 이 화면에서 추가·수정할 수 있습니다.</p></dialog>
   <dialog id="year-dialog" class="year-dialog" aria-label="연간 학습 일정">
     <section class="year-card" id="year-view">
       <header class="year-topbar"><button id="previous-year" class="year-arrow" aria-label="이전 연도">‹</button><h1 id="year-title" aria-live="polite"></h1><button id="next-year" class="year-arrow" aria-label="다음 연도">›</button><button id="year-today" class="outline-button" type="button">오늘</button><button id="close-year" class="icon-button year-close" type="button" aria-label="연간 달력 닫기">×</button></header>
       <div id="year-grid" class="year-grid"></div>
     </section>
+  </dialog>
+  <dialog id="certification-dialog" class="certification-dialog" aria-labelledby="certification-title">
+    <div class="dialog-top"><h2 id="certification-title">자격증 관리</h2><button id="close-certifications" class="icon-button" aria-label="자격증 관리 닫기">×</button></div>
+    <div id="certification-list" class="certification-list"></div>
+    <form id="certification-form" class="certification-form">
+      <label>자격증 이름<input name="name" required maxlength="60" placeholder="예: 컴퓨터활용능력 1급"></label>
+      <div class="exam-date-field"></div>
+      <p id="certification-error" role="alert" hidden></p>
+      <div class="certification-actions"><button type="button" id="cancel-add-certification">취소</button><button type="submit" id="save-certification">추가</button></div>
+    </form>
   </dialog>
   <div id="toast" class="toast" role="status" hidden></div>
   <script type="module" src="/src/app.js"></script>

@@ -131,3 +131,838 @@ dialog{inset:var(--popup-y,24px) auto auto var(--popup-x,24px);transform:none}
   .calendar-topbar .exam-select-trigger .exam-chevron{width:10px;height:10px}
 }
 @media(max-width:1150px){.calendar-body{justify-content:center}.calendar-body .weekdays{height:50px}}
+.certification-dialog{inset:50% auto auto 50%;transform:translate(-50%,-50%);width:480px;padding:22px;max-height:calc(100dvh - 40px)}
+.certification-list{display:grid;gap:8px;margin:18px 0;max-height:260px;overflow:auto}
+.certification-row{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px}
+.certification-copy{display:grid;gap:6px;flex:1;min-width:0}.certification-copy strong{font-size:15px;overflow-wrap:anywhere}.certification-copy small,.certification-form small,.optional{color:var(--muted);font-size:12px}
+.certification-name:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--certification-color);margin-right:8px;flex-shrink:0}
+.certification-row button,.certification-actions button,.certification-delete button{border:1px solid #e7e3ed;border-radius:8px;background:#fff;padding:7px 10px;font-size:13px;color:#51439d}
+.certification-form{display:grid;gap:14px}.certification-form label{display:grid;gap:7px;font-size:14px}.certification-form input{font:inherit;border:1px solid #e5e1ec;border-radius:9px;padding:10px;color:#242938;min-width:0;width:100%}.certification-form input:focus-visible{outline:3px solid #8874d5;outline-offset:2px}.certification-actions{display:flex;gap:8px}.certification-actions button[type="submit"]{background:#f2effa;border-color:#d6cef0;font-weight:550}.certification-delete{width:100%;font-size:14px}.certification-delete p{margin:0 0 10px;overflow-wrap:anywhere}.certification-delete button+button{margin-left:8px}#certification-error{color:#b32940;font-size:13px;margin:0}.certification-form [hidden],#exam-dday[hidden]{display:none}.exam-select-trigger:has(#exam-dday[hidden]){grid-template-columns:minmax(0,1fr) 20px}
+.color-field{border:0;padding:0;margin:0;min-width:0}.color-field legend{font-size:14px;margin-bottom:10px}.palette-card{padding:16px;border:1px solid #e5e1ed;border-radius:16px;background:#faf9fd}.palette-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;font-size:15px}.palette-back{border:0;border-radius:50%;background:#eeebf5;width:32px;height:32px;font-size:22px}.palette-back[hidden]{display:none}.color-swatches{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;justify-items:center;padding:5px}.color-swatch{width:30px;height:30px;border:0;border-radius:50%;padding:0;color:#fff;font-size:19px;text-shadow:0 1px 3px #0009;box-shadow:0 3px 6px #25213a16,inset 0 0 0 1px #0001}.color-swatch[aria-pressed="true"]{outline:2px solid #6453b2;outline-offset:3px}.color-swatch:focus-visible{outline:3px solid #6453b2;outline-offset:3px}.palette-card>small{display:block;margin:14px 0;line-height:1.6;color:var(--muted);font-size:12px}.palette-card .certification-actions button{flex:1;background:#eeebf5;border-radius:18px;padding:9px}.palette-card .certification-actions button:last-child{background:#e5dff7;color:#51439d}
+
+@media(max-width:720px){.color-swatches{grid-auto-flow:row;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}}
+.certification-form{grid-template-columns:minmax(0,1fr) auto}.certification-form>label,.certification-form>#certification-error{grid-column:1/-1}.certification-form>.certification-actions{grid-column:2;grid-row:4;justify-content:flex-end;align-self:center}.certification-storage-note{grid-column:1;grid-row:4;margin:0;align-self:center;white-space:nowrap;font-size:11px;color:#747987;line-height:1.5}@media(max-width:720px){.certification-storage-note{white-space:normal}.certification-form>.certification-actions{gap:5px}.certification-actions button{padding:7px 9px}}
+.certification-form>.exam-date-field{grid-column:1/-1}.exam-date-title{display:flex!important;align-items:center;gap:10px;margin-bottom:7px}.exam-date-title .optional{font-size:12px;font-weight:400}.exam-date-wrap{position:relative}.exam-date-wrap input{min-height:43px;background:#fff}.exam-date-wrap:not(.has-date) input{color:transparent}.exam-date-placeholder{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:#242938;font-size:14px}.exam-date-wrap.has-date .exam-date-placeholder{display:none}.clear-exam-date{margin-top:5px;border:0;background:transparent;color:#6453b2;font-size:12px;padding:3px 0}.clear-exam-date[hidden]{display:none}.exam-date-help{grid-column:1;grid-row:4;align-self:center;margin:0;color:#777d8c;font-size:12px;line-height:1.6}.certification-form>.certification-actions{grid-row:4;align-self:center}.certification-actions #save-certification{min-width:76px;padding:9px 16px}.certification-form>#certification-error{grid-row:3}.certification-form>[hidden]{display:none}#today-items:has(.empty-state){min-height:60px}#today-items{line-height:1.6}#today-items:not(:has(.study-row)){padding:14px 0;color:#777d8c;font-size:14px}.popup-study-list.empty-state,.empty-state{line-height:1.6;color:#777d8c}@media(max-width:720px){.exam-date-help{grid-column:1/-1;grid-row:4}.certification-form>.certification-actions{grid-column:1/-1;grid-row:5;justify-content:flex-end}}
+.exam-date-field>.exam-date-help{margin:6px 0 0;font-size:12px;line-height:1.5}.certification-form>.certification-actions{grid-row:auto;grid-column:1/-1;justify-content:flex-end;margin-top:0}
+#certification-form-title[hidden]{display:none}.certification-list+.certification-form{margin-top:12px}.exam-date-field{position:relative}.exam-date-trigger{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:43px;padding:10px 11px;border:1px solid #e5e1ec;border-radius:9px;background:#fff;color:#242938;text-align:left;font-size:14px}.exam-date-trigger svg{width:18px;height:18px;fill:none;stroke:#393d78;stroke-width:1.6}.exam-date-picker{position:absolute;top:76px;left:0;width:min(300px,100%);z-index:50;border:1px solid #e5e1ed;border-radius:13px;padding:12px;background:#fff;box-shadow:0 8px 26px #25213a25}.exam-date-picker[hidden]{display:none}.date-picker-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-size:14px}.date-picker-header button{border:0;background:#f2effa;border-radius:8px;width:30px;height:30px;font-size:22px;color:#51439d}.date-picker-weekdays,.date-picker-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center}.date-picker-weekdays{font-size:12px;color:#777d8c;padding:5px 0}.picker-day{height:30px;border:0;border-radius:8px;background:#fff;font-size:12px}.picker-day.outside{color:#a3a5b1}.picker-day.today{box-shadow:inset 0 0 0 1px #9a83ec}.picker-day[aria-pressed="true"]{background:#7863cf;color:#fff}.date-picker-footer{display:flex;justify-content:space-between;padding-top:8px;margin-top:8px;border-top:1px solid #eeebf2}.date-picker-footer button{border:0;background:transparent;font-size:12px;color:#6453b2;padding:5px}.certification-dialog:has(.exam-date-picker:not([hidden])){overflow:visible}.certification-form input[type="hidden"]{display:none}
+@media(max-width:720px){.exam-date-picker{position:static;width:100%;margin-top:8px;box-shadow:none}.certification-dialog:has(.exam-date-picker:not([hidden])){overflow:auto}}
+.availability-dialog{inset:50% auto auto 50%;transform:translate(-50%,-50%);width:540px;max-height:calc(100dvh - 40px);padding:22px}.availability-form{display:grid;gap:12px;margin-top:16px}.availability-modes,.rest-days{display:flex;gap:7px}.availability-modes button,.rest-days button,.availability-form button:not(.icon-button){border:1px solid #e5e1ed;border-radius:10px;background:#fff;padding:8px 12px;color:#51439d;font:inherit;font-size:13px}.availability-modes button{flex:1}.availability-modes button[aria-pressed=true],.rest-days button[aria-pressed=true]{background:#eeebfa;border-color:#c9b8ff}.rest-days button{flex:1;padding:8px 0!important}.time-input-row{display:flex;align-items:center;gap:7px;font-size:13px}.time-input-row>span{flex:1}.availability-form input,.availability-form select{border:1px solid #e5e1ed;border-radius:8px;padding:8px;font:inherit;color:#242938;background:#fff;min-width:0}.time-input-row input{width:65px}.availability-form h3{margin:7px 0 0}.exception-row{display:flex;align-items:center;gap:7px;font-size:13px;margin:5px 0}.exception-row span{flex:1}.availability-exceptions{font-size:13px;color:#777d8c;max-height:150px;overflow:auto}.exception-editor{display:grid;gap:10px;padding:12px;border:1px solid #e5e1ed;border-radius:12px;background:#faf9fd}.exception-editor>label:not(.time-input-row){display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}.availability-error{color:#b32940;font-size:13px;margin:0}.availability-error:empty{display:none}.availability-form .certification-actions{justify-content:flex-end}.time-input-row[hidden]{display:none}.year-markers i.rest{background:#a6a7b0}@media(max-width:720px){.availability-dialog{padding:16px;width:calc(100vw - 24px)}.time-input-row input{width:53px}.time-input-row{gap:5px}.availability-modes button{padding:8px 5px!important}}
+.availability-form{font-size:14px}.availability-form .time-input-row,.availability-form .exception-row,.availability-form .availability-exceptions,.availability-form .exception-editor>label:not(.time-input-row){font-size:14px}.availability-form .availability-modes button,.availability-form .rest-days button,.availability-form button:not(.icon-button){font-size:14px}.availability-form input,.availability-form select{font-size:14px}.availability-form .dialog-note{font-size:13px;line-height:1.6}.exception-editor>label:not(.time-input-row)>input,.exception-editor>label:not(.time-input-row)>select{width:174px;flex:0 0 174px;box-sizing:border-box;padding-right:8px}.time-input-row.disabled input{background:#eeedf2;color:#9295a0;cursor:not-allowed}.time-input-row.disabled>span{color:#8b8d97}@media(max-width:720px){.exception-editor>label:not(.time-input-row)>input,.exception-editor>label:not(.time-input-row)>select{width:150px;flex-basis:150px}.availability-form .time-input-row{flex-wrap:wrap}.availability-form .time-input-row>span{min-width:95px}.availability-form .dialog-note{font-size:13px}}
+.availability-form>.dialog-note{margin:0;transform:translateY(-6px);margin-bottom:-6px}.exception-editor>label:not(.time-input-row)>select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M2 2l4 4 4-4' fill='none' stroke='%23242938' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 8px;padding-right:32px}
+.availability-form>.dialog-note{margin:0;transform:none;margin-bottom:0}
+.availability-form .time-input-row,.availability-form .exception-editor>label:not(.time-input-row){font-size:15px}
+.exception-date-field{position:relative;width:174px;flex:0 0 174px}
+.exception-date-field input[type="hidden"]{display:none}
+.exception-date-field .exam-date-trigger{min-height:35px;padding:8px 12px;font-size:14px}
+.exception-date-field .exam-date-trigger svg{width:12px;height:14px;flex-shrink:0;stroke:#242938}
+.exception-date-field .exam-date-picker{top:42px;left:auto;right:0;width:280px;max-width:calc(100vw - 64px)}
+@media(max-width:720px){.exception-date-field{width:150px;flex-basis:150px}.exception-date-field .exam-date-picker{position:relative;top:auto;right:auto;width:100%;max-width:none;padding:6px}.exception-date-field:has(.exam-date-picker:not([hidden])){width:100%;flex-basis:100%}.exception-editor>label:has(.exam-date-picker:not([hidden])){flex-wrap:wrap;gap:8px}}
+.availability-form .date-picker-header button{border:0;background:#f2effa;border-radius:8px;width:30px;height:30px;padding:0;font-size:22px;color:#51439d}
+.availability-form .date-picker-header span{font-weight:600;color:#242938}
+.availability-form .picker-day{height:30px;border:0;border-radius:8px;background:#fff;padding:0;font-size:12px;color:#242938}
+.availability-form .picker-day.outside{color:#a3a5b1}
+.availability-form .picker-day[aria-pressed="true"]{background:#7863cf;color:#fff}
+.availability-form .date-picker-footer button{border:0;background:transparent;font-size:12px;color:#6453b2;padding:5px}
+.exception-date-field .exam-date-picker{top:auto;bottom:calc(100% + 8px)}
+@media(max-width:720px){.exception-date-field .exam-date-picker{bottom:auto}}
+.availability-form .exception-editor>label:has(.exception-date-field){display:block}
+.exception-date-field{width:100%;margin-top:8px}
+.availability-form .exception-date-field .exam-date-trigger{width:100%;min-height:43px;padding:10px 11px;border-radius:9px;background:#fff;color:#242938;text-align:left}
+.exception-date-field .exam-date-trigger svg{width:18px;height:18px;stroke:#393d78}
+.exception-date-field .exam-date-picker{top:calc(100% + 8px);bottom:auto;left:0;right:auto;width:300px}
+.availability-form .exam-date-picker .picker-day{border:0;padding:0;background:#fff;color:#242938;font-size:12px}
+.availability-form .exam-date-picker .picker-day.outside{color:#a3a5b1}
+.availability-form .exam-date-picker .picker-day[aria-pressed="true"]{background:#7863cf;color:#fff}
+.availability-form .exam-date-picker .date-picker-header button{border:0;padding:0;background:#f2effa;font-size:22px}
+.availability-form .exam-date-picker .date-picker-footer button{border:0;background:transparent;padding:5px;font-size:12px}
+.availability-dialog:has(.exam-date-picker:not([hidden])){overflow:visible}
+@media(max-width:720px){.exception-date-field{width:100%;flex-basis:100%}.exception-date-field .exam-date-picker{position:static;width:100%;margin-top:8px;padding:12px}.availability-dialog:has(.exam-date-picker:not([hidden])){overflow:auto}}
+.availability-form .exception-editor>label:has(.exception-date-field){display:flex;align-items:center;justify-content:space-between;gap:10px}
+.exception-date-field{width:174px;flex:0 0 174px;margin-top:0}
+.availability-form .exception-date-field .exam-date-trigger{min-height:35px;padding:8px 12px}
+.exception-date-field .exam-date-trigger svg{width:12px;height:14px;stroke:#242938}
+.exception-date-field .exam-date-picker{left:auto;right:0}
+@media(max-width:720px){.exception-date-field{width:150px;flex-basis:150px}.exception-date-field:has(.exam-date-picker:not([hidden])){width:100%;flex-basis:100%}.availability-form .exception-editor>label:has(.exam-date-picker:not([hidden])){flex-wrap:wrap}.exception-date-field .exam-date-picker{position:static;width:100%}}
+.availability-form .exception-date-field .exam-date-trigger,.availability-form .exception-editor>label:not(.time-input-row)>select{height:36px;min-height:36px;box-sizing:border-box;padding:8px 12px;font-size:14px;line-height:18px;font-weight:400;color:#242938}
+.availability-form .exception-editor>label:not(.time-input-row)>select{padding-right:32px}
+.special-event.personal,.personal-event-label{background:#e8f0fc;color:#486b9c}
+.legend i.personal,.year-markers i.personal{background:#8ba9d3}
+.legend i.rest,.year-markers i.rest{background:#a6a7b0}
+.day-heading{display:flex;align-items:center;justify-content:space-between;width:100%;gap:4px;min-height:32px}
+.day-heading .day-number{flex-shrink:0}
+.day-heading .special-event.rest{flex:0 0 auto;max-width:none}
+@media(max-width:720px){.day-heading{min-height:25px}.day-heading .special-event.rest{font-size:9px;padding:4px 5px}}
+@media(max-width:720px){.calendar-grid .day-cell{padding:5px 3px}.day-heading{gap:1px;min-height:20px;height:20px}.day-heading .day-number{width:18px;height:20px;font-size:12px}.day-heading .special-event.rest{font-size:8px;padding:3px 2px;border-radius:6px}}
+.day-date-label{display:inline-flex;align-items:center;gap:5px;flex-shrink:0}
+.calendar-grid .is-today .day-number{background:transparent;color:#6453b2;font-weight:700;width:auto;border-radius:0}
+.today-label{font-size:11px;font-weight:600;color:#6453b2;white-space:nowrap}
+@media(max-width:720px){.day-date-label{gap:1px}.today-label{font-size:7px}.calendar-grid .is-today .day-number{font-size:12px}}
+.availability-period{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px}
+.availability-period>select{width:220px;max-width:60%}
+.availability-period .exception-date-field{width:220px;flex-basis:220px;max-width:60%}
+#today-capacity{font-size:20px}
+@media(max-width:720px){.availability-period .exception-date-field{width:160px;flex-basis:160px}}
+#today-capacity.choose-target{font-size:14px;line-height:1.5;font-weight:500;word-break:keep-all}
+.capacity-actions{display:flex!important;gap:5px!important}.capacity-actions .change-capacity{padding:7px 9px;font-size:13px}
+#date-dialog{overflow:visible;max-height:none}
+.date-time-editor{display:grid;gap:8px;margin:10px 0;padding:12px;border:1px solid #e5e1ed;border-radius:12px;background:#faf9fd;font-size:14px}
+.date-time-editor label{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.date-time-editor select,.date-time-editor input{min-width:0;border:1px solid #e5e1ed;border-radius:8px;background:#fff;padding:6px 8px;font:inherit;color:#242938}
+.date-time-editor select{max-width:65%}.inline-time-inputs{display:flex;align-items:center;justify-content:flex-end;gap:7px}.inline-time-inputs input{width:58px}.inline-time-inputs input:disabled{background:#eeedf2;color:#9295a0}
+.inline-time-status{margin:0;font-size:12px;line-height:1.5;color:#747987}.date-time-editor button{font-size:13px}.date-time-editor .certification-actions{gap:6px}.date-time-editor .certification-actions button:first-child{margin-right:auto}
+#date-dialog.detail-fullscreen{inset:12px;transform:none;width:calc(100vw - 24px);max-width:none;max-height:calc(100dvh - 24px);overflow:auto}
+#attached-time-editor{position:fixed;width:340px;max-width:calc(100vw - 32px);padding:16px;border:1px solid #e5e1ed;border-radius:15px;background:#fff;box-shadow:0 9px 32px #25213a25;color:#242938}
+#attached-time-editor h3{margin:0 0 12px;font-size:16px}
+#attached-time-editor .date-time-editor{border:0;background:transparent;padding:0;margin:0;gap:12px}
+#attached-time-editor .certification-actions{justify-content:flex-end}
+#attached-time-editor .certification-actions button:first-child{margin-right:0}
+#attached-time-editor .certification-actions button[hidden]{display:none}
+#attached-time-editor select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M2 2l4 4 4-4' fill='none' stroke='%23242938' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+#attached-time-editor .inline-time-inputs{gap:5px;font-size:13px}
+#attached-time-editor .inline-time-inputs input{width:47px}
+#attached-time-editor.editor-fullscreen{inset:12px!important;width:calc(100vw - 24px);max-width:none;max-height:calc(100dvh - 24px);overflow:auto}
+.availability-form select,#attached-time-editor select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M2 2l4 4 4-4' fill='none' stroke='%23242938' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 8px;padding-right:32px}
+.today-card .availability{display:block;padding:4px 0 19px}
+.today-card .assigned-title{font-family:inherit;font-size:16px;font-weight:600;color:#242938;text-align:left;line-height:1.4}
+.today-card .availability>.assigned-title{margin:0 0 10px}
+.today-card .capacity-line{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.today-card .capacity-value{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.today-card .capacity-value .section-icon{font-size:21px;flex-shrink:0}
+.today-card #today-capacity{font-size:18px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.today-card .capacity-actions{flex-shrink:0;margin-right:0}
+.today-card .today-total>.assigned-title{margin:0}
+.sidebar{--sidebar-icon-width:24px;--sidebar-icon-gap:12px;--sidebar-content-inset:24px}
+.sidebar .sidebar-icon{display:inline-flex;align-items:center;justify-content:center;width:var(--sidebar-icon-width);height:24px;flex:0 0 var(--sidebar-icon-width);color:#6453b2}
+.sidebar .sidebar-icon svg{display:block;width:20px;height:20px;flex-shrink:0}
+.sidebar nav{padding:0;margin-top:17px;gap:4px}
+.sidebar .nav-item{display:flex;align-items:center;gap:var(--sidebar-icon-gap);padding:12px var(--sidebar-content-inset);min-height:48px;font-size:17px;line-height:24px}
+.sidebar .nav-item.settings-item{margin-top:10px;padding-top:12px;border-radius:0;min-height:49px}
+.sidebar .card-heading{gap:var(--sidebar-icon-gap)}
+.sidebar .capacity-value{gap:var(--sidebar-icon-gap)}
+.sidebar .today-card>.availability{margin-top:18px}
+@media(max-width:720px){.sidebar{--sidebar-content-inset:14px;--sidebar-icon-gap:12px}.sidebar .nav-item{min-height:44px;padding-block:10px;font-size:14px}.sidebar .sidebar-icon svg{width:19px;height:19px}.sidebar .today-card>.availability{margin-top:16px}}
+.sidebar .nav-item{padding-inline:calc(var(--sidebar-content-inset) + 1px)}
+.sidebar .nav-item,.sidebar .nav-item.settings-item{height:48px;min-height:48px;margin-top:0;padding-block:12px;line-height:24px}
+.sidebar nav{gap:4px}
+.sidebar .sidebar-icon svg{width:20px;height:20px;overflow:visible}
+.sidebar .sidebar-icon svg[data-icon="calendar-days"]{width:22px;height:22px}
+.sidebar .sidebar-icon svg[data-icon="book-open"]{width:22px;height:22px}
+.sidebar .sidebar-icon svg[data-icon="graduation-cap"]{width:24px;height:24px}
+.sidebar .nav-item.settings-item{border-top:0;border-radius:12px;position:relative}
+.sidebar .nav-item.settings-item:before{content:"";position:absolute;left:0;right:0;top:-2px;border-top:1px solid var(--line);pointer-events:none}
+@media(max-width:720px){.sidebar .nav-item,.sidebar .nav-item.settings-item{height:44px;min-height:44px;padding-block:10px}.sidebar .sidebar-icon svg{width:19px;height:19px}.sidebar .sidebar-icon svg[data-icon="calendar-days"],.sidebar .sidebar-icon svg[data-icon="book-open"]{width:21px;height:21px}.sidebar .sidebar-icon svg[data-icon="graduation-cap"]{width:23px;height:23px}}
+/* Keep the navigation anchored to the bottom of the desktop sidebar. */
+.sidebar nav{margin-top:auto;padding-top:24px}
+.sidebar .sidebar-icon svg[data-icon="calendar-days"],.sidebar .sidebar-icon svg[data-icon="book-open"]{width:20px;height:20px}
+@media(max-width:980px){.sidebar nav{margin-top:24px;padding-top:0}}
+@media(max-width:720px){.sidebar .sidebar-icon svg[data-icon="calendar-days"],.sidebar .sidebar-icon svg[data-icon="book-open"]{width:19px;height:19px}}
+/* Optical corrections stay inside the shared 24px icon slot. */
+@media(min-width:721px){
+.sidebar .sidebar-icon svg[data-icon="book-open"],.sidebar .sidebar-icon svg[data-icon="settings"]{width:21px;height:21px}
+.sidebar .sidebar-icon svg[data-icon="graduation-cap"]{width:22px;height:22px;transform:translateY(.5px)}
+}
+.sidebar .sidebar-icon svg>*{vector-effect:non-scaling-stroke;stroke-width:1.5px}
+.today-card .availability{padding-bottom:18px}
+.today-card>.assigned-title{margin-top:18px}
+.today-card .today-total{margin-top:18px;padding-top:18px}
+.sidebar .nav-item.settings-item:before{top:-2.5px}
+/* Give the settings divider a balanced breathing space on both sides. */
+.sidebar .nav-item.settings-item{margin-top:16px}
+.sidebar .nav-item.settings-item:before{top:-10.5px}
+.today-card #today-capacity{font-size:24px}
+.availability-form .certification-actions .availability-reset{margin-right:auto;color:#b04454;border-color:#ead3d8;background:#fff8f9}
+@media(max-width:720px){.availability-form .certification-actions{flex-wrap:wrap}}
+.availability-reset-confirm{inset:50% auto auto 50%;transform:translate(-50%,-50%);width:390px;padding:22px}
+.availability-reset-confirm p{margin:0 0 20px;font-size:15px;line-height:1.6}
+.availability-reset-confirm .certification-actions{justify-content:flex-end}
+.availability-reset-confirm button{border:1px solid #e5e1ed;border-radius:8px;background:#fff;padding:7px 13px;font-size:14px;color:#51439d}
+.availability-reset-confirm button:last-child{background:#fff0f3;color:#b04454;border-color:#ead3d8}
+.certification-dialog{width:620px;overflow:auto}.certification-list{max-height:none;overflow:visible}.certification-card{border:1px solid var(--line);border-radius:12px}.certification-card>.certification-row{border:0}.certification-card.editing{border-color:#d6cef0;background:#fdfcff}.certification-editor{padding:4px 14px 14px;grid-template-columns:minmax(0,1fr)}.certification-editor>section,.certification-editor>.certification-edit-error{grid-column:1/-1}.certification-editor button{border:1px solid #e7e3ed;border-radius:8px;background:#fff;padding:7px 10px;font-size:13px;color:#51439d}.certification-editor .exam-date-trigger{padding:10px 11px;font-size:14px}.certification-editor .exam-date-picker{position:static;width:min(300px,100%);margin-top:8px;box-shadow:none}.certification-dialog:has(.exam-date-picker:not([hidden])){overflow:auto}.goal-header{display:flex;justify-content:space-between;align-items:center;gap:12px}.goal-header h3{margin:0;font-size:14px}.goal-list{display:grid;gap:8px;margin-top:10px}.goal-list .empty-state{margin:0;font-size:13px}.goal-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;font-size:13px}.goal-name{overflow-wrap:anywhere}.goal-row time{white-space:nowrap;color:#777d8c}.goal-actions{display:flex;gap:5px;justify-content:flex-end}.goal-edit-row{grid-template-columns:minmax(0,1fr) 168px}.goal-edit-row>.goal-actions{grid-column:1/-1}.goal-edit-row .exam-date-title{display:none!important}.goal-edit-row input{font-size:13px}.goal-edit-row .exam-date-picker{width:100%}.certification-editor .certification-edit-error{margin:0;color:#b32940;font-size:13px;line-height:1.5}.certification-edit-error:empty{display:none}.certification-editor>.certification-actions{justify-content:flex-end}.certification-editor button:disabled{opacity:.5;cursor:default}
+@media(max-width:720px){.certification-dialog{width:calc(100vw - 24px);padding:16px}.goal-edit-row{grid-template-columns:minmax(0,1fr) 145px}.goal-row{gap:6px;font-size:12px}.goal-actions button{padding:6px}.goal-edit-row .exam-date-trigger{font-size:12px;padding:10px 7px}.goal-row:not(.goal-edit-row){grid-template-columns:minmax(0,1fr) auto}.goal-row:not(.goal-edit-row)>.goal-actions{grid-column:1/-1}}
+/* Keep the goal calendar readable without widening its compact date field. */
+.goal-edit-row:has(.exam-date-picker:not([hidden])){align-items:start}.goal-edit-row:has(.exam-date-picker:not([hidden]))>.exam-date-field{grid-column:1/-1}.goal-edit-row:has(.exam-date-picker:not([hidden]))>.exam-date-field>.exam-date-trigger{width:168px;margin-left:auto}.goal-edit-row .exam-date-picker{width:min(300px,100%);margin-left:auto}.goal-edit-row .date-picker-header button{width:30px;height:30px;padding:0;font-size:22px}.goal-edit-row .picker-day{padding:0;border:0;font-size:12px}.certification-editor .date-picker-header button{padding:0;font-size:22px}.certification-editor .picker-day{border:0;padding:0;font-size:12px}.certification-editor .date-picker-footer button{border:0;font-size:12px}.certification-editor .exam-date-trigger svg{flex-shrink:0}
+@media(max-width:720px){.goal-row:not(.goal-edit-row){grid-template-columns:minmax(0,1fr) auto auto}.goal-row:not(.goal-edit-row)>.goal-actions{grid-column:auto}.goal-edit-row:has(.exam-date-picker:not([hidden]))>.exam-date-field>.exam-date-trigger{width:145px}}
+#certification-form[hidden]{display:none}.add-certification-toggle{border:1px solid #d6cef0;border-radius:8px;background:#f2effa;color:#51439d;padding:9px 14px;font-size:13px}.add-certification-toggle[aria-expanded="true"]{margin-bottom:14px}
+.certification-dialog>.certification-floating-picker{position:fixed;inset:auto;margin:0;width:300px;max-width:calc(100vw - 24px);z-index:1000;background:#fff;box-shadow:0 8px 26px #25213a25;padding:12px;border:1px solid #e5e1ed;border-radius:13px;color:#242938;overflow:visible}.certification-floating-picker::backdrop{background:transparent;pointer-events:none}.certification-floating-picker .date-picker-header button{border:0;padding:0}.certification-floating-picker .picker-day{padding:0;border:0}.certification-dialog:has(.certification-floating-picker){overflow:auto}
+.certification-card .certification-row>button[hidden]{display:none}.goal-actions .goal-icon-button{width:30px;height:30px;padding:6px;display:grid;place-items:center;background:transparent}.goal-icon-button svg{width:17px;height:17px;display:block}.goal-edit-row{grid-template-columns:minmax(0,1fr) 160px auto}.goal-edit-row>.goal-actions{grid-column:auto}.goal-section .goal-actions{gap:4px}.goal-name{min-width:0}.goal-edit-row input{align-self:center}.goal-row time{justify-self:end}
+@media(max-width:720px){.goal-edit-row{grid-template-columns:minmax(0,1fr) 136px}.goal-edit-row>.goal-actions{grid-column:1/-1}.goal-actions .goal-icon-button{width:28px;height:28px}}
+/* Certificate actions share the same bottom-right alignment in both modes. */
+.certification-card>.certification-row{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;gap:8px;padding:12px 14px 14px}.certification-card>.certification-row>.certification-copy{grid-column:1/-1}.certification-card>.certification-row>button:first-of-type{grid-column:2}.certification-card>.certification-row>button:last-of-type{grid-column:3}.certification-card>.certification-row>button,.certification-editor>.certification-actions>button{width:44px;height:32px;padding:0;flex-shrink:0}.certification-editor>.certification-actions{gap:8px}.certification-card.editing>.certification-row{padding-bottom:10px}.certification-card>.certification-row>.certification-delete{grid-column:1/-1}
+/* Keep collapsed certificates compact: information and actions share one row. */
+.certification-card:not(.editing)>.certification-row>.certification-copy{grid-column:1;grid-row:1}.certification-card:not(.editing)>.certification-row>button{grid-row:1}.certification-card:not(.editing)>.certification-row{align-items:center}
+/* Match goal inputs and action slots to certificate editing controls. */
+.goal-header>button[hidden]{display:none}.goal-edit-row{grid-template-columns:minmax(0,1fr) 160px 96px;gap:8px}.goal-edit-row>input,.goal-edit-row>.exam-date-field>.exam-date-trigger{height:40px;min-height:40px;font-size:13px;padding:9px 10px}.goal-edit-row>.goal-actions{gap:8px;grid-column:auto}.goal-edit-row>.goal-actions>button{width:44px;height:32px;padding:0;flex-shrink:0;font-size:13px}.goal-edit-row>.goal-actions>.goal-icon-button svg{width:17px;height:17px}.goal-edit-row>.exam-date-field{min-width:0}.goal-edit-row>.exam-date-field>.exam-date-trigger{width:100%}.goal-header{min-height:32px}
+@media(max-width:720px){.goal-edit-row{grid-template-columns:minmax(0,1fr) 136px;gap:8px}.goal-edit-row>.goal-actions{grid-column:1/-1;justify-content:flex-end}}
+.goal-edit-row>.goal-actions>button{height:40px;min-height:40px}
+.goal-edit-row{grid-template-columns:minmax(0,1fr) 140px 96px}
+@media(max-width:720px){.goal-edit-row{grid-template-columns:minmax(0,1fr) 130px}}
+.goal-edit-row>input,.goal-edit-row>.exam-date-field>.exam-date-trigger,.goal-edit-row>.goal-actions>button{height:32px;min-height:32px}.goal-edit-row>input,.goal-edit-row>.exam-date-field>.exam-date-trigger{padding:5px 10px}
+.goal-edit-row>input[readonly]{background:#fff;color:#242938}.goal-edit-row .exam-date-trigger:disabled{opacity:1;cursor:default;background:#fff;color:#51439d}
+.study-record-copy{display:grid;gap:5px;min-width:0;flex:1}.study-record-copy .study-name{font-size:13px;overflow-wrap:anywhere}.study-record-copy small{font-size:11px;color:var(--muted);line-height:1.5}.study-row:has(.study-record-copy){gap:8px;align-items:center}.study-row:has(.study-record-copy):before{display:none}.study-row input[type=checkbox]{accent-color:#7863cf;flex-shrink:0}.study-row:has(.study-record-copy) .duration{font-size:12px}.study-row:has(.study-record-copy){padding:10px 0}
+.study-row.lecture-item-row{display:grid;grid-template-columns:12px minmax(0,1fr) 18px;gap:10px;padding:7px 0;align-items:center}.study-row.lecture-item-row:before{display:none}.lecture-category-dot{width:10px;height:10px;border-radius:50%}.lecture-item-row .study-name{font-size:14px}.lecture-item-row input[type=checkbox]{width:16px;height:16px;margin:0;accent-color:#7863cf;justify-self:end}.study-day-meta{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0}#today-items{max-height:300px;overflow-y:auto;scrollbar-gutter:stable}.popup-study-list{max-height:320px;overflow-y:auto;scrollbar-gutter:stable}.day-events:has(.event){flex-wrap:wrap}
+#today-items{scrollbar-gutter:auto}#today-items .lecture-item-row{grid-template-columns:10px minmax(0,1fr) 16px;padding-left:0;padding-right:0}#today-items .lecture-category-dot{justify-self:start}#today-items .lecture-item-row input[type=checkbox]{justify-self:end}
+#date-dialog .popup-study-list{max-height:none;overflow:visible;scrollbar-gutter:auto}
+#month-view[hidden],#study-management[hidden]{display:none}#study-management{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;flex:1;min-width:0}#study-management>header{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px}#study-management h2{margin:0;font-size:24px}#study-management h3{font-size:17px;margin:0 0 14px}#study-management h4{font-size:14px;margin:10px 0}.study-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:22px}.study-left{display:grid;gap:22px;align-content:start}.study-left>section,.study-right{border:1px solid var(--line);border-radius:13px;padding:18px;min-width:0}#study-management input,#study-management select,#study-management textarea{font:inherit;font-size:13px;border:1px solid #e5e1ec;border-radius:8px;padding:8px;min-width:0;color:#242938;background:#fff}#study-management select{padding-right:32px}#study-management textarea{width:100%;height:150px;resize:vertical;overflow:auto;margin-bottom:10px}#study-management button:not(.color-swatch):not(.palette-back){border:1px solid #d6cef0;border-radius:8px;padding:8px 13px;color:#51439d;background:#f2effa;font-size:13px}.study-manager-heading{display:flex;justify-content:space-between;align-items:center;gap:10px}.study-manager-heading h3{margin:0}.registered-list{max-height:calc(100dvh - 240px);overflow:auto;margin-top:18px;padding-right:4px}.registered-list summary{cursor:pointer;font-size:15px;font-weight:600;padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:6px}.registered-list .study-name small{display:block;font-size:11px;color:var(--muted);margin-top:4px}.preview-list{max-height:calc(100dvh - 470px);min-height:60px;overflow:auto;margin-bottom:12px}.lecture-preview-row{display:grid;grid-template-columns:100px minmax(0,1fr) 52px 80px;gap:6px;margin-bottom:8px}.preview-count,.manager-status{font-size:12px;color:var(--muted);line-height:1.6}.category-colors[hidden]{display:none}.category-colors .palette-card{padding:12px}.category-colors{max-height:360px;overflow:auto;margin-top:12px}.manager-status{margin:0}.registered-list .lecture-item-row{padding:9px 0}@media(max-width:1100px){.study-columns{gap:12px}.lecture-preview-row{grid-template-columns:90px minmax(0,1fr)}.study-left>section,.study-right{padding:12px}}@media(max-width:720px){.study-columns{grid-template-columns:1fr}#study-management{padding:14px}.registered-list{max-height:450px}.preview-list{max-height:250px}#study-management>header{flex-wrap:wrap}}
+.preview-fields{font-size:12px;color:var(--muted);margin:10px 0}
+/* Study manager uses the calendar's filter surface and one left-hand panel. */
+#study-management>header{padding-right:12px}#study-management .study-target{position:relative;width:300px;flex-shrink:0;padding:0 18px 0 21px;gap:12px}#study-management .study-target select{appearance:none;border:0;border-radius:0;padding:0;background:transparent;font-size:19px;font-weight:550;line-height:1.2;cursor:pointer}#study-management .study-target .exam-chevron{flex-shrink:0;margin-inline:5px}
+.study-left{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:13px;padding:20px;align-self:start}.study-left>section{border:0;padding:0;border-radius:0}.study-left .preview-section{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}.study-left .manager-status{margin-top:14px}.preview-list{min-height:0}#study-management h3{font-size:19px}#study-management input,#study-management select,#study-management textarea{font-size:14px}#study-management button:not(.color-swatch):not(.palette-back){font-size:14px}.registered-list summary{font-size:16px}.registered-list .study-name{font-size:15px}.preview-count,.preview-fields,.manager-status{font-size:13px}.registered-list .study-name small{font-size:12px}
+/* Compact palettes reserve the same back-button and action slots in both stages. */
+.category-colors{max-height:none;overflow:visible;padding:10px 0;border-bottom:1px solid var(--line)}.category-colors>form{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:center;gap:8px;min-height:54px}.category-colors h4{margin:0!important;font-size:14px!important}.category-colors .palette-card{display:grid;grid-template-columns:26px minmax(0,1fr) 98px;align-items:center;gap:8px;padding:6px 0;border:0;background:transparent;box-shadow:none;border-radius:0;min-height:54px}.category-colors .palette-header{margin:0;width:26px;height:32px;display:flex;align-items:center}.category-colors .palette-header>strong,.category-colors .palette-card>small{display:none}.category-colors .palette-back{width:24px;height:30px;font-size:20px;padding:0;background:transparent}.category-colors .palette-back[hidden]{display:block;visibility:hidden}.category-colors .color-swatches{gap:8px;padding:5px 3px;overflow-x:auto;grid-auto-columns:minmax(30px,1fr);justify-items:center}.category-colors .color-swatch{width:30px;height:30px}.category-colors .palette-card>.certification-actions{gap:6px;margin:0;justify-content:flex-end}#study-management .category-colors .certification-actions button{flex:none;width:46px;height:30px;padding:0;border-radius:8px;font-size:12px}.registered-list{max-height:calc(100dvh - 250px)}.study-right:has(.category-colors:not([hidden])) .registered-list{max-height:calc(100dvh - 430px)}
+@media(max-width:1100px){.study-left{padding:14px}.category-colors>form{grid-template-columns:1fr;gap:0}.category-colors h4{padding-top:4px}.category-colors .palette-card{min-height:54px}.study-right:has(.category-colors:not([hidden])) .registered-list{max-height:calc(100dvh - 495px)}}@media(max-width:720px){#study-management>header{padding-right:0}#study-management .study-target{width:100%;height:56px}#study-management .study-target select{font-size:17px}.registered-list,.study-right:has(.category-colors:not([hidden])) .registered-list{max-height:400px}}
+#study-management .study-target select{position:static;opacity:1;height:100%;flex:1;min-width:0;width:100%;inset:auto}
+/* Compact study header: keep the title and certificate selector together. */
+#study-management>header{justify-content:flex-start;gap:24px;padding:0 0 16px;min-height:0}#study-management .study-target{height:46px;width:270px;border-radius:12px;box-shadow:0 2px 12px #37304e0a;padding:0 14px 0 16px}#study-management .study-target select{font-size:17px}#study-management .study-target .exam-chevron{margin-inline:2px}#study-management .study-columns{margin-top:18px}
+@media(max-width:720px){#study-management>header{gap:12px}#study-management .study-target{width:100%;height:44px}}
+#study-management .study-target{padding:0;display:block}#study-management .study-target select{display:block;width:100%;height:100%;padding:0 42px 0 16px;border-radius:inherit}#study-management .study-target .exam-chevron{position:absolute;right:18px;top:50%;margin:0;pointer-events:none;transform:translateY(-65%) rotate(45deg)}
+.study-type-fields,.round-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.study-type-fields label,.round-fields label{display:grid;gap:7px;font-size:14px}.round-fields[hidden],.round-fields [hidden],#study-management textarea[hidden]{display:none}.study-type-fields input,.round-fields input{width:100%}#study-management .lecture-preview-row input:disabled{background:#f4f2f7;color:var(--muted)}
+#study-management .study-type-fields select{appearance:none;padding-right:38px;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2351439d' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px}
+/* Keep both management columns inside the viewport, including the final action. */
+@media(min-width:721px){#study-management:not([hidden]){display:flex;flex-direction:column;height:calc(100dvh - 32px);min-height:0;overflow:hidden}#study-management>header{flex-shrink:0}#study-management .study-columns{flex:1;min-height:0;overflow:hidden;align-items:stretch}#study-management .study-left{align-self:stretch;min-height:0;overflow-y:auto;scrollbar-gutter:stable}#study-management .study-left>section{flex-shrink:0}#study-management .preview-list{max-height:clamp(150px,calc(100dvh - 680px),400px);overflow-y:auto;padding-bottom:8px}#study-management .study-right{display:flex;flex-direction:column;min-height:0;overflow:hidden}#study-management .study-manager-heading,#study-management .category-colors{flex-shrink:0}#study-management .registered-list,#study-management .study-right:has(.category-colors:not([hidden])) .registered-list{flex:1;min-height:0;max-height:none;overflow-y:auto;padding-bottom:12px}}
+
+/* Put analysis beside the compact type and category fields. */
+#study-management .study-type-fields{grid-template-columns:minmax(110px,.8fr) minmax(130px,1fr) auto;align-items:end;gap:10px}
+#study-management .study-type-fields .analyze{height:35px;white-space:nowrap;padding:0 13px}
+@media(max-width:900px){#study-management .study-type-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#study-management .study-type-fields .analyze{grid-column:1/-1;justify-self:end}}
+
+#study-management .preview-fields,#study-management .lecture-preview-row{display:grid;grid-template-columns:minmax(0,25fr) minmax(0,50fr) minmax(40px,8fr) minmax(75px,17fr);gap:6px}
+#study-management .preview-fields{margin:10px 0 8px;font-size:13px}
+#study-management .preview-empty{font-size:14px;color:var(--muted);line-height:1.6;margin:0}
+#study-management [hidden]{display:none!important}
+.past-fields,.mock-fields{display:grid;gap:10px;margin-bottom:14px;align-items:start}
+.past-fields{grid-template-columns:minmax(85px,1fr) minmax(85px,1fr) minmax(0,2fr)}
+.mock-fields{grid-template-columns:minmax(0,2fr) minmax(85px,1fr) minmax(85px,1fr)}
+.past-fields>label,.mock-fields>label{display:grid;gap:7px;font-size:14px}
+.past-fields fieldset{border:0;padding:0;margin:0;min-width:0;font-size:14px}
+.past-fields legend{padding:0;margin-bottom:7px}.round-options{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}.round-options label,.preview-include{display:flex;align-items:center;gap:5px;white-space:nowrap}
+#study-management .round-options input,#study-management .preview-include input{width:15px;height:15px;padding:0}
+#study-management .past-fields [aria-label="다른 회차"]{width:90px;margin-right:5px}
+@media(max-width:720px){#study-management .preview-fields,#study-management .lecture-preview-row{grid-template-columns:minmax(0,25fr) minmax(0,50fr) minmax(38px,8fr) minmax(70px,17fr)}.past-fields{grid-template-columns:1fr 1fr}.past-fields fieldset{grid-column:1/-1}.mock-fields{grid-template-columns:1fr 1fr}.mock-fields>label:first-child{grid-column:1/-1}}
+
+#study-management .preview-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 12px 30px;text-align:center;gap:10px}#study-management .preview-empty svg{color:#96949c}#study-management .preview-empty strong{font-size:16px;font-weight:500;color:#242938}#study-management .preview-empty p{font-size:13px;margin:0;color:var(--muted)}
+
+@media(min-width:721px) and (max-width:1100px){#study-management .study-columns{grid-template-columns:1fr;overflow-y:auto;align-items:start}#study-management .study-left{overflow:visible}#study-management .study-right{min-height:400px;max-height:600px}}
+
+@media(min-width:721px) and (max-width:1100px){#study-management .study-columns{display:flex;flex-direction:column}#study-management .study-left,#study-management .study-right{flex-shrink:0;width:100%;align-self:auto}}
+
+/* Reserve one consistent right-hand slot for analysis and range preview. */
+#study-management .study-type-fields{grid-template-columns:minmax(110px,.8fr) minmax(130px,1fr) 110px}
+#study-management .study-type-fields .analyze{grid-column:3;justify-self:end;width:110px;height:35px;padding:0 8px}
+@media(max-width:900px){#study-management .study-type-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#study-management .study-type-fields .analyze{grid-column:1/-1;justify-self:end}}
+
+/* Keep year fields, round selection and the extra-round action on one row. */
+#study-management .past-fields{grid-template-columns:105px 105px minmax(0,1fr);gap:10px;align-items:end}
+.round-selection-line{display:flex;align-items:center;gap:7px;min-width:0;height:35px}
+#study-management .round-selection-line .round-options{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;margin:0;gap:9px;align-items:center;height:35px}
+#study-management .round-selection-line [aria-label="다른 회차"]{width:76px;flex:none;margin:0;height:35px;padding:7px}
+#study-management .round-selection-line .add-round{flex:none;white-space:nowrap;height:35px;padding:0 9px}
+@media(max-width:900px){#study-management .past-fields{grid-template-columns:1fr 1fr}#study-management .past-fields fieldset{grid-column:1/-1}}
+#study-management .round-selection-line [aria-label="다른 회차"]{width:96px}
+
+.preview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}#study-management .preview-heading h3{margin:0;flex-shrink:0}.preview-hint{margin:0;font-size:12px;line-height:1.5;color:var(--muted);margin-left:auto;text-align:right}
+
+#study-management .past-fields>label input[type="number"]{appearance:textfield;-moz-appearance:textfield}#study-management .past-fields>label input[type="number"]::-webkit-inner-spin-button,#study-management .past-fields>label input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+.preview-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-left:auto;flex-wrap:wrap}.preview-heading-actions .preview-hint{margin:0}.preview-heading-actions .register{white-space:nowrap;flex-shrink:0}
+@media(min-width:1101px){#study-management .study-left{overflow:hidden}#study-management .study-left>.preview-section{flex:1;min-height:0;display:flex;flex-direction:column}#study-management .preview-heading,#study-management .preview-count,#study-management .preview-fields{flex-shrink:0}#study-management .preview-list{flex:1;min-height:0;max-height:none;overflow-y:auto;margin-bottom:0}#study-management .manager-status:empty{display:none}}
+@media(max-width:1100px){#study-management .preview-list{max-height:60dvh}.preview-heading-actions{gap:8px}}
+
+#study-management .preview-heading-actions .register{width:110px;height:35px;padding:0 8px}
+#study-management .preview-heading{margin-bottom:6px}#study-management .preview-count{margin:0 0 10px}
+#study-management .lecture-preview-row .preview-include{justify-content:flex-end;width:100%;padding-right:4px}#study-management .preview-fields>span:last-child{text-align:right;padding-right:4px}
+
+#study-management .range-preview .preview-fields,#study-management .range-preview .lecture-preview-row{grid-template-columns:minmax(0,1fr) minmax(0,2fr) 52px 64px}#study-management .range-preview .preview-fields{padding-right:17px}
+
+.preview-selection-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-shrink:0}.preview-select-actions{display:flex;gap:6px}#study-management .preview-selection-bar .preview-count{margin:0}#study-management .preview-select-actions button{padding:4px 8px;font-size:12px;background:#fff;white-space:nowrap}
+#study-management .preview-section:not(.range-preview) .preview-fields,#study-management .preview-section:not(.range-preview) .lecture-preview-row{grid-template-columns:minmax(0,25fr) minmax(0,50fr) 52px minmax(82px,17fr) 64px}
+#study-management .preview-fields{padding-right:17px}
+@media(max-width:900px){#study-management .preview-section:not(.range-preview) .preview-fields,#study-management .preview-section:not(.range-preview) .lecture-preview-row{grid-template-columns:minmax(0,1fr) minmax(0,2fr) 40px 76px 52px}.preview-selection-bar{flex-wrap:wrap}.preview-select-actions{margin-left:auto}}
+
+#study-management .preview-heading{margin-bottom:14px}#study-management .preview-fields{margin:0 0 8px}#study-management .preview-selection-bar{margin:12px 0 0;flex-shrink:0;min-height:28px}#study-management .preview-selection-bar:has(.preview-count[hidden]){display:none}
+
+/* Preview numbering follows source subjects, while registration grouping stays separate. */
+#study-management .preview-section.lecture-preview.has-subject .preview-fields,#study-management .preview-section.lecture-preview.has-subject .lecture-preview-row{grid-template-columns:minmax(48px,10fr) minmax(0,25fr) minmax(0,48fr) minmax(82px,17fr) 56px}
+#study-management .preview-section.lecture-preview:not(.has-subject) .preview-fields,#study-management .preview-section.lecture-preview:not(.has-subject) .lecture-preview-row{grid-template-columns:minmax(48px,12fr) minmax(0,68fr) minmax(82px,20fr) 56px}
+#study-management .range-preview .preview-fields,#study-management .range-preview .lecture-preview-row{grid-template-columns:112px minmax(0,1fr) minmax(0,2fr) 56px}
+#study-management .preview-section:not(.lecture-preview):not(.range-preview) .preview-fields,#study-management .preview-section:not(.lecture-preview):not(.range-preview) .lecture-preview-row{grid-template-columns:52px minmax(0,1fr) minmax(0,2fr) 76px 56px}
+@media(max-width:900px){#study-management .range-preview .preview-fields,#study-management .range-preview .lecture-preview-row{grid-template-columns:96px minmax(0,1fr) minmax(0,2fr) 48px}#study-management .preview-fields{font-size:12px}#study-management .lecture-preview-row input{padding:7px 5px;font-size:12px}}
+
+#study-management .preview-hint.classification-required{color:#CF243B}
+
+.study-list-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+#study-management .registered-list .lecture-item-row.has-lecture-time{grid-template-columns:12px minmax(0,1fr) auto 18px}.registered-lecture-time{font-size:14px;color:var(--muted);white-space:nowrap;text-align:right}
+
+#study-management .study-color-dialog{position:fixed;inset:0;margin:auto;width:760px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 48px);overflow-y:auto;padding:24px;border:1px solid var(--line);border-radius:16px;background:#fff;color:#242938;box-shadow:0 18px 60px #25213a30}
+.study-color-dialog::backdrop{background:#25213a35}#study-management .study-color-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:12px}#study-management .study-color-dialog h3{margin:0;font-size:19px}#study-management .study-color-dialog .close-colors{padding:0;width:30px;height:30px;border:0;background:transparent;font-size:24px}.color-dialog-hint{font-size:14px;color:var(--muted);line-height:1.6;margin:14px 0 18px}
+#study-management .study-color-dialog .category-colors{border:0;margin:0;padding:0}#study-management .study-color-dialog .category-colors>form{grid-template-columns:150px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}#study-management .study-color-dialog h4{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0!important}#study-management .study-color-dialog .palette-card{grid-template-columns:26px minmax(0,1fr) 98px}.study-color-dialog .color-swatches{grid-auto-columns:30px}
+@media(max-width:720px){#study-management .study-color-dialog{padding:18px}#study-management .study-color-dialog .category-colors>form{grid-template-columns:1fr;gap:6px}#study-management .study-color-dialog .palette-card{grid-template-columns:26px minmax(0,1fr);gap:8px}#study-management .study-color-dialog .palette-card>.certification-actions{grid-column:2;justify-self:end}}
+
+#study-management .study-color-dialog{width:600px}#study-management .study-color-dialog .close-colors{width:auto;height:30px;padding:0 2px;border:0;background:transparent;color:#777d8c;font-size:14px;box-shadow:none}
+#study-management .study-color-dialog .palette-card{grid-template-columns:26px minmax(0,1fr)}#study-management .study-color-dialog .color-swatches{padding:6px;gap:8px;grid-auto-columns:30px;overflow-x:auto;scroll-padding-inline:6px}
+#study-management .study-color-dialog .color-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}#study-management .study-color-dialog .color-dialog-actions button{min-width:54px;height:34px;padding:0 12px}#study-management .study-color-dialog .color-dialog-actions .cancel-colors{background:#fff}.color-save-error{color:#CF243B;font-size:13px;margin:10px 0 0}.color-save-error:empty{display:none}
+@media(max-width:720px){#study-management .study-color-dialog .category-colors>form{grid-template-columns:1fr}#study-management .study-color-dialog .palette-card{grid-template-columns:26px minmax(0,1fr)}}
+
+#study-management .study-color-dialog .category-colors>form{grid-template-columns:125px minmax(0,1fr);gap:6px;padding:10px 0}#study-management .study-color-dialog .palette-card{gap:4px}#study-management .study-color-dialog .color-swatches{grid-auto-columns:30px;justify-content:space-between;gap:8px;padding:6px}#study-management .study-color-dialog .color-dialog-actions{margin-top:12px}
+@media(max-width:720px){#study-management .study-color-dialog .category-colors>form{grid-template-columns:1fr;gap:4px}}
+
+#study-management .study-color-dialog{width:480px}#study-management .study-color-dialog .category-colors>form{display:block;padding:12px 0}.category-color-row{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:34px}#study-management .study-color-dialog .current-category-color{width:30px;height:30px;flex:none;padding:0;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #ded9ea;cursor:pointer}#study-management .study-color-dialog .current-category-color:focus-visible{outline:2px solid #8c70df;outline-offset:3px}.category-palette-drawer{margin-top:10px;padding:6px;border-radius:10px;background:#faf9fd}#study-management .study-color-dialog .category-palette-drawer .palette-card{min-height:48px}#study-management .study-color-dialog .color-swatches{justify-content:space-between;grid-auto-columns:30px;padding:6px;gap:8px}#study-management .study-color-dialog .category-color-row h4{overflow:visible;white-space:nowrap}
+.study-list-actions{display:flex;gap:8px;flex-shrink:0}
+#study-management .study-right .registered-list{display:flex;flex-direction:column;overflow:hidden;padding-right:0;gap:18px}
+.study-category-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;flex-shrink:0;overflow:auto;padding:2px}
+#study-management .study-right button.study-category-card{display:grid;grid-template-columns:10px minmax(0,1fr);align-items:center;gap:7px;text-align:left;padding:13px 10px;background:#fff;border-color:var(--line);color:#242938}
+#study-management .study-right button.study-category-card.is-active{border-color:#a896dc;background:#f7f4fd;box-shadow:0 0 0 1px #e5def6}
+.category-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.category-card-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:600}
+.category-card-count{grid-column:2;color:var(--muted);font-size:13px}
+.managed-detail{display:flex;flex-direction:column;min-height:0;flex:1;border-top:1px solid var(--line);padding-top:12px}
+.managed-heading{display:flex;justify-content:space-between;align-items:center;padding:0 6px 10px 0;flex-shrink:0}
+#study-management .managed-heading h4{font-size:15px;margin:0}
+.managed-items{min-height:0;overflow-y:auto;scrollbar-gutter:stable;flex:1;padding-right:16px}
+.managed-item-row{display:grid;grid-template-columns:10px minmax(0,1fr) auto 28px 18px;align-items:center;gap:10px;padding:10px 0}
+.managed-item-name{font-size:14px;min-width:0;overflow-wrap:anywhere}
+#study-management .study-right button.edit-study-item{display:flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#817a95}
+#study-management .managed-item-row input[type=checkbox],#study-management .managed-heading input[type=checkbox]{width:16px;height:16px;margin:0;padding:0;accent-color:#7962c7;cursor:pointer}
+.managed-edit-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#f8f6fc;border:1px solid var(--line);border-radius:10px;padding:12px;margin:0 0 10px}
+.managed-edit-form label{display:grid;gap:5px;font-size:13px;min-width:0}.managed-edit-form label:first-child{grid-column:1/-1}
+.management-actions{display:flex;gap:8px;justify-content:flex-end;grid-column:1/-1}
+.management-error{color:#bf3d54;font-size:13px;margin:0;grid-column:1/-1}.management-error:empty{display:none}
+.study-delete-dialog{width:min(400px,calc(100vw - 32px));border:1px solid var(--line);border-radius:16px;padding:24px;color:#242938;box-shadow:0 20px 60px #25203925}.study-delete-dialog::backdrop{background:#25203945}.study-delete-dialog h3{margin-top:0}.study-delete-dialog footer{margin-top:20px}
+#study-management .delete-selected:disabled{opacity:.45;cursor:default}
+@media(max-width:720px){.study-right .managed-items{max-height:55dvh}.study-category-cards{grid-template-columns:repeat(3,minmax(130px,1fr))}.managed-item-row{gap:7px}.study-manager-heading{flex-wrap:wrap}}
+
+/* Align category headings and item dots with a modest inner inset. */
+#study-management .managed-heading{padding-left:12px}
+#study-management .managed-item-row{padding-left:12px}
+
+/* Compact category cards; retain three columns and the existing detail controls. */
+#study-management .study-right button.study-category-card{grid-template-columns:10px minmax(0,1fr) auto;padding:11px 10px;gap:7px}
+#study-management .category-card-name{font-size:15px;line-height:1.4}
+#study-management .category-card-count{grid-column:auto;font-size:14px;white-space:nowrap;text-align:right}
+#study-management .managed-heading h4{font-size:16px}
+#study-management .managed-item-name{font-size:15px;line-height:1.5}
+#study-management .managed-item-row .registered-lecture-time{font-size:15px}
+/* Keep the preview scrollbar in the panel inset, outside the input alignment. */
+#study-management .study-left{scrollbar-gutter:auto}
+#study-management .study-left .preview-list{scrollbar-gutter:stable;width:calc(100% + var(--preview-gutter,0px));margin-right:calc(-1 * var(--preview-gutter,0px))}
+#study-management .study-left .preview-fields{padding-right:0}
+@media(max-width:720px){.study-category-cards{grid-template-columns:repeat(3,minmax(185px,1fr))}}
+
+/* Compact metadata inputs in the individual item editor. */
+#study-management .managed-edit-form{grid-template-columns:80px minmax(120px,1fr) 120px}
+#study-management .managed-edit-form .edit-field-title{grid-column:1/-1}
+#study-management .managed-edit-form .edit-field-number{grid-column:1}
+#study-management .managed-edit-form .edit-field-category{grid-column:2}
+#study-management .managed-edit-form .edit-field-time{grid-column:3}
+@media(max-width:720px){#study-management .managed-edit-form{grid-template-columns:72px minmax(0,1fr)}#study-management .managed-edit-form .edit-field-time{grid-column:1/-1;width:120px}}
+
+/* Keep the item editor on one line when there is room. */
+#study-management .managed-edit-form{grid-template-columns:minmax(0,1fr) 64px 110px 100px;align-items:end}
+#study-management .managed-edit-form .edit-field-title{grid-column:1}
+#study-management .managed-edit-form .edit-field-number{grid-column:2}
+#study-management .managed-edit-form .edit-field-category{grid-column:3}
+#study-management .managed-edit-form .edit-field-time{grid-column:4}
+#study-management .managed-edit-form .management-error,#study-management .managed-edit-form .management-actions{grid-column:1/-1}
+@media(max-width:720px){#study-management .managed-edit-form{grid-template-columns:64px minmax(0,1fr) 100px}#study-management .managed-edit-form .edit-field-title{grid-column:1/-1}#study-management .managed-edit-form .edit-field-number{grid-column:1}#study-management .managed-edit-form .edit-field-category{grid-column:2}#study-management .managed-edit-form .edit-field-time{grid-column:3;width:auto}}
+
+#study-management .managed-edit-form{grid-template-columns:64px minmax(0,1fr) 110px 100px}
+#study-management .managed-edit-form .edit-field-number{grid-column:1;grid-row:1}
+#study-management .managed-edit-form .edit-field-title{grid-column:2;grid-row:1}
+#study-management .managed-edit-form .edit-field-category{grid-row:1}
+#study-management .managed-edit-form .edit-field-time{grid-row:1}
+@media(max-width:720px){#study-management .managed-edit-form{grid-template-columns:64px minmax(0,1fr)}#study-management .managed-edit-form .edit-field-title{grid-column:2;grid-row:1}#study-management .managed-edit-form .edit-field-category{grid-column:1/-1;grid-row:2}#study-management .managed-edit-form .edit-field-time{grid-column:1/-1;grid-row:3;width:100px}}
+
+/* Improve readability in the registered item manager. */
+#study-management .category-card-name,#study-management .managed-heading h4{font-size:17px}
+#study-management .managed-item-name{font-size:16px}
+#study-management .managed-edit-form label{font-size:14px}
+#study-management .managed-edit-form input{font-size:15px}
+
+#study-management .managed-item-row{padding-top:8px;padding-bottom:8px}
+
+#study-management .study-right button.study-category-card{grid-template-columns:10px minmax(0,1fr) auto;position:relative;padding-left:20px}
+.category-drag-handle{position:absolute;left:4px;top:50%;transform:translateY(-50%);color:#a5a0ae;cursor:grab;display:flex;align-items:center;padding:3px 0}
+.category-drag-handle:active{cursor:grabbing}.study-category-card.is-dragging{opacity:.5}
+#study-management .study-right button.study-category-card.drop-before{box-shadow:inset 3px 0 #8d73ce}
+#study-management .study-right button.study-category-card.drop-after{box-shadow:inset -3px 0 #8d73ce}
+
+#study-management .study-right button.study-category-card{padding-left:26px}
+
+#study-management .study-right .category-drag-handle{left:9px}
+#study-management .study-right button.study-category-card{padding-left:31px}
+
+#study-management .study-right .category-drag-hint{font-size:14px;line-height:20px;color:var(--muted);margin:14px 0 7px;flex-shrink:0}
+#study-management .study-right .category-drag-hint span{margin-right:5px}
+#study-management .study-right .registered-list{margin-top:0}
+
+/* Match the right hint to the registration label's vertical rhythm. */
+#study-management .study-right{padding-top:20px}
+#study-management .study-manager-heading h3{margin:0;line-height:24px}
+#study-management .study-right .category-drag-hint{margin-top:2px}
+@media(max-width:1100px){#study-management .study-right{padding-top:14px}}
+
+/* Match registration content to the readable item list, except the type selector. */
+#study-management .study-left input,#study-management .study-left textarea{font-size:16px}
+#study-management .study-left .preview-fields{font-size:14px}
+#study-management .study-left .preview-count,#study-management .study-left .preview-hint,#study-management .study-left .manager-status{font-size:14px}
+#study-management .study-left .preview-include{font-size:15px}
+#study-management .study-left button{font-size:15px}
+#study-management .study-left input{line-height:1.35}
+
+#study-management .range-time-field{display:grid;gap:7px;font-size:14px;width:180px;margin:0 0 12px}
+#study-management .range-preview .preview-fields,#study-management .range-preview .lecture-preview-row{grid-template-columns:100px minmax(0,1fr) minmax(0,2fr) 100px 56px}
+@media(max-width:900px){#study-management .range-preview .preview-fields,#study-management .range-preview .lecture-preview-row{grid-template-columns:90px minmax(70px,1fr) minmax(120px,2fr) 90px 48px}}
+
+#study-management .study-delete-dialog{position:fixed;inset:0;margin:auto;transform:none;height:fit-content;max-height:calc(100dvh - 32px);overflow-y:auto}
+
+#study-management .study-type-fields .range-time-field{width:100%;margin:0;grid-column:2;grid-row:1}
+@media(max-width:900px){#study-management .study-type-fields .range-time-field{grid-row:auto}}
+
+/* Use equal-sized controls across the registration header. */
+#study-management .study-left .study-type-fields input,#study-management .study-left .study-type-fields select{height:40px;font-size:16px;line-height:1.35;padding-top:8px;padding-bottom:8px}
+#study-management .study-left .study-type-fields .analyze{height:40px}
+
+#study-management .round-selection-line{height:auto;min-height:40px;flex-wrap:wrap}
+#study-management .round-selection-line .round-options{flex:0 1 auto;max-width:100%;flex-wrap:wrap;height:auto;min-height:35px;overflow:visible}
+#study-management .round-selection-line .extra-round-editor{display:flex;align-items:center;gap:6px;flex:none}
+#study-management .round-selection-line .extra-round-editor input{width:70px}
+#study-management .round-selection-line .toggle-round,#study-management .round-selection-line .cancel-round{height:35px;white-space:nowrap;padding:0 9px}
+
+#study-management .study-time-dialog{position:fixed;inset:0;margin:auto;transform:none;width:min(400px,calc(100vw - 32px));height:fit-content;max-height:calc(100dvh - 32px);overflow:auto;border:1px solid var(--line);border-radius:16px;padding:24px;color:#242938;box-shadow:0 20px 60px #25203925}
+.study-time-dialog::backdrop{background:#25203945}#study-management .study-time-dialog h3{margin:0 0 12px}.study-time-dialog p{font-size:14px;line-height:1.6}.study-time-dialog label{display:grid;gap:7px;font-size:14px}.study-time-dialog input{width:100%}.study-time-dialog footer{margin-top:18px}
+#study-management .edit-selected-time:disabled{opacity:.45;cursor:default}
+#study-management .study-list-actions{flex-wrap:wrap;justify-content:flex-end}
+
+.managed-category-title{display:flex;align-items:center;gap:6px;min-width:0}.study-time-dialog .category-time-label{margin-top:14px}
+
+.managed-heading-actions{display:grid;grid-template-columns:28px 16px;align-items:center;gap:10px}
+@media(max-width:720px){.managed-heading-actions{gap:7px}}
+
+#study-planning[hidden]{display:none}#study-planning{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;flex:1;min-width:0}
+#study-planning>header{display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--line);padding-bottom:18px}#study-planning h2{font-size:24px;margin:0}#study-planning .study-target{width:270px;height:46px;border-radius:12px;position:relative;padding:0}#study-planning .study-target select{font-size:17px;padding:0 42px 0 16px;height:100%;z-index:1}#study-planning .exam-chevron{position:absolute;right:18px;pointer-events:none}
+.planning-top{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:22px}.planning-top>section,.planning-schedule{border:1px solid var(--line);border-radius:13px;padding:20px;min-width:0}#study-planning h3{font-size:19px;margin:0 0 16px}#study-planning h4{font-size:15px;margin:18px 0 8px}.planning-speed{display:grid;gap:8px;font-size:15px}.planning-speed select{width:150px}.planning-note,.planning-empty{color:var(--muted);font-size:14px;line-height:1.6;margin:8px 0 12px}
+#study-planning button,#study-planning .planning-speed select{border:1px solid #d6cef0;border-radius:8px;padding:8px 12px;background:#f2effa;color:#51439d;font-size:14px}#study-planning .planning-speed select{background:#fff;color:#242938}.planning-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.planning-stats>div{display:grid;gap:10px;background:#f8f6fc;border-radius:10px;padding:14px;font-size:14px}.planning-stats strong{font-size:23px}.planning-progress-groups{margin-top:20px;max-height:260px;overflow:auto}.planning-progress-line{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:16px}.planning-progress-line strong{margin-left:auto;font-size:15px;font-weight:500}
+.planning-schedule{margin-top:24px}.planning-schedule-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}#study-planning .planning-schedule-heading h3{margin:0}.planning-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.planning-period{font-size:14px;font-weight:500}#study-planning [aria-pressed=true]{background:#eae4f8;border-color:#a896dc}.planning-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-left:1px solid var(--line);border-top:1px solid var(--line);overflow:auto}.planning-day{min-height:120px;padding:10px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}#study-planning .planning-day h4{font-size:14px;margin:0 0 12px}.planning-day.outside{background:#faf9fc;color:#a3a0aa}.planning-day.is-today{background:#f7f4fd}.planning-assigned-item{display:flex;align-items:start;gap:6px;font-size:13px;line-height:1.5;margin:6px 0}.planning-assigned-item .category-dot{margin-top:5px;width:7px;height:7px}.planning-status{color:#bf3d54;font-size:14px}.planning-status:empty{display:none}
+@media(max-width:1100px){.planning-top{grid-template-columns:1fr}.planning-schedule{overflow:auto}.planning-days{min-width:650px}}@media(max-width:720px){#study-planning{padding:14px}#study-planning>header{flex-wrap:wrap}.planning-stats{grid-template-columns:repeat(2,1fr)}}
+
+@media(min-width:721px){#study-planning:not([hidden]){height:calc(100dvh - 32px);max-height:calc(100dvh - 32px);min-height:0;overflow-y:auto;scrollbar-gutter:stable}.app:has(#study-planning:not([hidden]))>.sidebar{height:calc(100dvh - 32px);position:sticky;top:16px;align-self:flex-start;overflow-y:auto;flex-shrink:0}}
+
+#study-planning .study-target{display:block}
+#study-planning .study-target select{position:static;inset:auto;opacity:1;display:block;width:100%;height:100%;appearance:none;border:0;border-radius:inherit;background:transparent;color:#20243a;font-size:17px;font-weight:550;cursor:pointer}
+#study-planning .study-target .exam-chevron{top:50%;transform:translateY(-65%) rotate(45deg);margin:0}
+
+#study-planning .planning-speed select{appearance:none;height:46px;border:1px solid #e9e6ed;border-radius:12px;box-shadow:0 2px 12px #37304e0a;background-color:#fff;color:#20243a;font-size:17px;font-weight:550;padding:0 42px 0 16px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23303451' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:14px}
+
+/* Compact planning overview; schedule layout stays unchanged. */
+#study-planning .planning-top{grid-template-columns:minmax(0,45fr) minmax(0,55fr);gap:18px;margin-top:18px;align-items:stretch}
+#study-planning .planning-top>section{padding:16px;min-height:0}
+#study-planning .planning-top h3{font-size:18px;margin:0 0 12px}
+.planning-setting-fields{display:grid;grid-template-columns:105px minmax(100px,1fr) 118px 132px;gap:12px;align-items:start}
+.planning-setting-field,.planning-setting-fields .planning-speed{display:flex;flex-direction:column;gap:7px;min-width:0;font-size:13px;line-height:1.4}
+.planning-field-label{font-size:13px;color:var(--muted)}.planning-field-value{font-size:15px;white-space:nowrap}.planning-field-secondary{font-size:12px;color:var(--muted)}
+#study-planning .planning-setting-fields .planning-speed select{height:36px;width:100%;font-size:15px;border-radius:8px;padding-left:10px;padding-right:30px;background-position:right 10px center}
+#study-planning .planning-setting-field button{height:36px;padding:0 9px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fff}
+.planning-progress-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}#study-planning .planning-progress-heading h3{margin:0}.planning-progress-heading>span{font-size:15px;white-space:nowrap}
+.planning-stacked-progress{display:flex;width:100%;height:12px;border-radius:6px;overflow:hidden;background:#eeedf1}.planning-stacked-progress>span{height:100%;flex:none}
+.planning-progress-legend{display:flex;flex-wrap:wrap;gap:9px 16px;margin-top:13px;font-size:13px;line-height:1.5}.planning-legend-item{display:flex;gap:6px;align-items:center;white-space:nowrap}.planning-legend-item .category-dot{width:8px;height:8px}
+#study-planning .planning-schedule{margin-top:18px}
+@media(max-width:1400px){.planning-setting-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:1100px){#study-planning .planning-top{grid-template-columns:1fr}.planning-setting-fields{grid-template-columns:105px minmax(100px,1fr) 118px 132px}}
+@media(max-width:720px){.planning-setting-fields{grid-template-columns:1fr 1fr}.planning-progress-heading{flex-wrap:wrap}}
+
+#study-planning .planning-stacked-progress{height:20px;border-radius:10px}
+
+#study-planning .planning-progress-legend{margin-top:0;margin-bottom:7px;line-height:18.2px;font-size:13px}
+#study-planning .planning-stacked-progress{height:36px;border-radius:8px}
+
+#study-planning .planning-setting-field .planning-field-value{display:flex;align-items:center;height:36px;padding:0 10px;border:1px solid #e9e6ed;border-radius:8px;background:#fff;font-size:15px;white-space:nowrap}
+
+/* Concise assigned item labels; full names remain available as tooltips. */
+.sidebar .lecture-item-row .study-name,.popup-study-list .lecture-item-row .study-name,.planning-assigned-item>span:not(.category-dot){min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planning-assigned-item>span:not(.category-dot){flex:1}
+
+.study-title-tooltip{position:fixed;z-index:10000;max-width:min(420px,calc(100vw - 16px));padding:9px 12px;border:1px solid #e3deed;border-radius:9px;background:#fff;color:#242938;box-shadow:0 4px 18px #25203924;font-size:14px;line-height:1.5;overflow-wrap:anywhere;pointer-events:none}.study-title-tooltip[hidden]{display:none}
+
+.study-title-tooltip[popover]{inset:auto;margin:0}
+
+#study-planning .planning-setting-field .planning-missing-time{color:#cf7a83}
+#study-planning .planning-missing-time button{border:0;background:transparent;color:inherit;padding:0;height:auto;font-size:14px;text-align:left;overflow:visible}
+.planning-missing-popover,.planning-item-menu{position:fixed;inset:auto;margin:0;max-width:calc(100vw - 16px);border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;color:#242938;box-shadow:0 5px 20px #25203920;font-size:14px;line-height:1.6}
+.planning-item-menu:popover-open{display:grid;gap:6px}#study-planning .planning-item-menu button{text-align:left;background:#fff;border:0}
+.planning-date-heading{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:10px}.planning-date-heading>span{font-size:12px;color:var(--muted);white-space:nowrap}#study-planning .planning-date-heading h4{margin:0;font-size:13px}
+#study-planning .planning-day{min-height:0;padding:10px 8px}
+.planning-date-items{max-height:clamp(210px,calc(100dvh - 370px),650px);overflow-y:auto;scrollbar-gutter:stable;padding:1px 3px 3px 1px}
+.planning-study-card{display:grid;grid-template-columns:14px minmax(0,1fr) 20px;align-items:center;gap:6px;border:1px solid var(--line);border-left:3px solid var(--category-color);border-radius:9px;background:#fff;padding:9px 6px;margin-bottom:8px;min-height:43px}
+.planning-study-card input{width:14px;height:14px;margin:0;accent-color:var(--category-color);cursor:pointer}
+.planning-card-name{font-size:13px;line-height:1.5;min-width:0;overflow-wrap:anywhere;color:#242938}
+.planning-study-card.is-completed .planning-card-name{text-decoration:line-through;color:#9a98a2}
+#study-planning button.planning-card-menu{padding:0;border:0;border-radius:4px;background:transparent;font-size:18px;color:#888290;width:20px;height:26px}
+#study-planning .planning-days.planning-month .planning-day{min-height:75px}#study-planning button.planning-month-summary{border:0;background:transparent;padding:3px 0;font-size:12px;color:var(--muted);text-align:left}
+.planning-days.planning-month .planning-day{cursor:pointer}.planning-empty:empty{display:none}
+#study-planning .planning-move-dialog{position:fixed;inset:0;margin:auto;transform:none;width:min(360px,calc(100vw - 32px));height:fit-content;padding:24px;border:1px solid var(--line);border-radius:16px;color:#242938}.planning-move-dialog::backdrop{background:#25203945}.planning-move-dialog label{display:grid;gap:8px;font-size:14px}.planning-move-dialog input{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px}.planning-move-dialog footer{margin-top:18px}
+
+/* Weekly board: independent date columns and two-row item cards. */
+#study-planning .planning-days:not(.planning-month){gap:8px;border:0;align-items:stretch}
+#study-planning .planning-days:not(.planning-month) .planning-day{border:1px solid var(--line);border-radius:12px;padding:10px 7px;display:flex;flex-direction:column}
+#study-planning .planning-days:not(.planning-month) .planning-day.is-today{border-color:#ab99db;background:#faf8fe}
+#study-planning .planning-days:not(.planning-month) .planning-date-items{height:clamp(220px,calc(100dvh - 395px),620px);max-height:none;padding:2px 3px 3px 1px}
+#study-planning .planning-study-card{grid-template-columns:14px minmax(0,1fr) 20px;grid-template-rows:20px auto;row-gap:5px;padding:8px;box-shadow:0 1px 3px #2520390c}
+.planning-study-card>input{grid-column:1;grid-row:1}.planning-study-card>.planning-card-name{grid-column:1/-1;grid-row:2}.planning-study-card>.planning-card-menu{grid-column:3;grid-row:1}
+
+/* Use the available page height before scrolling individual date lists. */
+@media(min-width:1101px){
+ #study-planning:not([hidden]):has(.planning-days:not(.planning-month)){display:flex;flex-direction:column}
+ #study-planning:has(.planning-days:not(.planning-month))>header,#study-planning:has(.planning-days:not(.planning-month)) .planning-top{flex-shrink:0}
+ #study-planning:has(.planning-days:not(.planning-month)) .planning-schedule{display:flex;flex-direction:column;flex:1;min-height:0}
+ #study-planning:has(.planning-days:not(.planning-month)) .planning-schedule-heading{flex-shrink:0;margin-bottom:10px}
+ #study-planning .planning-days:not(.planning-month){flex:1;min-height:0;overflow:hidden}
+ #study-planning .planning-days:not(.planning-month) .planning-day{min-height:0}
+ #study-planning .planning-days:not(.planning-month) .planning-date-items{height:auto;max-height:none;flex:1;min-height:0}
+}
+#study-planning .planning-days:not(.planning-month) .planning-date-items{padding-right:0;scrollbar-width:thin}
+.planning-date-items::-webkit-scrollbar{width:6px}.planning-date-items::-webkit-scrollbar-thumb{background:#c7c2ce;border-radius:3px}
+
+#study-planning .planning-study-card{grid-template-rows:auto;grid-template-columns:14px minmax(0,1fr) 20px;row-gap:0;min-height:40px;padding:7px 6px;gap:6px}
+#study-planning .planning-study-card>input{grid-column:1;grid-row:1}
+#study-planning .planning-study-card>.planning-card-name{grid-column:2;grid-row:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#study-planning .planning-study-card>.planning-card-menu{grid-column:3;grid-row:1}
+
+#study-planning .planning-days:not(.planning-month) .planning-date-items{scrollbar-gutter:auto;padding-right:0}
+
+/* Items without a number use the whole editor width from the title onward. */
+#study-management .managed-edit-form:not(:has(.edit-field-number)){grid-template-columns:minmax(0,1fr) 110px 100px}
+#study-management .managed-edit-form:not(:has(.edit-field-number)) .edit-field-title{grid-column:1;grid-row:1}
+#study-management .managed-edit-form:not(:has(.edit-field-number)) .edit-field-category{grid-column:2;grid-row:1}
+#study-management .managed-edit-form:not(:has(.edit-field-number)) .edit-field-time{grid-column:3;grid-row:1}
+@media(max-width:720px){#study-management .managed-edit-form:not(:has(.edit-field-number)){grid-template-columns:minmax(0,1fr) 100px}#study-management .managed-edit-form:not(:has(.edit-field-number)) .edit-field-title{grid-column:1/-1;grid-row:1}#study-management .managed-edit-form:not(:has(.edit-field-number)) .edit-field-category{grid-column:1;grid-row:2}#study-management .managed-edit-form:not(:has(.edit-field-number)) .edit-field-time{grid-column:2;grid-row:2}}
+
+/* Use the existing PACE calendar appearance for manual schedule moves. */
+.planning-date-picker{position:fixed;inset:auto;margin:0;width:300px;max-width:calc(100vw - 24px);color:var(--ink,#242938)}
+#study-planning .planning-date-picker .picker-day{padding:0;border:0}#study-planning .planning-date-picker .date-picker-header button{padding:0}
+#study-planning .planning-move-dialog .exam-date-trigger{min-height:36px;font-size:15px}.planning-move-dialog input[type=hidden]{display:none}
+@media(min-width:1000px){
+#study-management .managed-edit-form{grid-template-columns:56px minmax(100px,1fr) 100px 84px auto;gap:8px}
+#study-management .managed-edit-form:not(:has(.edit-field-number)){grid-template-columns:minmax(100px,1fr) 100px 84px auto}
+#study-management .managed-edit-form .management-actions{grid-column:5;grid-row:1;gap:6px;align-self:end}
+#study-management .managed-edit-form:not(:has(.edit-field-number)) .management-actions{grid-column:4}
+#study-management .managed-edit-form .management-actions button{padding:8px 10px;white-space:nowrap}
+#study-management .managed-edit-form .management-error:empty{display:none}
+}
+
+/* Match the availability exception calendar and its compact trigger. */
+#study-planning .planning-move-dialog .exam-date-trigger{width:174px;height:36px;min-height:36px;margin-left:auto;padding:8px 12px;border:1px solid #e5e1ec;border-radius:9px;background:#fff;color:#242938;font-size:13px;font-weight:400;line-height:18px}
+#study-planning .planning-move-dialog .exam-date-trigger svg{width:12px;height:14px;flex-shrink:0;fill:none;stroke:#242938;stroke-width:1.6}
+.planning-date-picker{box-sizing:border-box;width:300px;padding:12px;border-radius:13px;background:#fff;color:#242938;box-shadow:0 8px 26px #25213a25}
+.planning-date-picker .date-picker-header{font-size:14px;margin-bottom:9px}
+#study-planning .planning-date-picker .date-picker-header button{width:30px;height:30px;border:0;border-radius:8px;background:#f2effa;color:#51439d;font-size:22px}
+.planning-date-picker .date-picker-weekdays{font-size:12px;color:#777d8c;padding:5px 0}
+#study-planning .planning-date-picker .picker-day{height:30px;min-height:0;padding:0;border:0;border-radius:8px;background:#fff;color:#242938;font-size:12px}
+#study-planning .planning-date-picker .picker-day.outside{color:#a3a5b1}
+#study-planning .planning-date-picker .picker-day[aria-pressed="true"]{background:#fff;color:#51439d;box-shadow:inset 0 0 0 1px #9a83ec}
+#study-planning .planning-date-picker .date-picker-footer button{padding:5px;border:0;background:transparent;color:#6453b2;font-size:12px}
+
+#study-planning .planning-move-dialog form>label{display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap}
+#study-planning .planning-move-dialog form>label .exam-date-trigger{flex:0 0 174px;margin-left:0}
+
+#study-planning .planning-date-picker .date-picker-header button{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;padding:0}
+#study-planning .planning-date-picker .picker-day{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;padding:0}
+
+#study-planning .planning-date-picker .picker-day.today:not([aria-pressed="true"]){box-shadow:none;color:#7863cf;font-weight:600}
+
+/* Monthly previews and a shared-card date detail dialog. */
+#study-planning .planning-schedule-heading{margin-bottom:18px}
+#study-planning .planning-days.planning-month{gap:8px;border:0;grid-auto-rows:minmax(128px,1fr)}
+#study-planning .planning-days.planning-month .planning-day{min-height:128px;padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden}
+#study-planning .planning-days.planning-month .planning-day.is-today{background:#faf8fe;border-color:#ab99db}
+#study-planning .planning-days.planning-month .planning-day.outside{background:#faf9fc}
+#study-planning .planning-days.planning-month .planning-day.outside .planning-date-heading,#study-planning .planning-day.outside .planning-month-item{opacity:.5}
+.planning-month-item{padding:4px 7px;margin-bottom:4px;border-radius:5px;border-left:3px solid var(--category-color);background:color-mix(in srgb,var(--category-color) 12%,white);font-size:12px;line-height:17px;color:#242938;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planning-month-item.is-completed{text-decoration:line-through;color:#9a98a2;background:color-mix(in srgb,var(--category-color) 5%,white)}
+.planning-month-more{font-size:12px;color:var(--muted);display:block;padding-left:7px}
+#study-planning .planning-day-dialog{position:fixed;inset:0;margin:auto;transform:none;width:min(520px,calc(100vw - 32px));max-height:78dvh;height:fit-content;padding:22px;border:1px solid var(--line);border-radius:16px;background:#fff;color:#242938;overflow:hidden}
+#study-planning .planning-day-dialog[open]{display:flex;flex-direction:column}
+.planning-day-dialog::backdrop{background:#25203945}
+.planning-day-dialog-heading{display:flex;align-items:start;justify-content:space-between;gap:16px;flex-shrink:0;margin-bottom:16px}
+#study-planning .planning-day-dialog-heading h3{margin:0;font-size:18px}
+.planning-day-dialog-heading p{margin:6px 0 0;font-size:14px;color:var(--muted)}
+#study-planning button.planning-day-close{border:0;background:transparent;color:#777d8c;padding:0;width:28px;height:28px;font-size:24px;line-height:1}
+.planning-day-dialog-list{overflow-y:auto;min-height:0;padding:1px 4px 0 1px;scrollbar-width:thin}
+#study-planning .planning-day-dialog .planning-card-name{font-size:15px}
+.planning-day-dialog footer{flex-shrink:0;margin-top:16px;display:flex;justify-content:flex-end}
+@media(min-width:1101px){
+#study-planning:not([hidden]):has(.planning-month){display:flex;flex-direction:column;height:calc(100dvh - 32px);overflow-y:auto}
+#study-planning:has(.planning-month)>header,#study-planning:has(.planning-month) .planning-top{flex-shrink:0}
+#study-planning:has(.planning-month) .planning-schedule{display:flex;flex-direction:column;flex:1;min-height:0}
+#study-planning .planning-days.planning-month{flex:1;min-height:calc(var(--month-rows)*128px);grid-template-rows:repeat(var(--month-rows),minmax(128px,1fr))}
+#study-planning .planning-schedule-heading{margin-bottom:18px}
+}
+
+#study-planning .planning-month .planning-date-heading{margin-bottom:6px}
+#study-planning .planning-month-item{padding:2px 7px;line-height:17px}
+
+/* Fit all month rows into the available schedule height, including six-week months. */
+@media(min-width:1101px){
+#study-planning .planning-days.planning-month{min-height:0;grid-template-rows:repeat(var(--month-rows),minmax(0,1fr));grid-auto-rows:minmax(0,1fr);overflow:hidden}
+#study-planning .planning-days.planning-month .planning-day{min-height:0}
+#study-planning .planning-month.planning-six-weeks{gap:6px}
+#study-planning .planning-month.planning-six-weeks .planning-day{padding:6px 7px}
+#study-planning .planning-six-weeks .planning-date-heading{margin-bottom:4px}
+#study-planning .planning-six-weeks .planning-month-item{padding:1px 6px;margin-bottom:2px;line-height:16px}
+#study-planning .planning-six-weeks .planning-month-more{line-height:15px}
+}
+
+#study-planning .planning-top{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+#study-planning .planning-setting-fields{grid-template-columns:105px minmax(110px,1fr) 118px 132px 132px;gap:12px}
+#study-planning .planning-field-label{white-space:nowrap}
+@media(max-width:1450px){#study-planning .planning-setting-fields{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1100px){#study-planning .planning-top{grid-template-columns:1fr}}
+@media(max-width:720px){#study-planning .planning-setting-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.goal-row>.goal-milestone{grid-column:1/-1;padding:8px 0;border-top:1px solid #eeebf2}
+.certification-editor .goal-milestone label{display:flex;align-items:center;gap:8px;font-size:13px;line-height:1.5}
+.certification-editor .goal-milestone input[type=checkbox]{width:15px;height:15px;padding:0;margin:0;accent-color:#9a83ec}
+.goal-milestone-options{margin-top:10px;padding:12px;background:#f8f6fc;border:1px solid var(--line);border-radius:9px;display:flex;flex-wrap:wrap;gap:10px 16px}
+.goal-milestone-options[hidden]{display:none}
+.goal-milestone-options p{flex-basis:100%;margin:0;font-size:13px}
+
+.goal-milestone-options .category-dot{width:8px;height:8px;flex-shrink:0}
+
+.goal-milestone-options{column-gap:10px;row-gap:8px;padding:10px}
+.certification-editor .goal-milestone-options label{gap:5px;white-space:nowrap;font-size:13px;flex:0 0 auto}
+.certification-editor .goal-milestone-options input[type=checkbox]{width:14px;height:14px;flex-shrink:0}
+.goal-milestone-options .category-dot{width:7px;height:7px}
+
+.planning-schedule-title{display:flex;align-items:center;gap:12px}
+#study-planning .planning-distribution-dialog{position:fixed;inset:0;transform:none;margin:auto;width:min(640px,calc(100vw - 32px));height:fit-content;max-height:80dvh;overflow:hidden;padding:24px;border:1px solid var(--line);border-radius:16px;background:#fff;color:#242938}
+#study-planning .planning-distribution-dialog[open]{display:flex;flex-direction:column;gap:18px}
+.planning-distribution-dialog::backdrop{background:#25203945}
+.distribution-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-shrink:0}
+#study-planning .distribution-heading h3{margin:0;font-size:20px}
+#study-planning button.distribution-close{border:0;background:transparent;padding:0;color:var(--muted);font-size:24px;width:28px;height:28px}
+.distribution-body{overflow-y:auto;min-height:0;padding-right:4px;scrollbar-width:thin}
+.distribution-description{font-size:14px;line-height:1.6;color:var(--muted);margin:0 0 12px}
+.distribution-certification{display:block;font-size:15px;margin-bottom:22px}
+.distribution-body>section{margin:0 0 22px}
+#study-planning .distribution-body h4{font-size:16px;margin:0 0 10px}
+.distribution-summary-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.distribution-summary-values>div{display:grid;gap:9px;padding:12px;background:#f8f6fc;border-radius:9px;font-size:13px}
+.distribution-summary-values strong{font-size:15px;font-weight:500}
+.distribution-milestone{display:grid;gap:6px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.distribution-milestone>span{font-size:13px;color:var(--muted)}
+.distribution-priorities{display:grid;gap:7px}
+.distribution-priority{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:14px}
+.distribution-rank{width:18px;text-align:center;color:var(--muted)}
+.distribution-category-name{flex:1;min-width:0}
+#study-planning .distribution-priority button{width:30px;height:30px;padding:0}
+#study-planning .distribution-priority button:disabled{opacity:.35;cursor:default}
+.distribution-actions{display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+
+#study-planning .planning-missing-time{color:#cf596b}
+#study-planning .planning-missing-time button.workload-warning{display:inline-flex;align-items:center;gap:5px;background:transparent;border:0;padding:0;color:inherit;font-size:inherit;font-weight:inherit;height:auto;white-space:nowrap}
+.workload-warning-icon{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;flex-shrink:0;border:1px solid currentColor;border-radius:50%;font-size:10px;font-weight:600;line-height:1}
+.planning-missing-popover p{margin:0;font-size:13px;line-height:1.6}
+.planning-missing-popover p+p{margin-top:8px}
+.planning-missing-popover{max-width:min(380px,calc(100vw - 24px))}
+.distribution-partial-note{font-size:12px;line-height:1.5;color:var(--muted)}
+#study-planning .planning-setting-field .planning-missing-time{color:#cf596b}
+
+#study-management .study-time-dialog .category-time-hint{font-size:13px;white-space:nowrap;margin:10px 0 0;line-height:1.6}
+@media(max-width:480px){#study-management .study-time-dialog .category-time-hint{white-space:normal}}
+
+.distribution-summary-values{align-items:stretch}
+.distribution-summary-values>div{display:flex;flex-direction:column;justify-content:flex-start;gap:6px;padding:10px 12px;min-height:0}
+.distribution-summary-values>div>span{line-height:1.4}
+.distribution-summary-values>div>strong{line-height:1.4}
+.distribution-summary-values .distribution-partial-note{font-size:12px;line-height:1.3;white-space:nowrap;margin:0}
+
+#study-planning .planning-distribution-dialog.is-preview{width:min(780px,calc(100vw - 32px))}
+.preview-not-applied{margin:0 0 18px;padding:10px 12px;border-radius:8px;background:#f4f0fc;color:#6453b2;font-size:14px}
+.preview-summary-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.preview-summary-values>div{display:grid;gap:6px;padding:10px 12px;border-radius:9px;background:#f8f6fc;font-size:13px}
+.preview-summary-values strong{font-size:15px;font-weight:500}
+.preview-date,.preview-milestone{padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;font-size:14px}
+.preview-date>strong{display:block;margin-bottom:9px}
+.preview-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:14px;flex-wrap:wrap}
+.preview-item-name{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview-item small{font-size:12px;color:var(--muted);line-height:1.5}
+.preview-details{padding:10px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:10px;font-size:14px}
+.preview-details summary{cursor:pointer;font-weight:500}
+.preview-details .preview-item small{flex-basis:100%;padding-left:16px}
+.preview-milestone p{margin:6px 0 0;line-height:1.5;font-size:13px}
+.preview-warning{color:#c66070;font-size:13px;line-height:1.6}
+.preview-met{color:#608a79}
+
+.distribution-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.distribution-mode-option{display:flex;align-items:flex-start;gap:8px;padding:10px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.distribution-mode-option:has(input:checked){background:#f8f5fe;border-color:#ac97e8}
+.distribution-mode-option input{width:14px;height:14px;margin:3px 0 0;accent-color:#9a83ec;flex-shrink:0}
+.distribution-mode-option>span{display:grid;gap:4px}
+.distribution-mode-option strong{font-size:14px;font-weight:600}
+.distribution-mode-option small{font-size:12px;color:var(--muted);line-height:1.5}
+.distribution-mode-hint{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0 0}
+.distribution-mode-hint:empty{display:none}
+#study-planning .distribution-actions button:disabled{opacity:.4;cursor:default}
+
+/* Use the available screen before scrolling the distribution dialog. */
+#study-planning .planning-distribution-dialog{max-height:calc(100dvh - 32px);padding:22px;gap:16px}
+.distribution-body>section{margin-bottom:18px}
+.distribution-milestone{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;padding:8px 0}
+.distribution-milestone>strong{flex:0 0 auto}
+.distribution-milestone>span{flex:1;min-width:0;color:var(--muted);line-height:1.5}
+
+/* Read-only distribution preview: compact summaries and individually expandable days. */
+.distribution-preview-body .preview-not-applied{margin-bottom:12px;padding:8px 10px}
+.distribution-preview-body h4{margin:0 0 8px}
+.distribution-preview-body>section,.distribution-preview-body>.preview-unplaced{margin-bottom:14px}
+.distribution-preview-body .preview-summary-values{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:6px}
+.distribution-preview-body .preview-summary-values>div{padding:8px 9px;gap:4px}
+.distribution-preview-body .distribution-description{margin:6px 0;font-size:12px}
+.preview-milestone-line{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;font-size:13px}
+.preview-milestone-name{flex:1;min-width:0;font-size:14px}
+.preview-milestone-info{white-space:nowrap;color:var(--muted)}
+.preview-status{white-space:nowrap;padding:3px 7px;border-radius:6px;background:#f7f5fa;font-size:12px;cursor:help}
+.distribution-preview-body .preview-date{padding:9px 10px;margin-bottom:7px}
+.preview-day-summary{display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;font-size:13px}
+.preview-day-summary::-webkit-details-marker{display:none}
+.preview-day-summary>strong{white-space:nowrap;font-size:14px}
+.preview-day-counts{flex:1;text-align:right;color:var(--muted)}
+.preview-day-time{white-space:nowrap;font-variant-numeric:tabular-nums}
+.preview-expand-icon{display:inline-block;color:#7862bf;font-size:18px;line-height:1;transition:transform .15s}
+.preview-date[open] .preview-expand-icon{transform:rotate(180deg)}
+.preview-day-meter{height:3px;background:#eeebf4;border-radius:3px;margin-top:7px;overflow:hidden}
+.preview-day-meter>span{display:block;height:100%;background:#b48ae8;border-radius:3px}
+.preview-day-items{margin-top:8px;border-top:1px solid var(--line);padding-top:5px}
+.preview-unplaced>.preview-details{margin-top:8px;margin-bottom:0}
+@media(max-width:720px){.distribution-preview-body .preview-summary-values{grid-template-columns:repeat(2,minmax(0,1fr))}.preview-milestone-line{flex-wrap:wrap}.preview-milestone-name{flex-basis:100%}.preview-milestone-info{white-space:normal;flex:1}.preview-day-summary{flex-wrap:wrap;gap:6px}.preview-day-counts{flex-basis:50%;text-align:left}.preview-day-time{margin-left:auto}}
+
+.preview-day-summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;column-gap:12px;row-gap:0}
+.preview-day-summary .preview-day-meter{grid-column:1/-1;width:100%}
+@media(max-width:720px){.preview-day-summary{grid-template-columns:minmax(0,1fr) auto auto}.preview-day-summary>strong{grid-column:1/-1;margin-bottom:5px}.preview-day-counts{min-width:0}.preview-day-time{margin-left:0}}
+
+.distribution-preview-body .preview-details[open]>summary{margin-bottom:10px}
+
+.preview-day-meter{display:flex}.preview-day-meter>span{flex:none;border-radius:0}
+
+/* Center the chevron with the time row in both collapsed and expanded states. */
+.preview-day-summary .preview-expand-icon{display:flex;align-items:center;justify-content:center;width:20px;height:24px;font-size:0;line-height:normal;transform:none;transition:none;align-self:center}
+.preview-day-summary .preview-expand-icon::before{content:"";display:block;width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg)}
+.preview-date[open] .preview-day-summary .preview-expand-icon{transform:none}
+.preview-date[open] .preview-expand-icon::before{transform:translateY(2px) rotate(225deg)}
+
+/* Only the unplaced list: concise type headings and wrapping item names. */
+.preview-unplaced-group{margin:10px 0 0;font-size:13px}
+.preview-unplaced-group>strong{font-weight:500}
+.preview-unplaced-names{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:5px}
+.preview-unplaced-names .preview-unplaced-name{display:inline-flex;flex-wrap:nowrap;gap:5px;padding:0;font-size:13px;min-width:0;max-width:100%;align-items:baseline}
+.preview-unplaced-names .preview-item-name{flex:initial;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+.preview-unplaced-names .category-dot{flex:none;align-self:center}
+
+.preview-unplaced-names{flex-direction:column;align-items:flex-start;gap:5px}
+
+.distribution-exam-prep{border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:14px;font-size:14px}
+.distribution-exam-prep>summary{cursor:pointer;font-weight:600}
+.exam-prep-content{margin-top:9px}.exam-prep-find{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:8px;margin:10px 0}
+#study-planning .exam-prep-find input,#study-planning .exam-prep-find select,#study-planning .exam-prep-row input{font:inherit;font-size:13px;padding:7px 8px;border:1px solid var(--line);border-radius:7px;min-width:0;background:white;color:inherit}
+.exam-prep-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:220px;overflow:auto}
+.exam-prep-option{display:flex;align-items:center;gap:6px;font-size:13px;min-width:0}.exam-prep-option>span:last-child{overflow-wrap:anywhere}
+.exam-prep-option input{margin:0;accent-color:#a57ce4}
+.exam-prep-row{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+.exam-prep-name{flex:1;min-width:0;overflow-wrap:anywhere}.exam-prep-row input{width:54px}.exam-prep-date{color:var(--muted);white-space:nowrap}
+#study-planning .exam-prep-row button{padding:5px 7px;font-size:12px}
+@media(max-width:600px){.exam-prep-row{flex-wrap:wrap}.exam-prep-name{flex-basis:100%}.exam-prep-options{grid-template-columns:1fr}}
+
+/* Exam-prep manager shares the existing dialog backdrop; the main form stays intact. */
+#study-planning button.distribution-exam-prep{display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 12px;margin-bottom:14px;background:#fff;color:#242938;border:1px solid var(--line);font-size:14px;font-weight:600;text-align:left}
+.distribution-exam-prep>span:last-child{font-size:22px;line-height:1;color:#7862bf}
+#study-planning .planning-distribution-dialog.has-prep-panel{display:grid;grid-template-columns:640px minmax(0,480px);align-items:center;gap:16px;width:min(1136px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:0;border:0;background:transparent;overflow:visible}
+.distribution-main-surface,.exam-prep-panel{display:flex;flex-direction:column;gap:16px;padding:22px;border:1px solid var(--line);border-radius:16px;background:#fff;min-width:0;max-height:calc(100dvh - 32px);overflow:hidden}
+.exam-prep-panel{height:min(740px,calc(100dvh - 32px))}
+#study-planning .exam-prep-panel h3{font-size:18px}
+.exam-prep-panel .exam-prep-content{display:flex;flex-direction:column;min-height:0;flex:1;margin:0;overflow:hidden}
+.exam-prep-panel .exam-prep-content>.distribution-description{margin:0 0 6px;flex-shrink:0;font-size:13px}
+.exam-prep-panel .exam-prep-find{flex-shrink:0;grid-template-columns:minmax(0,1fr) 130px}
+.exam-prep-list-area{overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin;padding-right:4px}
+.exam-prep-panel .exam-prep-options{overflow:visible;max-height:none;grid-template-columns:1fr;padding-top:10px}
+.exam-prep-panel .exam-prep-selected:empty{display:none}
+.exam-prep-panel .management-error{margin:0;font-size:13px;flex-shrink:0}
+.exam-prep-panel .management-error:empty{display:none}
+.exam-prep-panel .exam-prep-row{flex-wrap:wrap}.exam-prep-panel .exam-prep-name{flex-basis:100%;font-size:13px}
+@media(max-width:1180px){#study-planning .planning-distribution-dialog.has-prep-panel{grid-template-columns:minmax(0,1fr);width:min(520px,calc(100vw - 32px))}.has-prep-panel .distribution-main-surface{display:none}}
+
+/* Keep the main popup centered; attach the manager in the free space to its right. */
+@media(min-width:1641px){#study-planning .planning-distribution-dialog.has-prep-panel{display:block;width:640px}.has-prep-panel .exam-prep-panel{position:absolute;left:calc(100% + 16px);top:0;width:480px}.has-prep-panel .distribution-main-surface{display:flex}}
+@media(max-width:1640px){#study-planning .planning-distribution-dialog.has-prep-panel{grid-template-columns:minmax(0,1fr);width:min(520px,calc(100vw - 32px))}.has-prep-panel .distribution-main-surface{display:none}}
+
+@media(min-width:721px){.exam-prep-panel .exam-prep-row{flex-wrap:nowrap;gap:4px}.exam-prep-panel .exam-prep-name{flex:1;flex-basis:auto;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.exam-prep-panel .exam-prep-row input{width:42px;padding:5px 3px;font-size:12px}.exam-prep-panel .exam-prep-row>span:not(.exam-prep-name){white-space:nowrap}.exam-prep-panel .exam-prep-row button{padding:4px 5px}.exam-prep-panel .exam-prep-date::before{content:'· ';}}
+
+.distribution-count-settings{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:9px;font-size:13px}
+.distribution-count-settings label{display:flex;align-items:center;gap:5px}.distribution-count-settings input[type=checkbox]{accent-color:#a57ce4;margin:0}
+#study-planning .distribution-count-settings input[type=number]{width:60px;min-width:0;padding:5px;border:1px solid var(--line);border-radius:6px;font:inherit}
+.distribution-count-settings small{flex-basis:100%;font-size:12px;color:var(--muted);line-height:1.5}
+
+.distribution-preview-body .preview-summary-values.has-count{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media(max-width:720px){.distribution-preview-body .preview-summary-values.has-count{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.distribution-preview-body .preview-summary-values{grid-template-columns:repeat(var(--preview-summary-columns,5),minmax(0,1fr))}
+.distribution-preview-body .preview-summary-values>div>span,.distribution-preview-body .preview-summary-values>div>strong{white-space:nowrap}
+@media(max-width:720px){.distribution-preview-body .preview-summary-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.exam-option-separator{display:flex;align-items:center;gap:8px;padding:8px 12px;color:var(--muted);font-size:12px}.exam-option-separator::before,.exam-option-separator::after{content:"";height:1px;background:var(--line);flex:1}
+
+.calendar-grid .day-events,.calendar-grid .day-events:has(.event){flex-wrap:nowrap}.calendar-grid .day-events>.event.dot-event{flex-shrink:0}
+
+.pace-cert-selector{display:block;width:100%;min-width:0;position:relative}.pace-cert-native{display:none!important}
+#study-planning button.pace-cert-trigger,#study-management button.pace-cert-trigger,button.pace-cert-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:38px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#242938;font:inherit;font-size:14px;text-align:left}
+.pace-cert-trigger>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pace-cert-chevron{width:8px;height:8px;border-right:1.5px solid #85849a;border-bottom:1.5px solid #85849a;transform:rotate(45deg);flex-shrink:0;margin:0 3px 4px}
+.study-target>.exam-chevron{display:none}.study-target .pace-cert-trigger{min-height:46px!important;padding:12px 16px!important;font-weight:550}
+.pace-cert-menu{position:fixed;inset:auto;margin:0;transform:none;padding:7px;max-height:min(420px,calc(100dvh - 24px));overflow:auto;border:1px solid #e7e0f5;border-radius:14px;background:#fff;box-shadow:0 8px 24px #30274b1a;color:#242938}
+#study-planning .pace-cert-menu button.pace-cert-option,#study-management .pace-cert-menu button.pace-cert-option,.pace-cert-menu button.pace-cert-option{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:12px;border:0;border-radius:9px;background:transparent;color:inherit;font:inherit;font-size:14px;text-align:left}
+.pace-cert-menu button.pace-cert-option[aria-selected=true]{background:#f0edfa;color:#51439d}.pace-cert-option-name{display:flex;align-items:center;gap:8px;min-width:0}.pace-cert-option-name .category-dot{width:9px;height:9px;flex-shrink:0}.pace-cert-dday{white-space:nowrap;font-size:13px}.pace-cert-option-name>span:last-child{overflow-wrap:anywhere}
+/* Certificate controls retain readable text and the width of their trigger. */
+#study-management .study-target button.pace-cert-trigger,
+#study-planning .study-target button.pace-cert-trigger,
+button.pace-cert-trigger{background:#fff;color:#242938;font-size:16px}
+#study-management .pace-cert-menu button.pace-cert-option,
+#study-planning .pace-cert-menu button.pace-cert-option,
+.pace-cert-menu button.pace-cert-option{font-size:15px}
+.availability-period>.pace-cert-selector{width:220px;max-width:60%;flex:0 0 220px}
+.availability-period{white-space:nowrap}
+@media(max-width:720px){.availability-period>.pace-cert-selector{width:160px;flex-basis:160px}}
+/* Use the space above navigation instead of capping today's list at 300px. */
+@media(min-width:981px){
+ .sidebar>.brand,.sidebar>.today-heading,.sidebar>nav{flex-shrink:0}
+ .sidebar>.today-card{display:flex;flex-direction:column;flex:1 1 auto;min-height:280px}
+ .sidebar>.today-card>.card-heading,.sidebar>.today-card>.availability,.sidebar>.today-card>.assigned-title,.sidebar>.today-card>.today-total{flex-shrink:0}
+ .sidebar #today-items{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto}
+ .sidebar>nav{margin-top:0;padding-top:18px}
+}
+@media(max-width:980px){.sidebar #today-items{max-height:none;overflow-y:visible}}
+/* Tighten the gap between today's available time and its divider. */
+.today-card .availability{padding-bottom:10px}
+/* Keep the target label on one line in the date-specific time editor. */
+.date-time-editor>label{white-space:nowrap}
+.date-time-editor>label>.pace-cert-selector{width:65%;flex:0 1 65%;min-width:0}
+/* Enlarge only learning-category markers inside calendar date cells. */
+.calendar-grid .day-events>.event.calendar-study-dot{width:24px;height:24px;flex:0 0 24px;margin-right:2px}
+.calendar-grid .day-events>.event.calendar-study-dot:last-child{margin-right:0}
+.calendar-grid .day-events>.event.calendar-exam-dot{width:24px;height:24px;flex:0 0 24px;margin-right:2px}
+.calendar-grid .day-events>.event.calendar-exam-dot:last-child{margin-right:0}
+
+.backup-import-dialog{position:fixed;inset:0;transform:none;margin:auto;width:min(620px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid var(--line);border-radius:16px;padding:24px;background:#fff;color:#242938}.backup-import-dialog>label{display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:14px;line-height:1.5}.backup-import-dialog>label[hidden],.backup-import-dialog>button[hidden]{display:none}.backup-import-dialog input[type=checkbox]{accent-color:#7863cf;flex-shrink:0;margin-top:4px}.backup-import-dialog input[type=file]{max-width:100%;margin:8px 0}.backup-import-dialog>button{border:1px solid #d6cef0;border-radius:8px;padding:9px 12px;background:#f2effa;color:#51439d}.backup-import-status{font-size:13px;line-height:1.5;color:var(--muted)}.backup-import-dialog button:disabled{opacity:.4;cursor:default}
+
+.backup-import-dialog .dialog-top{margin-bottom:16px}.backup-import-notice{margin:0 0 18px;padding:12px 14px;border-radius:10px;background:#f7f4fd;font-size:14px;line-height:1.6}.backup-import-step{margin:0 0 14px;padding:14px;border:1px solid var(--line);border-radius:12px}.backup-import-step[hidden]{display:none}.backup-import-step h3{margin:0 0 12px;font-size:15px}.backup-import-step label{display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:14px;line-height:1.5}.backup-import-step button{border:1px solid #d6cef0;border-radius:8px;padding:9px 12px;background:#f2effa;color:#51439d;font-size:14px}.backup-import-step input:disabled+span{color:var(--muted)}.backup-import-file{display:flex;align-items:center;gap:12px;min-width:0}.backup-import-filename{min-width:0;overflow-wrap:anywhere;font-size:13px;color:var(--muted)}.backup-import-file button{flex-shrink:0}.backup-import-preview:empty{display:none}.backup-import-preview{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:14px;line-height:1.6}.backup-import-preview p{margin:5px 0}.backup-import-readiness{margin:10px 0 0;font-size:13px;line-height:1.5;color:#6453b2}.backup-import-status:empty{display:none}.backup-import-dialog .certification-actions{justify-content:flex-end;margin-top:16px}
+/* Anchor today's total to the item list, without stretching empty list space. */
+@media(min-width:981px){
+ .sidebar>.today-card{flex:0 1 auto}
+ .sidebar #today-items{flex:0 1 auto}
+ .sidebar>nav{margin-top:auto}
+}
+/* Wrap planning controls according to the card width, before they overflow. */
+#study-planning .planning-settings{container-type:inline-size;container-name:planning-settings-card}
+@container planning-settings-card (max-width:650px){
+ #study-planning .planning-setting-fields{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:14px}
+}
+@container planning-settings-card (max-width:430px){
+ #study-planning .planning-setting-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+#study-planning .planning-setting-field .planning-field-value{min-width:0;max-width:100%}

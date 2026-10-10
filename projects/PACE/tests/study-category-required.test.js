@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {analyzeStudyInput,registerLectures,emptyStudy} from '../src/study.js';
+test('강의 과목 또는 이론 제목 인식은 필수 사용자 분류를 대신하지 않는다',()=>{for(const text of ['1과목. 소프트웨어 구축\n공학 32분','이론\n공학 32분','공학 32분']){const missing=analyzeStudyInput({kind:'lecture',text,category:'   '});assert.throws(()=>registerLectures(emptyStudy(),'p',missing));const rows=analyzeStudyInput({kind:'lecture',text,category:'이론'});assert.equal(registerLectures(emptyStudy(),'p',rows).added,1);}});
+test('교재는 미입력 분류로 등록할 수 없고 과목 없이 입력된 분류로 등록한다',()=>{assert.throws(()=>registerLectures(emptyStudy(),'p',analyzeStudyInput({kind:'book',text:'첫 장',category:'   '})));assert.equal(registerLectures(emptyStudy(),'p',analyzeStudyInput({kind:'book',text:'첫 장',category:'교재'})).added,1);});
