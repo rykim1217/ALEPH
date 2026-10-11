@@ -4,3 +4,11 @@ montage.png
 *.inspect.ndjson
 create-deck.mjs
 detail-reference.json
+
+이전파일/
+fonts/
+preview.html
+layout-audit.json
+cleanup-report.json
+완성본/*.pdf
+완성본/파일안내.txt

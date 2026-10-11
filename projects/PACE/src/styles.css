@@ -1198,7 +1198,7 @@ button.pace-cert-trigger{background:var(--pace-surface-fff);color:var(--pace-ink
 .account-management-content .settings-account-feature-text p{font-size:13px;line-height:1.7;margin:0;color:var(--muted)}
 @media(max-width:620px){.settings-account-feature{align-items:flex-start;gap:12px;flex-wrap:wrap}.settings-account-feature>button{margin-left:auto}.settings-account-summary{padding:16px}}
 
-.local-copy-dialog{width:430px}
+.local-copy-dialog{width:500px}.local-copy-dialog>p{word-break:keep-all}
 .local-copy-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .local-copy-heading h2{margin:0}
 .local-copy-heading .icon-button{border:0;background:transparent;color:var(--muted);padding:0;width:24px;height:24px;font-size:20px;cursor:pointer}
@@ -1275,3 +1275,16 @@ button.pace-cert-trigger{background:var(--pace-surface-fff);color:var(--pace-ink
 .planning-drag-image{position:fixed;left:-10000px;top:0;padding:16px;width:max-content;pointer-events:none}
 #study-planning .planning-drag-preview{transform:rotate(-3deg);transform-origin:center;opacity:1;box-shadow:0 8px 20px var(--pace-shadow-25203925);pointer-events:none}
 @media(prefers-reduced-motion:reduce){#study-planning .planning-drag-preview{transform:none}}
+
+/* Fit the validated backup summary without scrolling the whole desktop panel. */
+@media(min-width:950px) and (min-height:850px){
+ .unified-settings .settings-data-content>h3{margin-bottom:12px}
+ .unified-settings .settings-data-content>h4{margin-bottom:8px}
+ .unified-settings .settings-data-content>.settings-note{margin-bottom:8px}
+ .unified-settings .settings-data-content .backup-import-file{gap:8px}
+ .unified-settings .settings-data-content .backup-import-preview{margin-top:8px;padding-top:8px;font-size:13px}
+ .unified-settings .settings-data-content .backup-import-status,.unified-settings .settings-data-content .backup-import-confirm,.unified-settings .settings-data-content .backup-import-readiness{margin-top:8px}
+ .unified-settings .settings-data-content .backup-import-actions{margin-top:8px}
+ .unified-settings .settings-data-content .settings-reset{margin-top:12px;padding-top:12px}
+ .unified-settings .settings-data-content .settings-reset h4{margin-bottom:8px}
+}

@@ -118,3 +118,37 @@
  .calendar-topbar .legend{display:grid;grid-template-columns:repeat(2,max-content);gap:8px 12px;justify-content:end;white-space:nowrap}
  .calendar-topbar .legend>span{white-space:nowrap}
 }
+
+/* Keep tablet view switches beside the schedule title; navigation stays below. */
+.planning-view-controls,.planning-navigation{display:contents}
+@media(min-width:721px) and (max-width:1194px),(min-width:721px) and (max-width:1400px) and (pointer:coarse){
+ #study-planning .planning-schedule-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 12px}
+ #study-planning .planning-schedule-title{grid-column:1;grid-row:1;min-width:0;flex-wrap:wrap}
+ #study-planning .planning-drag-hint{flex-basis:100%;font-size:11px}
+ #study-planning .planning-controls{display:contents}
+ #study-planning .planning-view-controls{display:flex;grid-column:2;grid-row:1;gap:8px;justify-self:end;align-self:start}
+ #study-planning .planning-navigation{display:flex;grid-column:1/-1;grid-row:2;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+}
+/* Phone planning toolbar: view, date navigation and today stay on one row. */
+@media(max-width:720px){
+ #study-planning .planning-controls{display:flex;flex-wrap:nowrap;gap:5px;width:100%;justify-content:flex-end;min-width:0}
+ #study-planning .planning-view-controls,#study-planning .planning-navigation{display:flex;align-items:center;flex-wrap:nowrap;gap:4px;min-width:0}
+ #study-planning .planning-controls button{flex:0 0 auto;padding-inline:7px;font-size:11px;min-width:0}
+ #study-planning .planning-period{font-size:11px;white-space:nowrap;flex:0 1 auto}
+ #study-planning .planning-navigation{margin-left:auto}
+}
+/* Tablet: all planning controls share the schedule title's first row. */
+@media (min-width:721px) and (max-width:1194px),(min-width:721px) and (max-width:1400px) and (pointer:coarse){
+ #study-planning .planning-controls{display:flex;grid-column:2;grid-row:1;align-self:start;align-items:center;justify-content:flex-end;flex-wrap:nowrap;gap:6px;min-width:0}
+ #study-planning .planning-view-controls,#study-planning .planning-navigation{display:flex;grid-column:auto;grid-row:auto;align-self:auto;justify-self:auto;align-items:center;flex-wrap:nowrap;gap:5px}
+ #study-planning .planning-controls button{white-space:nowrap;padding-inline:8px}
+ #study-planning .planning-period{white-space:nowrap;font-size:12px}
+}
+@media(max-width:720px){#study-planning .planning-navigation{margin-left:0}}
+/* One-day phone lists fit their menu touch targets without horizontal overflow. */
+@media(max-width:720px){
+ #study-planning .planning-days:not(.planning-month){overflow-x:hidden}
+ #study-planning .planning-days:not(.planning-month) .planning-day{min-width:0}
+ #study-planning .planning-days:not(.planning-month) .planning-study-card{grid-template-columns:20px minmax(0,1fr) 40px;min-width:0}
+ #study-planning .planning-days:not(.planning-month) .planning-date-items{overflow-x:hidden}
+}
