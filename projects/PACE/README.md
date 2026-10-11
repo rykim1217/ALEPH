@@ -214,3 +214,7 @@ PC의 기본 배치를 유지하고 태블릿에서는 사이드바와 콘텐츠
 `pace.before-catalog-migration.v1`은 서버 전송에서 제외하며 학습 JSON 백업에는 유지합니다. 인증 세션과 계정 캐시의 내부 정보는 학습 백업 대상이 아닙니다. 로그인 중 백업 가져오기는 현재 계정 캐시에 적용되어 동기화 대상이 됩니다.
 
 Supabase 테이블과 저장 함수는 `supabase/schema.sql`로 설정합니다. 공개 URL·publishable key는 `src/supabase-config.js`에 있으며 비밀키는 사용하지 않습니다. Supabase SDK는 버전을 고정한 jsDelivr ESM 경로로 불러옵니다. 인증·동기화에는 네트워크 연결이 필요합니다.
+
+## 제출자료
+
+[프로젝트 소개 PPTX](presentation/PACE-project.pptx)는 실제 화면과 기능 설명을 담은 21장 제출용 자료입니다. [구성 안내](presentation/README.md)를 함께 제공합니다.

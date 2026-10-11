@@ -1,0 +1,5 @@
+assets/
+previews/
+montage.png
+*.inspect.ndjson
+create-deck.mjs
