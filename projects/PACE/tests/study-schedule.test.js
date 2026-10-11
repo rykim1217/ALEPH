@@ -1,7 +1,7 @@
 import {importStudy} from './fixtures/synthetic-study.js';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {emptyStudy,setLectureCompleted,lectureItems,loadStudy} from '../src/study.js';
-import {moveStudyDate} from '../src/study-schedule.js';
+import {moveDraggedStudyDate,moveStudyDate} from '../src/study-schedule.js';
 import {missingSummary,planningProgress,remainingWorkload} from '../src/study-planning.js';
 const fixture=()=>({...emptyStudy(),catalog:[{id:'a',planId:'p',studyKind:'book',category:'교재',title:'첫 교재',date:'2026-10-10'},{id:'b',planId:'p',studyKind:'review',category:'복습',title:'복습',date:'2026-10-10'},{id:'done',planId:'p',studyKind:'book',category:'교재',title:'완료 교재'},{id:'other',planId:'q',studyKind:'mock',category:'기출'}],lectureCompletion:{done:{completed:true}},categoryColors:{p:{교재:'#abc'}}});
 test('미설정 안내는 자격증별 미완료 항목 분류별·전체 개수만 센다',()=>{const data=fixture();assert.equal(missingSummary(data,'p'),'교재 1개 · 복습 1개 / 총 2개');assert.equal(missingSummary(setLectureCompleted(data,'a',true),'p'),'복습 1개 / 총 1개');});
@@ -14,3 +14,7 @@ test('기존 날짜 공유 강의도 다른 강의 배정과 완료를 변경하
 test('미설정 개수는 학습 유형 대신 실제 사용자 분류명과 표시 순서를 따르고 완료 항목 제외',()=>{
  const data={...emptyStudy(),catalog:[{id:'a',planId:'p',category:'핵심 문제',studyKind:'mock'},{id:'b',planId:'p',category:'핵심 문제',studyKind:'past'},{id:'c',planId:'p',category:'오답 정리',studyKind:'review'},{id:'done',planId:'p',category:'오답 정리',studyKind:'review'}],categoryOrder:{p:['오답 정리','핵심 문제']},lectureCompletion:{done:{completed:true}}};assert.equal(missingSummary(data,'p'),'오답 정리 1개 · 핵심 문제 2개 / 총 3개');
 });
+
+ test('manual move overrides an existing automatic assignment and survives reload',()=>{const data=fixture();data.itemOverrides={a:{date:'2026-10-10',scheduleSource:'automatic',custom:'keep'},b:{date:'2026-10-09'}};const before=structuredClone(data),next=moveStudyDate(data,'p','a','2026-10-11'),reloaded=loadStudy({getItem:()=>JSON.stringify(next)});assert.equal(lectureItems(next).find(i=>i.id==='a').date,'2026-10-11');assert.equal(lectureItems(reloaded).find(i=>i.id==='a').date,'2026-10-11');assert.equal(next.itemOverrides.a.scheduleSource,'manual');assert.equal(next.itemOverrides.a.custom,'keep');assert.deepEqual(next.itemOverrides.b,data.itemOverrides.b);assert.deepEqual(next.lectureCompletion,data.lectureCompletion);assert.deepEqual(data,before);});
+
+test('drag moves only its own item and preserves completion and unrelated data',()=>{const data=fixture(),before=structuredClone(data),reference={itemId:'a',planId:'p',date:'2026-10-10'},next=moveDraggedStudyDate(data,reference,'2026-10-12','p');assert.equal(lectureItems(next).find(i=>i.id==='a').date,'2026-10-12');assert.equal(next.lectureCompletion,data.lectureCompletion);assert.deepEqual(next.catalog.slice(1),data.catalog.slice(1));assert.deepEqual(data,before);assert.equal(moveDraggedStudyDate(data,reference,'2026-10-10','p'),data);assert.throws(()=>moveDraggedStudyDate(data,reference,'2026-10-12','q'));assert.throws(()=>moveDraggedStudyDate(next,reference,'2026-10-13','p'));assert.throws(()=>moveDraggedStudyDate(data,null,'2026-10-12','p'));assert.throws(()=>moveDraggedStudyDate(data,reference,'2026-02-30','p'));});

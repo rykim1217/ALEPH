@@ -1,3 +1,4 @@
+import {formatMinutes} from './calendar.js';
 const categoryNames={theory:'이론',programming:'프로그래밍',sql:'SQL'};
 export function studyDisplayName(item){
  const category=categoryNames[item.category]||item.category||'';
@@ -10,6 +11,8 @@ export function studyFullTitle(item){
  const category=categoryNames[item.category]||item.category||'';
  return item.number!=null&&String(item.number).trim()?[category,item.number,item.title].filter(Boolean).join(' '):item.title||'';
 }
+
+export function studyTooltipTitle(item,minutes){const title=studyFullTitle(item);return Number.isFinite(minutes)&&minutes>0?title+' · '+formatMinutes(Math.ceil(minutes)):title;}
 
 export function initStudyTooltips(root=document){
  const tooltip=document.createElement('div');tooltip.className='study-title-tooltip';tooltip.id='study-title-tooltip';tooltip.setAttribute('role','tooltip');tooltip.setAttribute('popover','manual');tooltip.hidden=true;document.body.append(tooltip);let timer,owner;

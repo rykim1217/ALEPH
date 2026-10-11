@@ -1,3 +1,6 @@
+import {studyTooltipTitle} from './study-display.js';
+import {planningMinutes,loadPlanning} from './study-planning.js';
+import {appStorage} from './runtime-storage.js';
 import {orderedCategories,moveCategory} from './category-order.js';
 import {lectureItems,formatLectureTime,parseLectureTime,parseExpectedMinutes,formatExpectedMinutes} from './study.js';
 import {updateStudyItem,deleteStudyItems,canBatchEditTime,updateStudyCategory,categoryTimeValue} from './study-item-edit.js';
@@ -57,7 +60,7 @@ export function initRegisteredManager({root,target,getData,save,colorFor,names,c
   const scroll=el('div','managed-items');scroll.dataset.key=target.value+'|'+category;
   for(const item of members){const wrapper=el('div','managed-item-wrapper'),row=el('div','managed-item-row');const dot=el('span','category-dot');dot.style.backgroundColor=colorFor(target.value,category);
    const title=item.number&&item.studyKind==='lecture'?item.number+' '+item.title:item.title;
-   const label=el('span','managed-item-name',title);label.title=title;
+   const label=el('span','managed-item-name',title);let minutes=null;try{minutes=planningMinutes(item,loadPlanning(appStorage).certifications[item.planId]?.speed||1);}catch{}label.dataset.studyFullTitle=studyTooltipTitle(item,minutes);
    const pencil=button(null,()=>{editing=editing===item.id?null:item.id;render();},'edit-study-item');pencil.setAttribute('aria-label',title+' 수정');pencil.title='수정';pencil.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z M14 5l5 5"/></svg>';
    row.append(dot,label,el('span','registered-lecture-time',item.studyKind&&item.studyKind!=='lecture'?formatExpectedMinutes(item.expectedMinutes):item.originalSeconds==null?'':formatLectureTime(item.originalSeconds)),pencil,check(title+' 선택',selection.has(item.id),value=>{value?selection.add(item.id):selection.delete(item.id);const n=members.filter(i=>selection.has(i.id)).length;all.checked=n===members.length;all.indeterminate=n>0&&n<members.length;refreshActions();}));wrapper.append(row);
    if(editing===item.id){const form=el('form','managed-edit-form'),fields={};

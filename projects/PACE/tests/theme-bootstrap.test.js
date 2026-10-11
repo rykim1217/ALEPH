@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import {loadTheme,resolveTheme} from '../src/display-settings.js';
+const source=readFileSync(new URL('../src/theme-init.js',import.meta.url),'utf8');
+test('blocking bootstrap agrees with runtime for every preference and system mode',()=>{for(const raw of [null,'bad','null',JSON.stringify({version:2,theme:'dark'}),...['system','light','dark'].map(theme=>JSON.stringify({version:1,theme}))])for(const dark of [false,true]){const root={dataset:{}},storage={getItem:()=>raw,setItem:()=>assert.fail('bootstrap must only read')};vm.runInNewContext(source,{document:{documentElement:root},localStorage:storage,window:{matchMedia:()=>({matches:dark})}});assert.equal(root.dataset.theme,resolveTheme(loadTheme(storage),dark));}});
+test('all CSS color tokens resolve in the central palette',()=>{const css=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8'),palette=readFileSync(new URL('../src/theme-tokens.css',import.meta.url),'utf8');for(const [,name] of css.matchAll(/var\((--pace-[a-z0-9-]+)/g))assert.ok(palette.includes(name+':'),name);assert.match(palette,/#282631/);assert.match(palette,/#393541/);assert.ok(!css.includes('filter:invert'));});
+
+test('dark selected controls and milestone badge keep readable text contrast',()=>{const palette=readFileSync(new URL('../src/theme-tokens.css',import.meta.url),'utf8');const last=name=>[...palette.matchAll(new RegExp(name+':(#[0-9a-f]{6})','g'))].at(-1)[1];const luminance=hex=>{const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];};const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);};assert.ok(contrast(last('--theme-selected-bg'),last('--theme-selected-ink'))>=4.5);assert.ok(contrast(last('--pace-surface-fff0dc'),last('--pace-ink-92540c'))>=4.5);assert.notEqual(last('--theme-selected-bg'),last('--pace-surface-fff'));});

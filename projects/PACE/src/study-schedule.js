@@ -3,7 +3,7 @@ import {validDate} from './availability.js';
 export function moveStudyDate(data,planId,id,date){
  const item=lectureItems(data).find(i=>i.id===id);
  if(!item||item.planId!==planId||!validDate(date))throw Error('학습 항목과 이동할 날짜를 확인해 주세요.');
- if(data.catalog?.some(i=>i.id===id))return {...data,catalog:data.catalog.map(i=>i.id===id?{...i,date,scheduleSource:'manual'}:i)};
+ if(data.catalog?.some(i=>i.id===id))return {...data,catalog:data.catalog.map(i=>i.id===id?{...i,date,scheduleSource:'manual'}:i),...(data.itemOverrides?.[id]?{itemOverrides:{...data.itemOverrides,[id]:{...data.itemOverrides[id],date,scheduleSource:'manual'}}}:{})};
  return {...data,itemOverrides:{...data.itemOverrides,[id]:{...data.itemOverrides?.[id],date,scheduleSource:'manual'}}};
 }
 
@@ -16,4 +16,12 @@ export function applyDistributionPreview(data,result,snapshot){
  const overrides={...data.itemOverrides};
  for(const assignment of result.assignments)overrides[assignment.itemId]={...overrides[assignment.itemId],date:assignment.date,scheduleSource:'automatic'};
  return {...data,itemOverrides:overrides};
+}
+
+// Only an internal drag for the currently displayed certification can move an item.
+export function moveDraggedStudyDate(data,reference,date,activePlanId){
+ const item=reference&&lectureItems(data).find(i=>i.id===reference.itemId&&i.planId===reference.planId);
+ if(!item||reference.planId!==activePlanId||item.date!==reference.date)throw Error('학습 일정이 변경되었습니다. 다시 끌어 이동해 주세요.');
+ if(date===item.date)return data;
+ return moveStudyDate(data,activePlanId,item.id,date);
 }

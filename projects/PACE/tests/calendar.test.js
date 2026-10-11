@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dateKey, monthCells, shiftMonth, daysBetween, formatMinutes } from '../src/calendar.js';
+import { sidebarEditorPlacement, dateKey, monthCells, shiftMonth, daysBetween, formatMinutes } from '../src/calendar.js';
 import { getDaySummary } from '../src/data.js';
 test('월간 캘린더는 일요일부터 토요일까지 실제 날짜를 누락 없이 표시한다', () => {
   for (const [year, month] of [[2026, 9], [2024, 1], [2026, 1], [2026, 7]]) {
@@ -48,3 +48,5 @@ test('작은 화면의 날짜 팝업은 화면 내부에 유지한다',()=>{
   const p=datePickerPlacement({left:280,top:490,bottom:533},{left:12,right:378,top:20,bottom:620},300,292,390,640);
   assert.ok(p.x>=12&&p.x+300<=378);assert.ok(p.y>=12&&p.y+292<=628);
 });
+
+test('sidebar time editor attaches to its own button and stays within viewport',()=>{const a={left:270,right:330,top:250,bottom:290};assert.deepEqual(sidebarEditorPlacement(a,340,300,1200,800),{x:340,y:250});assert.deepEqual(sidebarEditorPlacement({...a,top:700},340,300,1200,800),{x:340,y:484});assert.deepEqual(sidebarEditorPlacement(a,340,300,600,800),{fullscreen:true});assert.deepEqual(sidebarEditorPlacement(a,340,900,1200,800),{fullscreen:true});});

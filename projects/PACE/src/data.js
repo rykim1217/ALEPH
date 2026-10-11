@@ -14,3 +14,6 @@ export function getDaySummary(date, plansOrPlan, personalEvents = [], { studyIte
   const capacity = Number.isFinite(configured) && configured >= 0 ? configured : null;
   return { key, capacity, items, special, rest: false, total: items.length ? items.reduce((sum, item) => sum + item.minutes, 0) : null };
 }
+
+// Display totals use the same effective dated items as the visible list.
+export function scheduledMinutes(items,minutesFor){const known=items.map(minutesFor).filter(value=>Number.isFinite(value)&&value>=0);return known.length?Math.ceil(known.reduce((sum,value)=>sum+value,0)):null;}

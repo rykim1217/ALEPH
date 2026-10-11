@@ -1,0 +1,2 @@
+// Blocking, storage-read-only bootstrap before styles and authentication initialize.
+(()=>{let theme='system';try{const data=JSON.parse(localStorage.getItem('pace-ui-display.v1')||'null');if(data?.version===1&&['system','light','dark'].includes(data.theme))theme=data.theme;}catch{}let dark=false;try{dark=!!window.matchMedia?.('(prefers-color-scheme: dark)').matches;}catch{}document.documentElement.dataset.theme=theme==='dark'||(theme==='system'&&dark)?'dark':'light';})();

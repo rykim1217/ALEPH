@@ -1,22 +1,27 @@
+import {initResponsiveUI} from './responsive-ui.js';
+import {initTheme,calendarWeekStart,weekdayLabels,DISPLAY_KEY,DISPLAY_CHANGE} from './display-settings.js';
+import {appStorage} from './runtime-storage.js';
 import {initBackupImport} from './backup-import.js';
 import {pruneExamPrepSettings} from './distribution-settings.js';
-import {studyDisplayName,studyFullTitle,initStudyTooltips} from './study-display.js';
-import {initStudyPlanning} from './study-planning.js';
+import {studyDisplayName,studyFullTitle,studyTooltipTitle,initStudyTooltips} from './study-display.js';
+import {initStudyPlanning,loadPlanning,planningMinutes} from './study-planning.js';
 import { initStudyManager } from './study-manager.js';
 import { STUDY_KEY, emptyStudy, loadStudy, migrateSavedStudy, studyItems, lectureItems, setLectureCompleted, categoryDots } from './study.js';
 import { initAvailabilityUI, aggregateAvailabilityText, resolveAvailability } from './availability.js';
-import { dateKey, monthCells, shiftMonth, formatMinutes, daysBetween, detailPlacement, attachedEditorPlacement, datePickerPlacement } from './calendar.js';
-import { getDaySummary, studyTypes, studyColors } from './data.js';
+import { dateKey, monthCells, shiftMonth, formatMinutes, daysBetween, detailPlacement, attachedEditorPlacement, sidebarEditorPlacement, datePickerPlacement } from './calendar.js';
+import { getDaySummary, scheduledMinutes, studyTypes, studyColors } from './data.js';
 import { loadCertifications, saveCertifications, upsertCertification, deleteCertification, DEFAULT_CERTIFICATION_COLOR, validateGoal, updateCertificationDetails, milestoneCategories, resolvedMilestoneCategories, configureMilestone,certificationChoiceEntries,populateCertificationSelect,defaultCertificationId } from './certifications.js';
 
+initTheme();
+initResponsiveUI();
 const $ = id => document.getElementById(id);
 const today = new Date();
 let plans;
 let certificationLoadError = false;
-try { plans = loadCertifications(localStorage, []); }
+try { plans = loadCertifications(appStorage, []); }
 catch { plans = []; certificationLoadError = true; }
 let studyData=emptyStudy(),studyLoadError=false;
-try { studyData=migrateSavedStudy(localStorage); } catch { studyLoadError=true; }
+try { studyData=migrateSavedStudy(appStorage); } catch { studyLoadError=true; }
 const PERSONAL_STORAGE_KEY = 'pace.personal-events.v1';
 const state = { year: today.getFullYear(), month: today.getMonth(), planId: 'all', selected: dateKey(today), view: 'month' };
 const fullDate = date => `${new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' }).format(date)} (${new Intl.DateTimeFormat('ko-KR', { weekday: 'short' }).format(date)})`;
@@ -24,14 +29,14 @@ const dateFromKey = key => { const [year, month, day] = key.split('-').map(Numbe
 
 function loadPersonalEvents() {
   try {
-    const stored = JSON.parse(localStorage.getItem(PERSONAL_STORAGE_KEY) || '[]');
+    const stored = JSON.parse(appStorage.getItem(PERSONAL_STORAGE_KEY) || '[]');
     return Array.isArray(stored) ? stored.filter(event => event && typeof event.id === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(event.date) && typeof event.title === 'string') : [];
   } catch { return []; }
 }
 let personalEvents = loadPersonalEvents();
-function savePersonalEvents() { localStorage.setItem(PERSONAL_STORAGE_KEY, JSON.stringify(personalEvents)); }
+function savePersonalEvents() { appStorage.setItem(PERSONAL_STORAGE_KEY, JSON.stringify(personalEvents)); }
 function selectedPlans() { return state.planId === 'all' ? plans : plans.filter(plan => plan.id === state.planId); }
-function dayFor(date) { const day = getDaySummary(date, selectedPlans(), personalEvents, { studyItems: studyItems(studyData), goals: plans.flatMap(plan => (plan.goals || []).map(goal => ({ ...goal, planId: plan.id }))) }); const resolved = availabilitySettings.resolve(date); return { ...day, items: lectureItems(studyData).filter(item=>item.date===dateKey(date)&&selectedPlans().some(plan=>plan.id===item.planId)), capacity: resolved.minutes, rest: resolved.rest }; }
+function dayFor(date) { const day = getDaySummary(date, selectedPlans(), personalEvents, { studyItems: studyItems(studyData), goals: plans.flatMap(plan => (plan.goals || []).map(goal => ({ ...goal, planId: plan.id }))) }); const resolved = availabilitySettings.resolve(date), items=lectureItems(studyData).filter(item=>item.date===dateKey(date)&&selectedPlans().some(plan=>plan.id===item.planId)); let speeds={};try{speeds=loadPlanning(appStorage).certifications;}catch{} return { ...day, items, total:scheduledMinutes(items,item=>planningMinutes(item,speeds[item.planId]?.speed||1)), capacity: resolved.minutes, rest: resolved.rest }; }
 function ddayFor(plan) {
   if (!plan.examDate) return '';
   const until = daysBetween(today, dateFromKey(plan.examDate));
@@ -39,18 +44,20 @@ function ddayFor(plan) {
 }
 
 function itemNode(item, compact = false) {
+  let minutes=null;try{minutes=planningMinutes(item,loadPlanning(appStorage).certifications[item.planId]?.speed||1);}catch{}
+  const tooltipTitle=studyTooltipTitle(item,minutes);
   const displayTitle=item.recordId?studyDisplayName(item):item.title;
   const element = document.createElement(compact ? 'span' : 'div');
   element.className = compact ? `event ${item.type} dot-event` : `study-row ${item.type}`;
-  if (compact) { element.setAttribute('aria-label', displayTitle); element.title = studyFullTitle(item); }
+  if (compact) { element.setAttribute('aria-label', displayTitle); element.title = tooltipTitle; }
   else {
     element.style.setProperty('--study-color', item.color || studyColors[item.type]);
     const badge = document.createElement('span'); badge.className = `type-badge ${item.type}`; badge.textContent = studyTypes[item.type];
-    const title = document.createElement('span'); title.className = 'study-name'; title.textContent = displayTitle; title.dataset.studyFullTitle=studyFullTitle(item);
+    const title = document.createElement('span'); title.className = 'study-name'; title.textContent = displayTitle; title.dataset.studyFullTitle=tooltipTitle;
     const duration = document.createElement('span'); duration.className = 'duration'; duration.textContent = `${item.minutes}분`;
     if(item.recordId){
       const dot=document.createElement('span');dot.className='lecture-category-dot';dot.style.backgroundColor=categoryColor(item.planId,item.category);dot.title=({theory:'이론',programming:'프로그래밍',sql:'SQL'})[item.category]||item.category;
-      const check=document.createElement('input');check.type='checkbox';check.checked=item.completed;check.setAttribute('aria-label',`${item.date||''} ${item.title} 완료`);check.disabled=studyLoadError;check.onchange=()=>{try{const next=setLectureCompleted(studyData,item.id,check.checked);localStorage.setItem(STUDY_KEY,JSON.stringify(next));studyData=next;renderToday();renderCalendar();if(state.view==='year')renderYear();if($('date-dialog').open)openDetail(dateFromKey(state.selected));if(state.view==='study')studyManager.render();if(state.view==='planning')planningPage.render();}catch{check.checked=!check.checked;notify('학습 기록을 저장하지 못했습니다.');}};
+      const check=document.createElement('input');check.type='checkbox';check.checked=item.completed;check.setAttribute('aria-label',`${item.date||''} ${item.title} 완료`);check.disabled=studyLoadError;check.onchange=()=>{try{const next=setLectureCompleted(studyData,item.id,check.checked);appStorage.setItem(STUDY_KEY,JSON.stringify(next));studyData=next;renderToday();renderCalendar();if(state.view==='year')renderYear();if($('date-dialog').open)openDetail(dateFromKey(state.selected));if(state.view==='study')studyManager.render();if(state.view==='planning')planningPage.render();}catch{check.checked=!check.checked;notify('학습 기록을 저장하지 못했습니다.');}};
       element.classList.add('lecture-item-row');element.append(dot,title,check);
     }else element.append(badge, title, duration);
   }
@@ -106,9 +113,10 @@ function choosePlan(id) {
 }
 
 function renderCalendar() {
+  const weekdays=document.querySelector('#month-view .weekdays');weekdays.replaceChildren(...weekdayLabels(calendarWeekStart()).map(name=>{const span=document.createElement('span');span.textContent=name;span.classList.toggle('sunday',name==='일');return span;}));
   $('month-title').textContent = `${state.year}년 ${state.month + 1}월`;
   renderFilter();
-  const cells = monthCells(state.year, state.month).map(date => {
+  const cells = monthCells(state.year, state.month, calendarWeekStart()).map(date => {
     const day = dayFor(date), isToday = day.key === dateKey(today), outside = date.getMonth() !== state.month;
     const button = document.createElement('button');
     button.className = `day-cell${outside ? ' outside' : ''}${isToday ? ' is-today' : ''}${day.key === state.selected ? ' selected' : ''}`;
@@ -179,9 +187,9 @@ function positionDetail() {
 }
 window.addEventListener('resize',()=>{positionDetail();positionTimeEditor();alignSidebarTimeButton();});
 
-function closeTimeEditor(){document.querySelector('#attached-time-editor')?.remove();const button=document.querySelector('.detail-capacity .change-capacity');if(button){button.style.visibility='';button.setAttribute('aria-expanded','false');}}
-function positionTimeEditor(){const editor=document.querySelector('#attached-time-editor');if(!editor)return;editor.classList.remove('editor-fullscreen');const anchor=document.querySelector('.day-cell.selected'),cell=state.view==='study'?{left:-1,right:-1,top:-1,bottom:-1,width:0,height:0}:anchor?.getBoundingClientRect()||{left:-1,right:-1,top:-1,bottom:-1,width:0,height:0},detail=$('date-dialog').getBoundingClientRect(),rect=editor.getBoundingClientRect();const p=attachedEditorPlacement(detail,cell,rect.width,rect.height,innerWidth,innerHeight);editor.classList.toggle('editor-fullscreen',!!p.fullscreen);if(!p.fullscreen){editor.style.left=p.x+'px';editor.style.top=p.y+'px';}}
-function openTimeEditor(date){closeTimeEditor();const panel=document.createElement('section');panel.id='attached-time-editor';panel.setAttribute('aria-label','날짜별 학습시간 변경');const title=document.createElement('h3');title.textContent='학습 가능시간 변경';panel.append(title,dateTimeEditor(date));$('date-dialog').append(panel);const button=document.querySelector('.detail-capacity .change-capacity');button.style.visibility='hidden';button.setAttribute('aria-expanded','true');positionTimeEditor();}
+function closeTimeEditor(){document.querySelector('#attached-time-editor')?.remove();$('edit-today-time').setAttribute('aria-expanded','false');const button=document.querySelector('.detail-capacity .change-capacity');if(button){button.style.visibility='';button.setAttribute('aria-expanded','false');}}
+function positionTimeEditor(){const editor=document.querySelector('#attached-time-editor');if(!editor)return;editor.classList.remove('editor-fullscreen');if(editor.classList.contains('sidebar-time-editor')){const rect=editor.getBoundingClientRect(),button=$('edit-today-time').getBoundingClientRect(),card=$('edit-today-time').closest('.today-card').getBoundingClientRect(),p=sidebarEditorPlacement({left:card.left,right:card.right,top:button.top,bottom:button.bottom},rect.width,rect.height,innerWidth,innerHeight);editor.classList.toggle('editor-fullscreen',!!p.fullscreen);if(!p.fullscreen){editor.style.left=p.x+'px';editor.style.top=p.y+'px';}return;}const anchor=document.querySelector('.day-cell.selected'),cell=state.view==='study'?{left:-1,right:-1,top:-1,bottom:-1,width:0,height:0}:anchor?.getBoundingClientRect()||{left:-1,right:-1,top:-1,bottom:-1,width:0,height:0},detail=$('date-dialog').getBoundingClientRect(),rect=editor.getBoundingClientRect();const p=attachedEditorPlacement(detail,cell,rect.width,rect.height,innerWidth,innerHeight);editor.classList.toggle('editor-fullscreen',!!p.fullscreen);if(!p.fullscreen){editor.style.left=p.x+'px';editor.style.top=p.y+'px';}}
+function openTimeEditor(date,sidebar=false){closeTimeEditor();const panel=document.createElement('section');panel.id='attached-time-editor';panel.setAttribute('aria-label','날짜별 학습시간 변경');const title=document.createElement('h3');title.textContent='학습 가능시간 변경';panel.append(title,dateTimeEditor(date));if(sidebar){panel.classList.add('sidebar-time-editor');panel.setAttribute('popover','auto');panel.setAttribute('role','dialog');document.body.append(panel);panel.addEventListener('toggle',event=>{if(event.newState==='closed'&&document.querySelector('#attached-time-editor')===panel)closeTimeEditor();});$('edit-today-time').setAttribute('aria-expanded','true');panel.showPopover();}else{$('date-dialog').append(panel);const button=document.querySelector('.detail-capacity .change-capacity');button.style.visibility='hidden';button.setAttribute('aria-expanded','true');}positionTimeEditor();}
 function alignSidebarTimeButton(){const button=$('edit-today-time'),todayButton=$('go-today-side');button.style.transform='none';const a=todayButton.getBoundingClientRect(),b=button.getBoundingClientRect();button.style.width=a.width+'px';button.style.height=a.height+'px';button.style.borderRadius=getComputedStyle(todayButton).borderRadius;button.style.transform='translateX('+(a.right-button.getBoundingClientRect().right)+'px)';}
 function dateTimeEditor(date) {
   const form=document.createElement('form');form.className='date-time-editor';form.setAttribute('aria-label','이 날짜 학습시간 편집');
@@ -221,7 +229,7 @@ function openDetail(date,editing=false) {
   const change=document.createElement('button');change.type='button';change.className='change-capacity';change.textContent='변경';change.setAttribute('aria-expanded',String(editing));change.onclick=()=>openTimeEditor(date);
   capacity.append(capIcon, capCopy,change);
   const heading = document.createElement('h3'); heading.textContent = `학습 항목 (${day.items.length}개)`;
-  const list = document.createElement('div'); list.className = 'popup-study-list'; for(const record of studyItems(studyData).filter(r=>r.date===day.key&&selectedPlans().some(p=>p.id===r.planId)))list.append(studyDayMeta(record)); list.append(...day.items.map(item => itemNode(item)));
+  const list = document.createElement('div'); list.className = 'popup-study-list'; const meta=document.createElement('span');meta.className='detail-study-total';meta.textContent='총 예정시간 '+(day.total===null?'시간 미설정':formatMinutes(day.total));heading.className='detail-study-heading';heading.append(meta); list.append(...day.items.map(item => itemNode(item)));
   if (!day.items.length) { list.className = 'empty-state'; list.textContent = '아직 배정된 학습 항목이 없습니다.'; }
   const specialHeading = document.createElement('h3'); specialHeading.className = 'special-heading';
   const specialIcon = document.createElement('span'); specialIcon.textContent = '⚑'; specialHeading.append(specialIcon, document.createTextNode(' 특별 일정'));
@@ -240,14 +248,14 @@ function openDetail(date,editing=false) {
 
 function renderYear() {
   $('year-title').textContent = `${state.year}년`;
-  const weekdayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekdayNames = weekdayLabels(calendarWeekStart());
   const cards = Array.from({ length: 12 }, (_, month) => {
     const card = document.createElement('button'); card.type = 'button'; card.className = 'year-month';
     const title = document.createElement('strong'); title.textContent = `${month + 1}월`;
     const weekdays = document.createElement('span'); weekdays.className = 'year-weekdays';
-    weekdayNames.forEach((name, index) => { const dayName = document.createElement('span'); dayName.textContent = name; if (index === 0) dayName.classList.add('sunday'); weekdays.append(dayName); });
+    weekdayNames.forEach((name, index) => { const dayName = document.createElement('span'); dayName.textContent = name; if (name === '일') dayName.classList.add('sunday'); weekdays.append(dayName); });
     const days = document.createElement('span'); days.className = 'year-days';
-    monthCells(state.year, month).forEach(date => {
+    monthCells(state.year, month, calendarWeekStart()).forEach(date => {
       const cell = document.createElement('span'); cell.className = `year-day${date.getMonth() !== month ? ' outside' : ''}`;
       if (date.getMonth() === month) {
         const number = document.createElement('span'); number.textContent = date.getDate(); cell.append(number);
@@ -275,7 +283,7 @@ function showView() {
 }
 function goToToday() { Object.assign(state, { year: today.getFullYear(), month: today.getMonth(), selected: dateKey(today), view: 'month' }); showView(); renderCalendar(); }
 
-initBackupImport({openButton:$('backup-import-settings'),storage:localStorage});
+initBackupImport({openButton:$('backup-import-settings'),storage:appStorage});
 let toastTimer;
 function notify(message) { clearTimeout(toastTimer); $('toast').textContent = message; $('toast').hidden = false; toastTimer = setTimeout(() => $('toast').hidden = true, 4000); }
 for (const [id, offset] of [['previous-month', -1], ['next-month', 1]]) $(id).addEventListener('click', () => { Object.assign(state, shiftMonth(state.year, state.month, offset)); renderCalendar(); });
@@ -302,9 +310,9 @@ $('date-dialog').addEventListener('click', event => { if(event.target.closest('#
 function categoryColor(planId,category){return studyData.categoryColors?.[planId]?.[category]||({theory:studyColors.lecture,programming:studyColors.practice,sql:studyColors.review})[category]||studyColors.lecture;}
 function studyDayMeta(record){const meta=document.createElement('p');meta.className='study-day-meta';meta.textContent=`원본 ${formatMinutes(record.originalMinutes)} · ${studyData.speeds[record.planId]||1.5}배속 · 예상 ${formatMinutes(record.minutes)} · ${record.sourceStatus}`;return meta;}
 const studyRoot=document.createElement('section');studyRoot.id='study-management';studyRoot.hidden=true;document.querySelector('main').append(studyRoot);
-const studyManager=initStudyManager({root:studyRoot,getPlans:()=>plans,getData:()=>studyData,itemNode,colorFor:categoryColor,save:next=>{if(studyLoadError)throw new Error('학습 저장 데이터를 확인해 주세요.');localStorage.setItem(STUDY_KEY,JSON.stringify(next));studyData=next;try{pruneExamPrepSettings(localStorage,next);}catch{}renderToday();renderCalendar();if($('date-dialog').open)openDetail(dateFromKey(state.selected));studyManager.render();if(state.view==='planning')planningPage.render();}});
+const studyManager=initStudyManager({root:studyRoot,getPlans:()=>plans,getData:()=>studyData,itemNode,colorFor:categoryColor,save:next=>{if(studyLoadError)throw new Error('학습 저장 데이터를 확인해 주세요.');appStorage.setItem(STUDY_KEY,JSON.stringify(next));studyData=next;try{pruneExamPrepSettings(appStorage,next);}catch{}renderToday();renderCalendar();if($('date-dialog').open)openDetail(dateFromKey(state.selected));studyManager.render();if(state.view==='planning')planningPage.render();}});
 const planningRoot=document.createElement('section');planningRoot.id='study-planning';planningRoot.hidden=true;document.querySelector('main').append(planningRoot);
-const planningPage=initStudyPlanning({root:planningRoot,getPlans:()=>plans,getData:()=>studyData,colorFor:categoryColor,storage:localStorage,today,save:next=>{if(studyLoadError)throw Error('학습 저장 데이터를 확인해 주세요.');localStorage.setItem(STUDY_KEY,JSON.stringify(next));studyData=next;renderToday();renderCalendar();if($('date-dialog').open)openDetail(dateFromKey(state.selected));},openDate:(date,id)=>{state.planId=id;state.selected=dateKey(date);openDetail(date);},openAvailability:id=>{state.planId=id;$('availability-settings').click();}});
+const planningPage=initStudyPlanning({root:planningRoot,getPlans:()=>plans,getData:()=>studyData,colorFor:categoryColor,storage:appStorage,today,save:next=>{if(studyLoadError)throw Error('학습 저장 데이터를 확인해 주세요.');appStorage.setItem(STUDY_KEY,JSON.stringify(next));studyData=next;renderToday();renderCalendar();if($('date-dialog').open)openDetail(dateFromKey(state.selected));},openDate:(date,id)=>{state.planId=id;state.selected=dateKey(date);openDetail(date);},openAvailability:id=>{state.planId=id;$('availability-settings').click();}});
 $('planning-nav').onclick=()=>{state.view='planning';planningPage.render();showView();};
 $('study-settings').onclick=()=>{state.view='study';studyManager.render();showView();};
 document.querySelectorAll('[data-future]').forEach(button => button.addEventListener('click', () => notify(`${button.dataset.future} 기능은 후속 단계에서 구현합니다. 현재는 예시 일정을 확인할 수 있습니다.`)));
@@ -345,7 +353,7 @@ function resetCertificationForm() {
 }
 function commitCertifications(next) {
   if (certificationLoadError) { $('certification-error').textContent = '기존 자격증을 불러오지 못해 덮어쓰기를 중단했습니다. 브라우저 설정을 확인해 주세요.'; $('certification-error').hidden = false; return false; }
-  try { saveCertifications(localStorage, next); }
+  try { saveCertifications(appStorage, next); }
   catch { $('certification-error').textContent = '저장하지 못했습니다. 브라우저 저장 공간과 설정을 확인해 주세요.'; $('certification-error').hidden = false; return false; }
   plans = next;
   if (!plans.some(plan => plan.id === state.planId)) state.planId = 'all';
@@ -371,9 +379,9 @@ function editDateField(value, label, optional = false) {
     const title = document.createElement('strong'); title.textContent = `${shown.getFullYear()}년 ${shown.getMonth() + 1}월`;
     const nav = offset => { const b = document.createElement('button'); b.type = 'button'; b.textContent = offset < 0 ? '‹' : '›'; b.setAttribute('aria-label', offset < 0 ? '이전 달' : '다음 달'); b.onclick = () => { const next = shiftMonth(shown.getFullYear(), shown.getMonth(), offset); if (next.year < 1 || next.year > 9999) return; shown = new Date(next.year, next.month, 1); render(); positionCertificationPicker(); }; return b; };
     head.append(nav(-1), title, nav(1));
-    const weekdays=document.createElement('div');weekdays.className='date-picker-weekdays';weekdays.setAttribute('aria-hidden','true');for(const text of ['일','월','화','수','목','금','토']){const span=document.createElement('span');span.textContent=text;weekdays.append(span);}
+    const weekdays=document.createElement('div');weekdays.className='date-picker-weekdays';weekdays.setAttribute('aria-hidden','true');for(const text of weekdayLabels(calendarWeekStart())){const span=document.createElement('span');span.textContent=text;span.classList.toggle('sunday',text==='일');weekdays.append(span);}
     const days = document.createElement('div'); days.className = 'date-picker-days';
-    for (const date of monthCells(shown.getFullYear(), shown.getMonth())) { const b = document.createElement('button'); b.type = 'button'; b.className = 'picker-day' + (date.getMonth() !== shown.getMonth() ? ' outside' : '') + (dateKey(date) === dateKey(today) ? ' today' : ''); b.textContent = date.getDate(); b.setAttribute('aria-label', `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`); b.setAttribute('aria-pressed', String(dateKey(date) === input.value)); b.onclick = () => choose(date); days.append(b); }
+    for (const date of monthCells(shown.getFullYear(), shown.getMonth(), calendarWeekStart())) { const b = document.createElement('button'); b.type = 'button'; b.className = 'picker-day' + (date.getMonth() !== shown.getMonth() ? ' outside' : '') + (dateKey(date) === dateKey(today) ? ' today' : ''); b.textContent = date.getDate(); b.setAttribute('aria-label', `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`); b.setAttribute('aria-pressed', String(dateKey(date) === input.value)); b.onclick = () => choose(date); days.append(b); }
     const footer = document.createElement('div'); footer.className = 'date-picker-footer';
     for (const [text, date] of [[optional ? '시험일 미정' : '날짜 지우기', null], ['오늘', today]]) { const b = document.createElement('button'); b.type = 'button'; b.textContent = text; b.onclick = () => choose(date); footer.append(b); }
     picker.append(head, weekdays, days, footer);
@@ -484,9 +492,11 @@ certificationForm.addEventListener('submit', event => {
 $('certification-settings').addEventListener('click', () => { setOptionsOpen(false); editingCertification = null; resetCertificationForm(); renderCertifications(); $('certification-dialog').showModal(); });
 $('close-certifications').addEventListener('click', () => $('certification-dialog').close());
 $('certification-dialog').addEventListener('click', event => { const rect = $('certification-dialog').getBoundingClientRect(); if (event.target === $('certification-dialog') && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) $('certification-dialog').close(); });
-const availabilitySettings = initAvailabilityUI({ getPlans:()=>plans, getSelectedId:()=>state.planId, openButton: $('availability-settings'), onSave: () => { renderToday(); renderCalendar(); if (state.view === 'year') renderYear(); if ($('date-dialog').open) openDetail(dateFromKey(state.selected)); if(state.view==='planning')planningPage.render();notify('학습 가능 시간을 저장했습니다.'); } });
+const availabilitySettings = initAvailabilityUI({ getPlans:()=>plans, getSelectedId:()=>state.planId, openButton: $('availability-settings'), onSave: () => { if(document.querySelector('.sidebar-time-editor'))closeTimeEditor();renderToday(); renderCalendar(); if (state.view === 'year') renderYear(); if ($('date-dialog').open) openDetail(dateFromKey(state.selected)); if(state.view==='planning')planningPage.render();notify('학습 가능 시간을 저장했습니다.'); } });
 renderToday(); renderCalendar();
-$('edit-today-time').addEventListener('click',()=>{goToToday();openDetail(today,true);});
+$('edit-today-time').setAttribute('aria-haspopup','dialog');
+$('edit-today-time').setAttribute('aria-expanded','false');
+$('edit-today-time').addEventListener('click',()=>{if(document.querySelector('.sidebar-time-editor')){closeTimeEditor();return;}if($('date-dialog').open)$('date-dialog').close();openTimeEditor(today,true);});
 alignSidebarTimeButton();
 if (availabilitySettings.loadError) notify('학습 가능 시간을 불러오지 못했습니다. 기존 데이터는 유지됩니다.');
 if (certificationLoadError) notify('저장된 자격증을 불러오지 못했습니다. 기존 저장 데이터는 유지됩니다.');
@@ -504,3 +514,7 @@ syncSidebarSelection();
 if(studyLoadError)notify('학습 데이터를 불러오거나 등록하지 못했습니다. 기존 데이터는 유지됩니다.');
 
 initStudyTooltips();
+
+function refreshDisplayCalendars(){renderCalendar();if(state.view==='year')renderYear();if(state.view==='planning')planningPage.render();}
+window.addEventListener(DISPLAY_CHANGE,refreshDisplayCalendars);
+window.addEventListener('storage',event=>{if(event.key===DISPLAY_KEY)refreshDisplayCalendars();});

@@ -1,9 +1,9 @@
 export function dateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
-export function monthCells(year, month) {
+export function monthCells(year, month, weekStart=0) {
   const start = new Date(year, month, 1);
-  const sundayOffset = start.getDay();
+  const sundayOffset = (start.getDay() - (weekStart===1?1:0) + 7) % 7;
   const count = Math.ceil((sundayOffset + new Date(year, month + 1, 0).getDate()) / 7) * 7;
   return Array.from({ length: count }, (_, i) => new Date(year, month, 1 - sundayOffset + i));
 }
@@ -44,4 +44,12 @@ export function datePickerPlacement(anchor,bounds,width,height,viewportWidth,vie
   const top=below>=height||below>=above?anchor.bottom+gap:anchor.top-height-gap;
   const left=Math.max(bounds.left+margin,Math.min(anchor.left,bounds.right-width-margin));
   return {x:Math.max(margin,Math.min(left,viewportWidth-width-margin)),y:Math.max(margin,Math.min(top,viewportHeight-height-margin))};
+}
+
+export function sidebarEditorPlacement(anchor,width,height,viewportWidth,viewportHeight){
+ const margin=16,gap=10;
+ if(viewportWidth<=720||height>viewportHeight-margin*2)return {fullscreen:true};
+ const y=Math.max(margin,Math.min(anchor.top,viewportHeight-height-margin));
+ for(const x of [anchor.right+gap,anchor.left-width-gap])if(x>=margin&&x+width<=viewportWidth-margin)return {x,y};
+ return {x:Math.max(margin,Math.min(anchor.left,viewportWidth-width-margin)),y:Math.max(margin,Math.min(anchor.bottom+gap,viewportHeight-height-margin))};
 }

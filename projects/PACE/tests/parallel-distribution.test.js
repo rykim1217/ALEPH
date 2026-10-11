@@ -29,3 +29,19 @@ test('시간 부족·미설정·불가능한 이정표를 구분하며 기존 �
 test('시간이 없는 상위 분류만 건너뛰고 실제 사용자 데이터는 수정하지 않는다',()=>{
  const data=study([item('A',1),item('B',1),item('C',1)]);delete data.catalog[0].expectedMinutes;Object.freeze(data);Object.freeze(data.catalog);data.catalog.forEach(Object.freeze);const result=calc(data);assert.deepEqual(new Set(dayCategories(result,data,result.days[0])),new Set(['B','C']));assert.equal(result.missing[0].itemId,'A1');
 });
+
+test('finishing a category earlier releases a category slot and meets a feasible milestone',()=>{
+ const data=study(['A','B','C'].flatMap((category,j)=>Array.from({length:[3,7,9][j]},(_,i)=>item(category,i+1))));
+ const target={...plan,examDate:'2026-10-20',goals:[{id:'g',title:'finish',date:'2026-10-12',milestone:{enabled:true,planId:'p',categories:['A','B','C'].map(category=>({category,itemIds:data.catalog.filter(i=>i.category===category).map(i=>i.id)}))}}]};
+ const before=structuredClone(data),result=calc(data,{plan:target});assert.equal(result.milestones[0].status,'met');assert.equal(result.assignments.length,19);assert.equal(new Set(result.assignments.map(i=>i.itemId)).size,19);assert.ok(result.days.every(day=>day.used<=day.capacity&&dayCategories(result,data,day).length<=2));assert.deepEqual(data,before);for(const category of ['A','B','C'])assert.deepEqual(result.assignments.filter(a=>a.itemId.startsWith(category)).map(a=>a.itemId),data.catalog.filter(i=>i.category===category).map(i=>i.id));
+});
+
+test('without milestones, finish a category earlier to avoid an underfilled intermediate day',()=>{
+ const data=study(['A','B','C'].flatMap((category,j)=>Array.from({length:[3,7,9][j]},(_,i)=>item(category,i+1))));
+ const before=structuredClone(data),result=calc(data);
+ assert.deepEqual(result.days.map(day=>day.used),[240,240,90]);
+ assert.equal(result.assignments.length,19);assert.equal(new Set(result.assignments.map(a=>a.itemId)).size,19);
+ assert.ok(result.days.every(day=>day.used<=day.capacity&&dayCategories(result,data,day).length<=2));
+ assert.deepEqual(data,before);
+ for(const category of ['A','B','C'])assert.deepEqual(result.assignments.filter(a=>a.itemId.startsWith(category)).map(a=>a.itemId),data.catalog.filter(i=>i.category===category).map(i=>i.id));
+});

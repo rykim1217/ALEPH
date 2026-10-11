@@ -5,7 +5,7 @@ import {resolvedMilestoneCategories} from './certifications.js';
 import {dateKey,daysBetween} from './calendar.js';
 const EPS=1e-8;
 // Pure preview: neither storage nor schedule mutations are available to this function.
-export function calculateDistribution({data,plan,availability,priority=[],today=new Date(),speed=1,minutesFor,mode='sequential',examPrep=[],countSettings={enabled:true,dailyLimit:null}}){
+export function calculateDistribution({data,plan,availability,priority=[],today=new Date(),speed=1,minutesFor,mode='sequential',examPrep=[],countSettings={enabled:true,dailyLimit:null},_finishCategory=null}){
  if(!['sequential','parallel'].includes(mode))throw Error('분배 방식을 확인해 주세요.');
  if(!plan?.id||!validDate(plan.examDate||''))throw Error('자격증의 시험일을 먼저 설정해 주세요.');
  if(!Number.isFinite(today.getTime())||typeof minutesFor!=='function'||!Number.isFinite(speed)||speed<=0)throw Error('분배 계산 설정을 확인해 주세요.');
@@ -55,7 +55,7 @@ export function calculateDistribution({data,plan,availability,priority=[],today=
    while(true){const free=rule.minutes-day.used,candidates=active.filter(queue=>queue.items.length&&minutesFor(queue.items[0],speed)<=free+EPS&&(dayCategories.has(queue.category)||dayCategories.size<2));if(!candidates.length)break;
     // If both heads fit, give each active category a start before weighted allocation.
     const bothFit=candidates.length===2&&candidates.reduce((sum,queue)=>sum+minutesFor(queue.items[0],speed),0)<=free+EPS;
-    candidates.sort((a,b)=>{if(bothFit&&(!spent.get(a)||!spent.get(b))){const started=Number(spent.get(a)>0)-Number(spent.get(b)>0);if(started)return started;}const scoreA=(spent.get(a)+minutesFor(a.items[0],speed)/2)/weights.get(a),scoreB=(spent.get(b)+minutesFor(b.items[0],speed)/2)/weights.get(b);return scoreA-scoreB||a.rank-b.rank;});
+    candidates.sort((a,b)=>{if(_finishCategory){const preferred=_finishCategory==='__shortest_remaining__'?a.items.reduce((sum,item)=>sum+minutesFor(item,speed),0)-b.items.reduce((sum,item)=>sum+minutesFor(item,speed),0):Number(b.category===_finishCategory)-Number(a.category===_finishCategory);if(preferred)return preferred;}if(bothFit&&(!spent.get(a)||!spent.get(b))){const started=Number(spent.get(a)>0)-Number(spent.get(b)>0);if(started)return started;}const scoreA=(spent.get(a)+minutesFor(a.items[0],speed)/2)/weights.get(a),scoreB=(spent.get(b)+minutesFor(b.items[0],speed)/2)/weights.get(b);return scoreA-scoreB||a.rank-b.rank;});
     const candidate=candidates[0],item=candidate.items.shift(),minutes=minutesFor(item,speed),assignment={itemId:item.id,date:key,minutes};assignments.push(assignment);day.items.push(assignment);day.used=Math.min(rule.minutes,day.used+minutes);spent.set(candidate,spent.get(candidate)+minutes);dayCategories.add(candidate.category);
    }
   }else{
@@ -76,5 +76,24 @@ export function calculateDistribution({data,plan,availability,priority=[],today=
  });
  const unassignedMissing=missing.filter(item=>!assignedIds.has(item.id)&&!(countBased&&prepIds.has(item.id)));
  const missingCounts=categories.map(category=>({category,count:unassignedMissing.filter(item=>item.category===category).length})).filter(group=>group.count);
- return {planId:plan.id,startDate:first,examDate:plan.examDate,assignments,days:days.filter(day=>day.items.length||day.completedIds.length),warnings,missing:unassignedMissing.map(item=>({itemId:item.id,...(countBased?{reason:eligible.length?'개수 기준 일일 한도 또는 분류 순서·분류 제한으로 시험 전까지 배치하지 못했습니다.':'시험 전 학습 가능한 날짜가 없습니다.'}:{})})),missingCounts,unplaced,milestones,summary:{assigned:assignments.length,assignedMinutes:Math.ceil(assignments.reduce((sum,item)=>sum+item.minutes,0)),unplaced:unplaced.length,unplacedMinutes:Math.ceil(unplaced.reduce((sum,item)=>sum+item.minutes,0)),missing:unassignedMissing.length,...(countBased?{countAssigned:assignments.filter(item=>item.basis==='count').length,countPending:missing.length,countLimit:count.dailyLimit,eligibleDays:eligible.length}:{}),remainingMinutes:Math.ceil(timed.reduce((sum,item)=>sum+minutesFor(item,speed),0)),capacityMinutes:Math.floor(capacityTotal),expectedDate:assignments.at(-1)?.date||null}};
+ const result={planId:plan.id,startDate:first,examDate:plan.examDate,assignments,days:days.filter(day=>day.items.length||day.completedIds.length),warnings,missing:unassignedMissing.map(item=>({itemId:item.id,...(countBased?{reason:eligible.length?'개수 기준 일일 한도 또는 분류 순서·분류 제한으로 시험 전까지 배치하지 못했습니다.':'시험 전 학습 가능한 날짜가 없습니다.'}:{})})),missingCounts,unplaced,milestones,summary:{assigned:assignments.length,assignedMinutes:Math.ceil(assignments.reduce((sum,item)=>sum+item.minutes,0)),unplaced:unplaced.length,unplacedMinutes:Math.ceil(unplaced.reduce((sum,item)=>sum+item.minutes,0)),missing:unassignedMissing.length,...(countBased?{countAssigned:assignments.filter(item=>item.basis==='count').length,countPending:missing.length,countLimit:count.dailyLimit,eligibleDays:eligible.length}:{}),remainingMinutes:Math.ceil(timed.reduce((sum,item)=>sum+minutesFor(item,speed),0)),capacityMinutes:Math.floor(capacityTotal),expectedDate:assignments.at(-1)?.date||null}};
+ // Keep the existing distribution unless an alternative improves a missed
+ // milestone without worsening another milestone or losing placed work.
+ const idleBeforeFinish=preview=>preview.days.filter(day=>day.date<preview.summary.expectedDate).reduce((sum,day)=>sum+Math.max(0,(day.capacity??0)-day.used),0);
+ if(mode==='parallel'&&!countBased&&!_finishCategory&&(milestones.some(goal=>goal.status==='late')||result.days.some(day=>day.date<result.summary.expectedDate&&day.capacity>0&&day.used<day.capacity*.75))){
+  let best=result;
+  const targets=[...new Set([...goals.flatMap(goal=>goal.categories),...categories,'__shortest_remaining__'])];
+  const goalOrder=[...milestones].sort((a,b)=>a.date.localeCompare(b.date));
+  const better=candidate=>{
+   if(candidate.summary.assigned<best.summary.assigned||candidate.summary.unplaced>best.summary.unplaced)return false;
+   if(candidate.milestones.some((goal,index)=>goal.onTime<best.milestones[index].onTime))return false;
+   for(const goal of goalOrder){const next=candidate.milestones.find(entry=>entry.id===goal.id),old=best.milestones.find(entry=>entry.id===goal.id);if(next.onTime!==old.onTime)return next.onTime>old.onTime;}
+   if(candidate.summary.assigned!==best.summary.assigned)return candidate.summary.assigned>best.summary.assigned;
+   return idleBeforeFinish(candidate)+EPS<idleBeforeFinish(best);
+  };
+  for(const category of targets){const candidate=calculateDistribution({data,plan,availability,priority,today,speed,minutesFor,mode,examPrep,countSettings,_finishCategory:category});if(better(candidate))best=candidate;}
+  return best;
+ }
+ return result;
+
 }
