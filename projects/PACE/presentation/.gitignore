@@ -3,3 +3,4 @@ previews/
 montage.png
 *.inspect.ndjson
 create-deck.mjs
+detail-reference.json

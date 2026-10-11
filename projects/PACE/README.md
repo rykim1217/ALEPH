@@ -88,14 +88,15 @@ Node.js 20 이상을 사용합니다. 외부 npm 의존성이 없어 별도 패�
 
 ```powershell
 cd C:\ALEPH\projects\PACE
+$env:PORT = '5174'
 npm run dev
 ```
 
-기본 주소는 `http://127.0.0.1:5173`이며 종료는 `Ctrl+C`입니다. `npm start`도 같은 서버를 실행합니다. 다른 포트를 사용하려면 다음과 같이 설정합니다.
+현재 개발 주소는 **`http://127.0.0.1:5174`**입니다. 위 명령은 포트를 5174로 지정합니다. 종료는 `Ctrl+C`이며 `npm start`도 같은 서버를 실행합니다. `PORT`를 지정하지 않으면 `server.js`의 기본값인 5173을 사용합니다. npm 없이 실행할 때도 동일하게 포트를 지정합니다.
 
 ```powershell
 $env:PORT = '5174'
-npm run dev
+node server.js
 ```
 
 npm 없이 `node server.js`로도 실행할 수 있습니다. 로컬 서버는 소스 변경을 감지하여 화면을 새로고침하며 배포용 백엔드가 아닙니다.
@@ -217,4 +218,4 @@ Supabase 테이블과 저장 함수는 `supabase/schema.sql`로 설정합니다.
 
 ## 제출자료
 
-[프로젝트 소개 PPTX](presentation/PACE-project.pptx)는 실제 화면과 기능 설명을 담은 21장 제출용 자료입니다. [구성 안내](presentation/README.md)를 함께 제공합니다.
+[프로젝트 소개 PPTX](presentation/PACE-project.pptx)는 실제 화면을 크게 보여주는 페이지와 짧은 기능 설명을 담은 31장 제출용 자료입니다. 글씨체가 유지되는 [PDF](presentation/PACE-project.pdf)도 제공합니다. [구성 안내](presentation/README.md)를 함께 제공합니다.
