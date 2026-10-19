@@ -7,14 +7,17 @@ export function moveStudyDate(data,planId,id,date){
  return {...data,itemOverrides:{...data.itemOverrides,[id]:{...data.itemOverrides?.[id],date,scheduleSource:'manual'}}};
 }
 
-// Apply only the displayed assignments; never regenerate items or completion history.
+// Apply the preview, including unscheduling its unplaced work. Preserve completion history.
 export function distributionStudySnapshot(data,planId){return JSON.stringify(lectureItems(data).filter(item=>item.planId===planId));}
 export function applyDistributionPreview(data,result,snapshot){
  if(!result?.planId||!Array.isArray(result.assignments)||snapshot!==distributionStudySnapshot(data,result.planId))throw Error('학습 데이터가 변경되었습니다. 미리보기를 다시 계산해 주세요.');
  const items=new Map(lectureItems(data).map(item=>[item.id,item])),seen=new Set();
  for(const assignment of result.assignments){const item=items.get(assignment.itemId);if(!item||item.planId!==result.planId||item.completed||seen.has(item.id)||!validDate(assignment.date))throw Error('분배 결과를 다시 확인해 주세요.');seen.add(item.id);}
+ const unplaced=[...(result.unplaced||[]),...(result.missing||[])];
+ for(const entry of unplaced){const item=items.get(entry.itemId);if(!item||item.planId!==result.planId||item.completed||seen.has(item.id))throw Error('분배 결과를 다시 확인해 주세요.');seen.add(item.id);}
  const overrides={...data.itemOverrides};
  for(const assignment of result.assignments)overrides[assignment.itemId]={...overrides[assignment.itemId],date:assignment.date,scheduleSource:'automatic'};
+ for(const entry of unplaced)overrides[entry.itemId]={...overrides[entry.itemId],date:null,scheduleSource:'automatic'};
  return {...data,itemOverrides:overrides};
 }
 

@@ -15,9 +15,32 @@ for(const mode of ['sequential','parallel'])test(mode+': time and count preview 
  assert.deepEqual(applyDistributionPreview(next,result,distributionStudySnapshot(next,'p')),next);
  assert.deepEqual(lectureItems(JSON.parse(JSON.stringify(next))),items);
 });
-test('unplaced schedules stay intact and stale preview is rejected atomically',()=>{
+test('unmentioned schedules stay intact and stale preview is rejected atomically',()=>{
  const data=fixture(),snapshot=distributionStudySnapshot(data,'p'),result={planId:'p',assignments:[{itemId:'b',date:'2026-10-12'}]};
  const next=applyDistributionPreview(data,result,snapshot);assert.equal(lectureItems(next).find(item=>item.id==='a').date,'2026-10-18');
  const changed={...data,lectureCompletion:{...data.lectureCompletion,b:{completed:true}}};assert.throws(()=>applyDistributionPreview(changed,result,snapshot),/다시 계산/);
  for(const assignments of [[{itemId:'done',date:'2026-10-12'}],[{itemId:'other',date:'2026-10-12'}],[{itemId:'b',date:'invalid'}],[{itemId:'b',date:'2026-10-12'},{itemId:'b',date:'2026-10-13'}]])assert.throws(()=>applyDistributionPreview(data,{planId:'p',assignments},snapshot));
+});
+
+for(const mode of ['sequential','parallel'])test(mode+': applying an overloaded final-day preview cannot retain old unplaced dates',()=>{
+ const catalog=Array.from({length:18},(_,i)=>({id:'item'+i,planId:'p',category:i<9?'A':'B',studyKind:'book',title:'item'+i,expectedMinutes:60,date:'2026-10-24',order:i}));
+ const data={...emptyStudy(),catalog,itemOverrides:{item17:{title:'Keep custom title'}},lectureCompletion:{item0:{completed:true,updatedAt:'preserved'}}},before=JSON.stringify(data);
+ const result=calculateDistribution({data,plan:{id:'p',examDate:'2026-10-25',goals:[]},availability:{version:2,certifications:{p:{...emptyAvailability(),daily:240,exceptions:{'2026-10-24':{kind:'study',minutes:360}},startDate:'2026-10-01',endDate:null}}},priority:['A','B'],today:new Date(2026,9,23),speed:1,minutesFor:planningMinutes,mode,countSettings:{enabled:false,dailyLimit:null}});
+ assert.ok(result.unplaced.length>0);
+ assert.equal(result.days.find(day=>day.date==='2026-10-24').capacity,360);
+ const next=applyDistributionPreview(data,result,distributionStudySnapshot(data,'p')),items=lectureItems(next);
+ for(const day of result.days){const actual=items.filter(item=>item.date===day.date).reduce((sum,item)=>sum+planningMinutes(item,1),0);assert.ok(actual<=day.capacity,day.date+': '+actual+' > '+day.capacity);assert.equal(actual,day.used);}
+ for(const entry of result.unplaced)assert.equal(items.find(item=>item.id===entry.itemId).date,null);
+ assert.equal(items.find(item=>item.id==='item0').date,'2026-10-24');
+ assert.deepEqual(next.lectureCompletion,data.lectureCompletion);assert.deepEqual(next.catalog,data.catalog);assert.equal(next.itemOverrides.item17.title,'Keep custom title');assert.equal(JSON.stringify(data),before);
+ assert.deepEqual(applyDistributionPreview(next,result,distributionStudySnapshot(next,'p')),next);
+});
+
+test('all-unplaced and missing-time previews clear dates without losing unrelated records',()=>{
+ const data=fixture(),result={planId:'p',assignments:[],unplaced:[{itemId:'a'}],missing:[{itemId:'b'}]};
+ const next=applyDistributionPreview(data,result,distributionStudySnapshot(data,'p')),items=lectureItems(next);
+ assert.equal(items.find(item=>item.id==='a').date,null);assert.equal(items.find(item=>item.id==='b').date,null);
+ assert.equal(items.find(item=>item.id==='other').date,'2026-10-11');assert.deepEqual(next.lectureCompletion,data.lectureCompletion);
+ for(const unplaced of [[{itemId:'done'}],[{itemId:'other'}],[{itemId:'absent'}],[{itemId:'a'},{itemId:'a'}]])assert.throws(()=>applyDistributionPreview(data,{planId:'p',assignments:[],unplaced},distributionStudySnapshot(data,'p')));
+ assert.throws(()=>applyDistributionPreview(data,{planId:'p',assignments:[{itemId:'a',date:'2026-10-12'}],missing:[{itemId:'a'}]},distributionStudySnapshot(data,'p')));
 });
