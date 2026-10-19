@@ -6,7 +6,7 @@ import {WELCOME_KEY,shouldShowWelcome,signupValidation} from './auth-ui.js';
 import {downloadPaceBackup} from './backup.js';
 import {appStorage} from './runtime-storage.js';
 import {setAppStorage} from './runtime-storage.js';
-import {createAccountStore,createSyncEngine,syncPayload,validatePayload,payloadEqual} from './account-store.js';
+import {createAccountStore,createSyncEngine,syncPayload,validatePayload,payloadEqual,accountStorageNeedsReload} from './account-store.js';
 import {SUPABASE_URL,SUPABASE_KEY} from './supabase-config.js';
 import {validatePaceBackup} from './backup-import.js';
 import {loadCertifications} from './certifications.js';
@@ -93,5 +93,5 @@ function showWelcome(){
 
 try{const session=await connect();await setup(session);if(passwordRecovery&&session?.user)openAccount(false,open,true);client.auth.onAuthStateChange((_event,next)=>{if((next?.user?.id||null)!==(user?.id||null)){transition=true;store?.freeze();setTimeout(()=>location.reload(),0);}});}catch(error){status.textContent='인증 연결 실패 · 계정 버튼에서 다시 시도해 주세요.';if(!nativeStorage.getItem('supabase-pace-auth')){setAppStorage(nativeStorage);await launch();if(firstVisit)showWelcome();}else{const p=document.createElement('p');p.textContent='로그인 상태를 확인하지 못했습니다. 계정 데이터를 보호하기 위해 화면 로딩을 중단했습니다.';document.querySelector('main')?.append(p);p.append(button('다시 불러오기',()=>location.reload()));}}
 window.addEventListener('online',sync);window.addEventListener('focus',sync);setInterval(()=>{if(document.visibilityState==='visible')sync();},30000);
-window.addEventListener('beforeunload',e=>{if(store?.snapshot().dirty){e.preventDefault();e.returnValue='';}});
-window.addEventListener('storage',e=>{if(e.key==='supabase-pace-auth'||e.key==='pace-account-cache:'+user?.id){transition=true;store?.freeze();location.reload();}});
+window.addEventListener('beforeunload',e=>{if(!transition&&store?.snapshot().dirty){e.preventDefault();e.returnValue='';}});
+window.addEventListener('storage',e=>{if(accountStorageNeedsReload(e,user?.id)){transition=true;store?.freeze();location.reload();}});

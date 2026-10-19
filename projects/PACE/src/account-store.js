@@ -1,4 +1,11 @@
 export const SYNC_KEYS=['pace.certifications.v1','pace.study-plans.v1','pace.availability.v1','pace.availability.v2','pace.planning-settings.v1','pace.distribution-settings.v1','pace.personal-events.v1'];
+// Refreshing a token for the same user must not freeze an active study form.
+export function accountStorageNeedsReload(event,userId){
+ if(event.key==='supabase-pace-auth'){
+  try{return (JSON.parse(event.newValue||'null')?.user?.id||null)!==(userId||null);}catch{return true;}
+ }
+ return !!userId&&event.key==='pace-account-cache:'+userId&&event.oldValue!==event.newValue;
+}
 export function payloadEqual(a,b){return JSON.stringify(Object.entries(a).sort(([x],[y])=>x.localeCompare(y)))===JSON.stringify(Object.entries(b).sort(([x],[y])=>x.localeCompare(y)));}
 export function syncPayload(storage){return Object.fromEntries(SYNC_KEYS.filter(key=>storage.getItem(key)!==null).map(key=>[key,storage.getItem(key)]));}
 export function validatePayload(payload){if(!payload||Array.isArray(payload)||typeof payload!=='object')throw Error('계정 데이터 형식 오류');for(const [key,value] of Object.entries(payload)){if(!SYNC_KEYS.includes(key)||typeof value!=='string')throw Error('허용되지 않은 계정 데이터');JSON.parse(value,(k,v)=>{if(['__proto__','constructor','prototype'].includes(k))throw Error('잘못된 필드');return v;});}return payload;}

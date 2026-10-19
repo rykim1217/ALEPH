@@ -1,8 +1,20 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createAccountStore,createSyncEngine,syncPayload,payloadEqual} from '../src/account-store.js';
+import {createAccountStore,createSyncEngine,syncPayload,payloadEqual,accountStorageNeedsReload} from '../src/account-store.js';
 import {createPaceBackup} from '../src/backup.js';
 const memory=()=>{const m=new Map();return {get length(){return m.size;},key:i=>[...m.keys()][i]??null,getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)};};
 const key='pace.certifications.v1',payload={[key]:'[]'};
+
+test('same-account token refresh keeps distribution editable; real account changes still reload',()=>{
+ const event={key:'supabase-pace-auth',oldValue:JSON.stringify({user:{id:'a'},access_token:'old'}),newValue:JSON.stringify({user:{id:'a'},access_token:'renewed'})};
+ assert.equal(accountStorageNeedsReload(event,'a'),false);
+ assert.equal(accountStorageNeedsReload({...event,newValue:JSON.stringify({user:{id:'b'}})},'a'),true);
+ assert.equal(accountStorageNeedsReload({...event,newValue:null},'a'),true);
+ assert.equal(accountStorageNeedsReload({...event,newValue:'bad json'},'a'),true);
+ assert.equal(accountStorageNeedsReload({...event,newValue:null},null),false);
+ assert.equal(accountStorageNeedsReload({key:'pace-account-cache:a',oldValue:'old',newValue:'new'},'a'),true);
+ assert.equal(accountStorageNeedsReload({key:'pace-account-cache:b',oldValue:'old',newValue:'new'},'a'),false);
+ assert.equal(accountStorageNeedsReload({key:'pace-account-cache:a',oldValue:'same',newValue:'same'},'a'),false);
+});
 test('account startup and edits never overwrite guest or another account',()=>{const native=memory();native.setItem(key,'guest');const a=createAccountStore(native,'a'),b=createAccountStore(native,'b');assert.equal(a.getItem(key),null);a.setItem(key,'[]');assert.equal(native.getItem(key),'guest');assert.equal(b.getItem(key),null);assert.equal(createAccountStore(native,'a').getItem(key),'[]');});
 test('migration requires explicit copy and never replaces existing account data',()=>{const native=memory(),store=createAccountStore(native,'a');assert.equal(native.length,0);store.copy(payload);assert.equal(store.snapshot().dirty,true);assert.throws(()=>store.copy(payload));});
 test('server refresh preserves private migration backup while excluding it and tokens from sync/backup',()=>{const native=memory();native.setItem('supabase-pace-auth','secret');const store=createAccountStore(native,'a');store.setItem('pace.before-catalog-migration.v1','{}');store.adopt(payload,2);assert.equal(store.getItem('pace.before-catalog-migration.v1'),'{}');assert.deepEqual(syncPayload(store),payload);assert.deepEqual(Object.keys(createPaceBackup(store).rawStorage).sort(),['pace.before-catalog-migration.v1',key].sort());assert.equal(createPaceBackup(store).rawStorage['supabase-pace-auth'],undefined);});
