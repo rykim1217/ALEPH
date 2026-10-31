@@ -24,6 +24,8 @@ let studyData=emptyStudy(),studyLoadError=false;
 try { studyData=migrateSavedStudy(appStorage); } catch { studyLoadError=true; }
 const PERSONAL_STORAGE_KEY = 'pace.personal-events.v1';
 const state = { year: today.getFullYear(), month: today.getMonth(), planId: 'all', selected: dateKey(today), view: 'month' };
+// Sync can reload the page; keep the current section in this tab instead of returning home.
+try { const view=sessionStorage.getItem('pace.current-view');if(['month','study','planning'].includes(view))state.view=view; } catch {}
 const fullDate = date => `${new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' }).format(date)} (${new Intl.DateTimeFormat('ko-KR', { weekday: 'short' }).format(date)})`;
 const dateFromKey = key => { const [year, month, day] = key.split('-').map(Number); return new Date(year, month - 1, day); };
 
@@ -277,6 +279,7 @@ function renderYear() {
   $('year-grid').replaceChildren(...cards);
 }
 function showView() {
+  try { sessionStorage.setItem('pace.current-view',state.view==='year'?'month':state.view); } catch {}
   $('month-view').hidden=['study','planning'].includes(state.view);studyRoot.hidden=state.view!=='study';planningRoot.hidden=state.view!=='planning';syncSidebarSelection();
   if (state.view === 'year') { renderYear(); if (!$('year-dialog').open) $('year-dialog').showModal(); }
   else if ($('year-dialog').open) $('year-dialog').close();
@@ -518,3 +521,5 @@ initStudyTooltips();
 function refreshDisplayCalendars(){renderCalendar();if(state.view==='year')renderYear();if(state.view==='planning')planningPage.render();}
 window.addEventListener(DISPLAY_CHANGE,refreshDisplayCalendars);
 window.addEventListener('storage',event=>{if(event.key===DISPLAY_KEY)refreshDisplayCalendars();});
+if(state.view==='planning')planningPage.render();
+showView();

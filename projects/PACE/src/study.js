@@ -67,7 +67,7 @@ export function analyzeBookText(text,category){
 
 export function registerLectures(data,planId,rows){
  if(!planId||!rows.length)throw new Error('자격증과 등록할 강의를 확인해 주세요.');
- const identity=i=>i.studyKind==='book'&&i.number?'book:'+i.category+':'+i.number+':'+i.title.trim():i.studyKind==='past'&&i.year&&i.round?'past:'+i.year+':'+i.round:i.studyKind==='mock'&&i.round?'mock:'+(i.mockName??i.title.replace(/\s*모의고사\s*\d+회$/, '').trim())+':'+i.round:i.category+':'+i.title.replace(/^(이론|프로그래밍|SQL)\s*/i,'').replace(/\s/g,'');
+ const identity=i=>i.studyKind==='book'&&i.number?'book:'+i.category+':'+i.number+':'+i.title.trim():i.studyKind==='past'&&i.round?'past:'+(i.year??'')+':'+i.round:i.studyKind==='mock'&&i.round?'mock:'+(i.mockName??i.title.replace(/\s*모의고사\s*\d+회$/, '').trim())+':'+i.round:i.category+':'+i.title.replace(/^(이론|프로그래밍|SQL)\s*/i,'').replace(/\s/g,'');
  const existing=new Set(lectureItems(data).filter(i=>i.planId===planId).map(identity));const catalog=[...(data.catalog||[])];let added=0;
  for(const row of rows){if(!validExpectedMinutes(row.expectedMinutes))throw new Error('예상 시간은 0보다 큰 분 단위 숫자로 입력해 주세요.');if(!String(row.category||'').trim()||String(row.category).length>60||!row.title.trim()||(row.number!=null&&!/^\d+(?:[.-]\d+)*$/.test(row.number))||!Number.isInteger(row.order)||row.order<1||((!row.studyKind||row.studyKind==='lecture')&&(!Number.isFinite(row.originalSeconds)||row.originalSeconds<=0)))throw new Error('분류·제목·순서·원본시간을 확인해 주세요.');
  const key=identity(row);if(existing.has(key))continue;existing.add(key);catalog.push({...row,title:row.title.trim(),id:crypto.randomUUID(),planId,type:'lecture',source:'user-reviewed-text'});added++;
@@ -78,8 +78,9 @@ export function analyzeStudyInput({kind,text,category,year,round}){
  if(kind==='lecture')return analyzeLectureText(text).map(row=>({...row,category:String(category||'').trim(),studyKind:kind}));
  if(kind==='past'||kind==='mock'){
   if(!/^\d+$/.test(String(round))||Number(round)<1)throw new Error('회차를 입력해 주세요.');
-  if(kind==='past'&&(!/^\d{4}$/.test(String(year))||Number(year)<1900))throw new Error('연도를 입력해 주세요.');
-  return [{category,title:(kind==='past'?year+'년 기출문제':'모의고사')+' '+round+'회',order:1,originalSeconds:null,studyKind:kind,year:kind==='past'?Number(year):null,round:Number(round)}];
+  const hasYear=year!=null&&String(year).trim()!=='';
+  if(kind==='past'&&hasYear&&(!/^\d{4}$/.test(String(year))||Number(year)<1900))throw new Error('연도를 확인해 주세요.');
+  return [{category,title:(kind==='past'?(hasYear?year+'년 ':'')+'기출문제':'모의고사')+' '+round+'회',order:1,originalSeconds:null,studyKind:kind,year:kind==='past'&&hasYear?Number(year):null,round:Number(round)}];
  }
  if(kind==='book')return analyzeBookText(text,String(category||'').trim());
  if(!['book','review','other'].includes(kind))throw new Error('학습 유형을 선택해 주세요.');
@@ -92,9 +93,16 @@ export function generateStudyRange({kind,startYear,endYear,rounds,startRound,end
  if(!validExpectedMinutes(expectedMinutes))throw new Error('예상 시간은 0보다 큰 분 단위 숫자로 입력해 주세요.');
  const positive=value=>/^\d+$/.test(String(value))&&Number.isSafeInteger(Number(value))&&Number(value)>0;
  let combinations=[];
- if(kind==='past'){if(!positive(startYear)||!positive(endYear)||Number(startYear)<1900||Number(endYear)>9999||Number(endYear)<Number(startYear))throw new Error('시작·종료 연도를 확인해 주세요.');if(!rounds?.length||rounds.some(r=>!positive(r)))throw new Error('등록할 회차를 선택해 주세요.');const unique=[...new Set(rounds.map(Number))].sort((a,b)=>a-b);if((Number(endYear)-Number(startYear)+1)*unique.length>1000)throw new Error('한 번에 1000개까지 생성할 수 있습니다.');for(let year=Number(startYear);year<=Number(endYear);year++)for(const round of unique)combinations.push({year,round});}
+ if(kind==='past'){
+  const blank=value=>value==null||String(value).trim()==='',noYear=blank(startYear)&&blank(endYear),first=blank(startYear)?endYear:startYear,last=blank(endYear)?startYear:endYear;
+  if(!noYear&&(!positive(first)||!positive(last)||Number(first)<1900||Number(last)>9999||Number(last)<Number(first)))throw new Error('시작·종료 연도를 확인해 주세요.');
+  if(!rounds?.length||rounds.some(r=>!positive(r)))throw new Error('등록할 회차를 선택해 주세요.');
+  const unique=[...new Set(rounds.map(Number))].sort((a,b)=>a-b),years=noYear?[null]:Array.from({length:Number(last)-Number(first)+1},(_,i)=>Number(first)+i);
+  if(years.length*unique.length>1000)throw new Error('한 번에 1000개까지 생성할 수 있습니다.');
+  for(const year of years)for(const round of unique)combinations.push({year,round});
+ }
  else if(kind==='mock'){if(!positive(startRound)||!positive(endRound)||Number(endRound)<Number(startRound)||Number(endRound)-Number(startRound)>=1000)throw new Error('시작·종료 회차를 확인해 주세요.');for(let round=Number(startRound);round<=Number(endRound);round++)combinations.push({year:null,round});}else throw new Error('학습 유형을 확인해 주세요.');
- return combinations.map(({year,round},index)=>({category:kind==='past'?'기출문제':'모의고사',title:kind==='past'?year+'년 기출문제 '+round+'회':(name.trim()?name.trim()+' ':'')+'모의고사 '+round+'회',order:index+1,originalSeconds:null,expectedMinutes,studyKind:kind,year,round,mockName:kind==='mock'?name.trim():undefined}));
+ return combinations.map(({year,round},index)=>({category:kind==='past'?'기출문제':'모의고사',title:kind==='past'?(year==null?'':year+'년 ')+'기출문제 '+round+'회':(name.trim()?name.trim()+' ':'')+'모의고사 '+round+'회',order:index+1,originalSeconds:null,expectedMinutes,studyKind:kind,year,round,mockName:kind==='mock'?name.trim():undefined}));
 }
 
 export function validExpectedMinutes(value){return value==null||typeof value==='number'&&Number.isFinite(value)&&value>0;}
