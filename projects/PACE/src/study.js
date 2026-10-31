@@ -23,11 +23,24 @@ const subjectHeading=line=>line.match(/^(\d+)\s*과목\s*[.．:]?\s*(.*)$/);
 export function analyzeLectureText(text){
  const website=/시간\s*아이콘/.test(text);
  const noise=line=>/^\d+(?:\.\d+)?%$/.test(line)||/^(?:댓글\s*아이콘|댓글아이콘|영상.*아이콘|자료첨부)/.test(line);
+ // Pasted Markdown and tab-separated tables carry layout, not extra lectures.
  const lines=text.split(/\r?\n/).map(line=>line.trim()).filter(line=>line&&!noise(line));
  let category='',subject='',subjectNumber=null,subjectOrder=0,pending=null;const result=[];
  const duration=/(?:(\d+)시간\s*)?(\d+)분(?:\s*(\d+)초)?|(\d{1,3}):(\d{2})(?::(\d{2}))?/;
  for(let index=0;index<lines.length;index++){
-  const line=lines[index],heading=line.match(/^(이론|프로그래밍|SQL)(?:\s*강의)?\s*[:：]?$/i);
+  let line=lines[index];
+  const section=line.replace(/^#{1,6}\s+/, '').match(/^(?:PART\s+\d+\s*[.．:]\s*.+|기출문제\s*풀이\s*및\s*특강)$/i);
+  if(section||/^#{1,6}\s+/.test(line)){subject=line.replace(/^#{1,6}\s+/, '');subjectNumber=null;subjectOrder=0;pending=null;continue;}
+  if(line.includes('|')||line.includes('\t')){
+   const cells=line.includes('|')?line.replace(/^\|\s*|\s*\|$/g,'').split('|').map(cell=>cell.trim()):line.split('\t').map(cell=>cell.trim());
+   if(cells.length>=2){
+    if(cells.every(cell=>/^:?-{2,}:?$/.test(cell))||/^(?:강의|강의\s*번호|번호)$/.test(cells[0])&&/^(?:제목|강의명|강의\s*제목)$/.test(cells[1]))continue;
+    if(cells.length>=3){const number=/^\d+(?:[.-]\d+)*$/.test(cells[0])?cells[0]+' ':'';line=number+cells.slice(1).join(' ');}
+    else line=cells.join(' ');
+   }
+  }
+  if(/^(?:강의|강의\s*번호|번호)\s+(?:제목|강의명|강의\s*제목)\s+(?:재생\s*시간|강의\s*시간|시간)$/.test(line))continue;
+  const heading=line.match(/^(이론|프로그래밍|SQL)(?:\s*강의)?\s*[:：]?$/i);
   const numbered=subjectHeading(line);if(numbered){category=line;subject=line;subjectNumber=numbered[1];subjectOrder=0;pending=null;continue;}
   if(heading){subject='';subjectNumber=null;subjectOrder=0;category=({이론:'theory',프로그래밍:'programming',SQL:'sql'})[heading[1].toUpperCase()]||({이론:'theory',프로그래밍:'programming'})[heading[1]];pending=null;continue;}
   if(website&&!duration.test(line)&&lines[index+1]&&!duration.test(lines[index+1])){category=line;subject=line;subjectNumber=null;subjectOrder=0;pending=null;continue;}
@@ -37,7 +50,8 @@ export function analyzeLectureText(text){
   if(!title&&seconds!==null&&pending){pending.originalSeconds=seconds;pending=null;continue;}
   if(!title)continue;
   const prefix=website?null:title.match(/^(이론|프로그래밍|SQL)\s*/i);const cat=prefix?({이론:'theory',프로그래밍:'programming',SQL:'sql'})[prefix[1].toUpperCase()]||({이론:'theory',프로그래밍:'programming'})[prefix[1]]:category;
-  subjectOrder++;pending={category:cat||'',subject,title,number:subjectNumber?subjectNumber+'.'+subjectOrder:String(result.length+1),order:result.length+1,originalSeconds:seconds};result.push(pending);
+  const explicit=title.match(/^(\d+(?:[.-]\d+)*)(?:[.．)]?\s+)(.+)$/);
+  subjectOrder++;pending={category:cat||'',subject,title:explicit?explicit[2].trim():title,number:explicit?explicit[1]:subjectNumber?subjectNumber+'.'+subjectOrder:String(result.length+1),order:result.length+1,originalSeconds:seconds};result.push(pending);
  }
  return result;
 }
@@ -55,7 +69,7 @@ export function registerLectures(data,planId,rows){
  if(!planId||!rows.length)throw new Error('자격증과 등록할 강의를 확인해 주세요.');
  const identity=i=>i.studyKind==='book'&&i.number?'book:'+i.category+':'+i.number+':'+i.title.trim():i.studyKind==='past'&&i.year&&i.round?'past:'+i.year+':'+i.round:i.studyKind==='mock'&&i.round?'mock:'+(i.mockName??i.title.replace(/\s*모의고사\s*\d+회$/, '').trim())+':'+i.round:i.category+':'+i.title.replace(/^(이론|프로그래밍|SQL)\s*/i,'').replace(/\s/g,'');
  const existing=new Set(lectureItems(data).filter(i=>i.planId===planId).map(identity));const catalog=[...(data.catalog||[])];let added=0;
- for(const row of rows){if(!validExpectedMinutes(row.expectedMinutes))throw new Error('예상 시간은 0보다 큰 분 단위 숫자로 입력해 주세요.');if(!String(row.category||'').trim()||String(row.category).length>60||!row.title.trim()||(row.number!=null&&!/^\d+(?:\.\d+)*$/.test(row.number))||!Number.isInteger(row.order)||row.order<1||((!row.studyKind||row.studyKind==='lecture')&&(!Number.isFinite(row.originalSeconds)||row.originalSeconds<=0)))throw new Error('분류·제목·순서·원본시간을 확인해 주세요.');
+ for(const row of rows){if(!validExpectedMinutes(row.expectedMinutes))throw new Error('예상 시간은 0보다 큰 분 단위 숫자로 입력해 주세요.');if(!String(row.category||'').trim()||String(row.category).length>60||!row.title.trim()||(row.number!=null&&!/^\d+(?:[.-]\d+)*$/.test(row.number))||!Number.isInteger(row.order)||row.order<1||((!row.studyKind||row.studyKind==='lecture')&&(!Number.isFinite(row.originalSeconds)||row.originalSeconds<=0)))throw new Error('분류·제목·순서·원본시간을 확인해 주세요.');
  const key=identity(row);if(existing.has(key))continue;existing.add(key);catalog.push({...row,title:row.title.trim(),id:crypto.randomUUID(),planId,type:'lecture',source:'user-reviewed-text'});added++;
  }
  return {data:{...data,catalog},added};

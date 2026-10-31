@@ -35,7 +35,7 @@ export function updateStudyItem(data,id,changes){
  const number=String(changes.number??item.number??'').trim();
  if(!title||!category)throw new Error('항목명과 학습 분류를 입력해 주세요.');
  if(item.number&&!number)throw new Error('번호를 입력해 주세요.');
- if(number&&!/^\d+(?:\.\d+)*$/.test(number))throw new Error('번호를 확인해 주세요.');
+ if(number&&!/^\d+(?:[.-]\d+)*$/.test(number))throw new Error('번호를 확인해 주세요.');
  const originalSeconds=Object.hasOwn(changes,'originalSeconds')?changes.originalSeconds:item.originalSeconds;
  if((item.originalSeconds!=null||Object.hasOwn(changes,'originalSeconds'))&&(!Number.isInteger(originalSeconds)||originalSeconds<=0))throw new Error('강의 시간을 확인해 주세요.');
  const expectedMinutes=Object.hasOwn(changes,'expectedMinutes')?changes.expectedMinutes:item.expectedMinutes;
