@@ -9,7 +9,6 @@ export function initStudyManager({root,getPlans,getData,save,itemNode,colorFor})
  try { manualPlanId=sessionStorage.getItem('pace.study-target'); } catch {}
  const names={theory:'이론',programming:'프로그래밍',sql:'SQL'};
  const kind=q('[aria-label="학습 유형"]'),categoryInput=q('[aria-label="등록 학습 분류"]');
- const yearHint=document.createElement('p');yearHint.className='dialog-note';yearHint.textContent='연도를 비우면 회차만 등록합니다. 한쪽 연도만 입력하면 해당 연도로 등록합니다.';q('.past-fields').append(yearHint);
  q('.study-type-fields').insertBefore(q('.range-time-field'),q('.analyze'));
  const categoryKey=value=>Object.entries(names).find(([,name])=>name===value)?.[0]||value.trim();
  const actualCategories=()=>orderedCategories(getData(),target.value,lectureItems(getData()).filter(i=>i.planId===target.value).map(i=>i.category)).map(key=>[key,names[key]||key]);
