@@ -46,7 +46,7 @@ export function analyzeLectureText(text){
   if(website&&!duration.test(line)&&lines[index+1]&&!duration.test(lines[index+1])){category=line;subject=line;subjectNumber=null;subjectOrder=0;pending=null;continue;}
   const time=line.match(duration);let seconds=null;
   if(time){seconds=time[4]?(time[6]!==undefined?(+time[4]*3600 + +time[5]*60 + +time[6]):(+time[4]*60 + +time[5])):((+(time[1]||0))*3600 + +time[2]*60 + +(time[3]||0));}
-  const title=(time?(line.slice(0,time.index)+line.slice(time.index+time[0].length)):line).replace(/시간\s*아이콘/g,'').replace(/[|\[\]()]+/g,' ').trim();
+  const title=(time?(line.slice(0,time.index)+line.slice(time.index+time[0].length)):line).replace(/시간\s*아이콘/g,'').replace(/[|\[\]()]+/g,' ').trim().replace(/^(인트로|INTRO|오리엔테이션|OT)\s+\1$/i,'$1');
   if(!title&&seconds!==null&&pending){pending.originalSeconds=seconds;pending=null;continue;}
   if(!title)continue;
   const prefix=website?null:title.match(/^(이론|프로그래밍|SQL)\s*/i);const cat=prefix?({이론:'theory',프로그래밍:'programming',SQL:'sql'})[prefix[1].toUpperCase()]||({이론:'theory',프로그래밍:'programming'})[prefix[1]]:category;

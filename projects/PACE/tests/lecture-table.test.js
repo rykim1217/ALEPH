@@ -23,3 +23,12 @@ test('table rows without a duration stay editable, without absorbing header or n
  const rows=analyzeStudyInput({kind:'lecture',category:'SQLD',text:'| 강의 | 제목 | 재생시간 |\n| --- | --- | --- |\n| 2-1 | 개요 | |\n| 2-2 | SELECT | 38:58 |'});
  assert.equal(rows.length,2);assert.equal(rows[0].originalSeconds,null);assert.equal(rows[1].originalSeconds,2338);
 });
+
+for(const separator of ['\t','  '])test('intro labels and table header are not extra lectures ('+JSON.stringify(separator)+')',()=>{
+ const text=[['강의','제목','재생시간'],['인트로','인트로','1:04:06'],['1-1','데이터 모델링 이해','43:07'],['1-2','엔터티','23:06'],['1-3','속성','35:41'],['1-4','관계','21:26'],['1-5','식별자','29:43']].map(cells=>cells.join(separator)).join('\n');
+ const rows=analyzeStudyInput({kind:'lecture',category:'데이터 모델링의 이해',text});
+ assert.equal(rows.length,6);assert.equal(rows[0].title,'인트로');assert.equal(rows[0].originalSeconds,3846);
+ assert.deepEqual(rows.slice(1).map(row=>row.number),['1-1','1-2','1-3','1-4','1-5']);
+ assert.equal(rows[1].title,'데이터 모델링 이해');assert.equal(rows[1].originalSeconds,2587);
+ assert.equal(registerLectures(emptyStudy(),'p',rows).added,6);
+});
