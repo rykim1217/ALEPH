@@ -1,8 +1,31 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {DISTRIBUTION_KEY,loadDistributionSettings,distributionPriority,saveDistributionPriority} from '../src/distribution-settings.js';
 import {emptyStudy} from '../src/study.js';import {updateStudyCategory} from '../src/study-item-edit.js';
+import {moveCategory,orderedCategories} from '../src/category-order.js';
 const data=()=>({...emptyStudy(),catalog:['모의고사','SQL','특강','이론','기출문제','프로그래밍언어'].map((category,i)=>({id:'p'+i,planId:'p',category,studyKind:'mock',date:'2026-10-12',expectedMinutes:60})).concat([{id:'q1',planId:'q',category:'B'},{id:'q2',planId:'q',category:'A'}]),lectureCompletion:{p0:{completed:true}},categoryColors:{p:{이론:'#aa66cc'}},categoryOrder:{p:['모의고사','SQL','특강','이론','기출문제','프로그래밍언어']}});
 function storage(){const entries=new Map([['pace.study-plans.v1','original'],['pace.certifications.v1','goals']]);return {entries,getItem:key=>entries.get(key)??null,setItem:(key,value)=>entries.set(key,value)};}
+
+test('SQLD의 기본 분류 순서와 드래그 변경을 따르고 분배 우선순위는 독립적으로 저장한다',()=>{
+ const categories=['기출문제','SQL 기본 및 활용','데이터 모델링의 이해'],correct=[...categories].reverse();
+ const study={...emptyStudy(),catalog:categories.map((category,i)=>({id:'s'+i,planId:'sqld',category,title:category,expectedMinutes:60,date:'2026-11-01'})),categoryOrder:{sqld:correct},lectureCompletion:{s0:{completed:true}},categoryColors:{sqld:{기출문제:'#123456'}}};
+ const store=storage(),plan={id:'sqld'},before=structuredClone(study);
+ const legacy={version:1,certifications:{sqld:{priority:categories.map((category,i)=>({category,itemIds:['s'+i]})),mode:'parallel',examPrep:[{itemId:'s0',daysBefore:1}]}}};
+ store.setItem(DISTRIBUTION_KEY,JSON.stringify(legacy));
+ assert.deepEqual(distributionPriority(study,plan,loadDistributionSettings(store)),correct);
+ assert.equal(store.getItem(DISTRIBUTION_KEY),JSON.stringify(legacy));
+ saveDistributionPriority(store,study,'sqld',categories);
+ assert.deepEqual(distributionPriority(study,plan,loadDistributionSettings(store)),categories);
+ assert.deepEqual(orderedCategories(study,'sqld',categories),correct);assert.deepEqual(study,before);
+ const dragged=moveCategory(study,'sqld',categories,'기출문제','SQL 기본 및 활용');
+ assert.deepEqual(distributionPriority(dragged,plan,loadDistributionSettings(store)),['데이터 모델링의 이해','기출문제','SQL 기본 및 활용']);
+ const custom=['SQL 기본 및 활용','데이터 모델링의 이해','기출문제'];
+ saveDistributionPriority(store,dragged,'sqld',custom);
+ assert.deepEqual(distributionPriority(dragged,plan,loadDistributionSettings(store)),custom);
+ assert.deepEqual(dragged.categoryOrder.sqld,['데이터 모델링의 이해','기출문제','SQL 기본 및 활용']);
+ assert.deepEqual(dragged.catalog,before.catalog);assert.deepEqual(dragged.lectureCompletion,before.lectureCompletion);assert.deepEqual(dragged.categoryColors,before.categoryColors);
+ const setting=loadDistributionSettings(store).certifications.sqld;
+ assert.equal(setting.mode,'parallel');assert.deepEqual(setting.examPrep,legacy.certifications.sqld.examPrep);
+});
 test('모든 자격증의 초기 우선순위는 등록된 학습 분류 표시 순서를 사용',()=>{
  const settings=loadDistributionSettings(storage()),study=data();assert.deepEqual(distributionPriority(study,{id:'p',name:'정보처리기사 실기'},settings),['모의고사','SQL','특강','이론','기출문제','프로그래밍언어']);assert.deepEqual(distributionPriority(study,{id:'q',name:'다른 자격증'},settings),['B','A']);
 });

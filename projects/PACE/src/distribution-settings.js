@@ -3,8 +3,16 @@ import {orderedCategories} from './category-order.js';
 export const DISTRIBUTION_KEY='pace.distribution-settings.v1';
 export function loadDistributionSettings(storage){const raw=storage.getItem(DISTRIBUTION_KEY);if(raw===null)return {version:1,certifications:{}};const data=JSON.parse(raw);if(data.version!==1||!data.certifications||typeof data.certifications!=='object'||Array.isArray(data.certifications)||Object.values(data.certifications).some(value=>!Array.isArray(value?.priority)||(value.mode!==undefined&&!['sequential','parallel'].includes(value.mode))||value.priority.some(ref=>typeof ref.category!=='string'||!Array.isArray(ref.itemIds)||ref.itemIds.some(id=>typeof id!=='string'))))throw Error('자동 분배 설정을 확인해 주세요. 기존 설정은 덮어쓰지 않습니다.');return data;}
 export function distributionPriority(data,plan,settings){
- const items=lectureItems(data).filter(item=>item.planId===plan.id),current=orderedCategories(data,plan.id,items.map(item=>item.category)),saved=settings.certifications[plan.id]?.priority;
- if(saved){const result=[];for(const ref of saved){const matches=items.filter(item=>ref.itemIds.includes(item.id));const categories=matches.length?matches.map(item=>item.category):[ref.category];for(const category of categories)if(current.includes(category)&&!result.includes(category))result.push(category);}return [...result,...current.filter(category=>!result.includes(category))];}
+ const items=lectureItems(data).filter(item=>item.planId===plan.id),current=orderedCategories(data,plan.id,items.map(item=>item.category)),setting=settings.certifications[plan.id],saved=setting?.priority;
+ const resolve=refs=>{const result=[];for(const ref of refs){const matches=items.filter(item=>ref.itemIds.includes(item.id));const categories=matches.length?matches.map(item=>item.category):[ref.category];for(const category of categories)if(current.includes(category)&&!result.includes(category))result.push(category);}return result;};
+ // A priority belongs to the registered order from which it was edited.
+ // Old settings have no baseline, so start with the current registered order.
+ const base=setting?.priorityBase;
+ if(saved&&Array.isArray(base)&&base.every(ref=>typeof ref?.category==='string'&&Array.isArray(ref.itemIds)&&ref.itemIds.every(id=>typeof id==='string'))){
+  const previous=resolve(base),shared=current.filter(category=>previous.includes(category));
+  if(JSON.stringify(previous)!==JSON.stringify(shared))return current;
+  const result=resolve(saved);return [...result,...current.filter(category=>!result.includes(category))];
+ }
  return current;
 }
 export function saveDistributionPriority(storage,data,planId,categories,mode=undefined,examPrep=undefined,countSettings=undefined){
@@ -12,7 +20,8 @@ export function saveDistributionPriority(storage,data,planId,categories,mode=und
  const items=lectureItems(data).filter(item=>item.planId===planId),actual=new Set(items.map(item=>item.category));if(!planId||categories.length!==actual.size||new Set(categories).size!==categories.length||categories.some(category=>!actual.has(category)))throw Error('학습 분류 목록이 변경되었습니다. 팝업을 다시 열어 주세요.');
  const count=countSettings===undefined?undefined:validateCountSettings(countSettings);
  const prepared=examPrep===undefined?undefined:validateExamPrep(data,planId,examPrep);
- const current=loadDistributionSettings(storage),next={...current,certifications:{...current.certifications,[planId]:{...current.certifications[planId],...(mode===undefined?{}:{mode}),...(prepared===undefined?{}:{examPrep:prepared}),...(count===undefined?{}:{countBased:count}),priority:categories.map(category=>({category,itemIds:items.filter(item=>item.category===category).map(item=>item.id)}))}}};storage.setItem(DISTRIBUTION_KEY,JSON.stringify(next));return next;
+ const refs=order=>order.map(category=>({category,itemIds:items.filter(item=>item.category===category).map(item=>item.id)}));
+ const current=loadDistributionSettings(storage),next={...current,certifications:{...current.certifications,[planId]:{...current.certifications[planId],...(mode===undefined?{}:{mode}),...(prepared===undefined?{}:{examPrep:prepared}),...(count===undefined?{}:{countBased:count}),priority:refs(categories),priorityBase:refs(orderedCategories(data,planId,items.map(item=>item.category)))}}};storage.setItem(DISTRIBUTION_KEY,JSON.stringify(next));return next;
 }
 
 export function distributionMode(settings,planId){return settings.certifications[planId]?.mode||'sequential';}
