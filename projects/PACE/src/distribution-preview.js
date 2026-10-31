@@ -59,7 +59,7 @@ export function calculateDistribution({data,plan,availability,priority=[],today=
     const candidate=candidates[0],item=candidate.items.shift(),minutes=minutesFor(item,speed),assignment={itemId:item.id,date:key,minutes};assignments.push(assignment);day.items.push(assignment);day.used=Math.min(rule.minutes,day.used+minutes);spent.set(candidate,spent.get(candidate)+minutes);dayCategories.add(candidate.category);
    }
   }else{
-  while(true){const candidate=queues.filter(queue=>queue.items.length&&minutesFor(queue.items[0],speed)<=rule.minutes-day.used+EPS).sort((a,b)=>a.deadline.localeCompare(b.deadline)||a.rank-b.rank)[0];if(!candidate)break;const item=candidate.items.shift(),minutes=minutesFor(item,speed),assignment={itemId:item.id,date:key,minutes};assignments.push(assignment);day.items.push(assignment);day.used=Math.min(rule.minutes,day.used+minutes);}
+  while(true){const candidate=queues.find(queue=>queue.items.length);if(!candidate||minutesFor(candidate.items[0],speed)>rule.minutes-day.used+EPS)break;const item=candidate.items.shift(),minutes=minutesFor(item,speed),assignment={itemId:item.id,date:key,minutes};assignments.push(assignment);day.items.push(assignment);day.used=Math.min(rule.minutes,day.used+minutes);}
   }
  }
  const assignedIds=new Set(assignments.map(entry=>entry.itemId)),remaining=timed.filter(item=>!assignedIds.has(item.id)).concat(countBased?missing.filter(item=>prepIds.has(item.id)&&!assignedIds.has(item.id)):[]),maxDayCapacity=days.filter(day=>!day.blocked).reduce((max,day)=>Math.max(max,(day.capacity??0)-day.reserved),0);
