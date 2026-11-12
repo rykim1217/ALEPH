@@ -166,13 +166,14 @@
  .sidebar .card-heading h2{font-size:17px}
  .sidebar .today-card>.availability{margin-top:10px;padding-bottom:8px}
  .sidebar .today-card .availability>.assigned-title{margin-bottom:5px}
- .sidebar .today-card>.assigned-title{margin:7px 0 1px}
+ .sidebar .today-card>.assigned-title{margin:7px 0 0}
  .sidebar .today-card .assigned-title{font-size:13px}
  .sidebar .today-card #today-capacity{font-size:19px}
  .sidebar #edit-today-time{transform:none!important;width:48px!important;height:28px!important;padding:0;font-size:13px}
  .sidebar #today-items{flex:none;max-height:clamp(58px,calc(var(--usable-height,100dvh) - 575px),170px);overflow-y:auto;overflow-x:hidden}
  .sidebar #today-items .lecture-item-row{padding-block:5px}
- .sidebar #today-items .lecture-item-row:first-child{padding-block-start:2px}
+ .sidebar #today-items .lecture-item-row:first-child{padding-block-start:0}
+ .sidebar #today-items:not(:has(.study-row)){padding-block-start:3px}
  .sidebar .today-card .today-total{margin-top:7px;padding-top:7px;gap:6px;font-size:14px}
  .sidebar>nav{flex:0 0 auto;max-height:none;overflow:visible;margin-top:auto;padding-top:9px;gap:2px}
  .sidebar .nav-item{min-height:34px;height:34px;padding-block:5px;font-size:14px}
