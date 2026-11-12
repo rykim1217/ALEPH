@@ -255,3 +255,38 @@
 /* Keep long date details compact; scroll the study list within the popup. */
 #date-dialog .popup-study-list{max-height:clamp(100px,calc(var(--usable-height,100dvh) - 480px),320px);overflow-y:auto;overflow-x:hidden;scrollbar-gutter:auto;padding-inline-end:3px;overscroll-behavior:contain}
 #date-dialog{max-height:calc(var(--usable-height,100dvh) - 24px);overflow-y:auto;overscroll-behavior:contain}
+/* Compact landscape tablet planning, with five dates and one summary row. */
+@media(min-width:981px) and (max-width:1194px), (min-width:981px) and (max-width:1400px) and (pointer:coarse){
+ .app:has(#study-planning:not([hidden])){height:var(--usable-height,100dvh);padding:12px;gap:12px}
+ .app:has(#study-planning:not([hidden]))>.sidebar{width:240px;flex-basis:240px;padding:12px;height:100%;max-height:100%;overflow-y:auto}
+ .app:has(#study-planning:not([hidden])) .sidebar .brand{font-size:25px;height:42px;padding-inline:10px;letter-spacing:6px}
+ .app:has(#study-planning:not([hidden])) .sidebar .today-heading{font-size:15px;margin:10px 8px}
+ .app:has(#study-planning:not([hidden])) .sidebar .today-card{padding:12px;min-height:160px}
+ .app:has(#study-planning:not([hidden])) .sidebar .card-heading h2{font-size:17px}
+ .app:has(#study-planning:not([hidden])) .sidebar .nav-item{min-height:39px;padding:8px 12px;font-size:14px}
+ #study-planning:not([hidden]){display:flex;flex-direction:column;height:100%;max-height:100%;min-height:0;padding:14px;overflow:hidden}
+ #study-planning>header{flex-shrink:0;gap:12px;padding-bottom:12px}
+ #study-planning .planning-top{grid-template-columns:minmax(0,7fr) minmax(0,3fr);gap:10px;margin-top:10px;flex-shrink:0}
+ #study-planning .planning-top>section{padding:10px 12px}
+ #study-planning .planning-top h3{font-size:15px;margin-bottom:8px}
+ #study-planning .planning-setting-fields{grid-template-columns:minmax(0,.65fr) minmax(0,1.4fr) minmax(0,1.05fr) minmax(0,1.2fr) minmax(0,1.1fr);gap:6px}
+ #study-planning .planning-setting-field,#study-planning .planning-setting-fields .planning-speed{font-size:11px;gap:4px}
+ #study-planning .planning-field-label{white-space:nowrap;font-size:11px}
+ #study-planning .planning-setting-field .planning-field-value,#study-planning .planning-setting-fields .planning-speed select{height:30px;font-size:12px;padding-inline:6px;overflow:hidden;text-overflow:ellipsis}
+ #study-planning .planning-setting-fields .planning-speed select{padding-right:20px;background-position:right 6px center}
+ #study-planning .planning-setting-field button{font-size:11px;height:30px;padding-inline:5px}
+ #study-planning .planning-progress-heading{gap:5px;flex-wrap:wrap}
+ #study-planning .planning-progress-heading>span,#study-planning .planning-progress-legend{font-size:10px}
+ #study-planning .planning-progress-legend{gap:3px 6px;line-height:1.3}
+ #study-planning .planning-schedule{flex:1;display:flex;flex-direction:column;min-height:0;margin-top:10px;padding:10px}
+ #study-planning .planning-schedule-heading{flex-shrink:0;margin-bottom:8px;gap:6px}
+ #study-planning .planning-schedule-heading h3{font-size:16px}
+ #study-planning .planning-days:not(.planning-month){flex:1;min-height:0;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;overflow:hidden}
+ #study-planning .planning-days:not(.planning-month) .planning-day{padding:7px 5px;min-width:0;min-height:0}
+ #study-planning .planning-days:not(.planning-month) .planning-date-items{flex:1;min-height:0;height:auto;max-height:none;overflow-y:auto}
+ #study-planning .planning-study-card{grid-template-columns:16px minmax(0,1fr) 26px;padding:6px 4px;gap:4px;min-height:42px}
+ #study-planning button.planning-card-menu{width:26px;min-width:26px;min-height:36px;height:36px}
+ #study-planning .planning-card-name{font-size:12px}
+ #study-planning .planning-day-total{font-size:11px;gap:3px;flex-wrap:wrap}
+ #study-planning .planning-day-total strong{font-size:12px}
+}
