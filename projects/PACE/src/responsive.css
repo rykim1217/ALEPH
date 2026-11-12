@@ -166,12 +166,13 @@
  .sidebar .card-heading h2{font-size:17px}
  .sidebar .today-card>.availability{margin-top:10px;padding-bottom:8px}
  .sidebar .today-card .availability>.assigned-title{margin-bottom:5px}
- .sidebar .today-card>.assigned-title{margin:8px 0 3px}
+ .sidebar .today-card>.assigned-title{margin:7px 0 1px}
  .sidebar .today-card .assigned-title{font-size:13px}
  .sidebar .today-card #today-capacity{font-size:19px}
  .sidebar #edit-today-time{transform:none!important;width:48px!important;height:28px!important;padding:0;font-size:13px}
  .sidebar #today-items{flex:none;max-height:clamp(58px,calc(var(--usable-height,100dvh) - 575px),170px);overflow-y:auto;overflow-x:hidden}
  .sidebar #today-items .lecture-item-row{padding-block:5px}
+ .sidebar #today-items .lecture-item-row:first-child{padding-block-start:2px}
  .sidebar .today-card .today-total{margin-top:7px;padding-top:7px;gap:6px;font-size:14px}
  .sidebar>nav{flex:0 0 auto;max-height:none;overflow:visible;margin-top:auto;padding-top:9px;gap:2px}
  .sidebar .nav-item{min-height:34px;height:34px;padding-block:5px;font-size:14px}
@@ -203,9 +204,11 @@
 /* Give the schedule the remaining height after the compact overview. */
 @media(min-width:981px) and (max-height:820px){
  #study-planning:not([hidden]){height:100%;max-height:100%;padding:14px}
- #study-planning>header{gap:14px;padding-bottom:9px}
- #study-planning h2{font-size:21px}
- #study-planning .study-target{height:37px}
+ #study-planning>header{align-items:center;flex-wrap:nowrap;gap:14px;padding-bottom:12px}
+ #study-planning h2{flex-shrink:0;font-size:21px;white-space:nowrap}
+ #study-planning .study-target{height:37px;min-width:0}
+ #study-planning .study-target .pace-cert-selector{height:100%}
+ #study-planning .study-target button.pace-cert-trigger{height:100%;min-height:0!important;padding:5px 12px!important}
  #study-planning .planning-top{grid-template-columns:minmax(0,61fr) minmax(0,39fr);gap:10px;margin-top:10px}
  #study-planning .planning-top>section{padding:10px 12px}
  #study-planning .planning-top h3{font-size:15px;margin:0 0 7px}
