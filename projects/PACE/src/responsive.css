@@ -251,3 +251,7 @@
 
 /* Keep Safari native checkbox paint inside the clipped scroll viewport. */
 .sidebar #today-items .lecture-item-row{padding-inline-end:3px}
+
+/* Keep long date details compact; scroll the study list within the popup. */
+#date-dialog .popup-study-list{max-height:clamp(100px,calc(var(--usable-height,100dvh) - 480px),320px);overflow-y:auto;overflow-x:hidden;scrollbar-gutter:auto;padding-inline-end:3px;overscroll-behavior:contain}
+#date-dialog{max-height:calc(var(--usable-height,100dvh) - 24px);overflow-y:auto;overscroll-behavior:contain}
