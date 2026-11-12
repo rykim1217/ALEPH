@@ -200,7 +200,7 @@
 }
 
 /* Leave space for overlay scrollbars without covering completion checkboxes. */
-.sidebar #today-items .lecture-item-row{min-width:0;padding-inline-end:16px}
+.sidebar #today-items .lecture-item-row{min-width:0;padding-inline-end:0}
 
 /* Give the schedule the remaining height after the compact overview. */
 @media(min-width:981px) and (max-height:820px){
@@ -240,3 +240,11 @@
  #study-planning .planning-days:not(.planning-month) .planning-day{min-height:0;padding-block:7px}
  #study-planning .planning-days:not(.planning-month) .planning-date-items{height:auto;max-height:none;min-height:0;flex:1}
 }
+/* Today list: overlay thumb never reserves horizontal space. */
+.sidebar .today-overlay-panel{position:relative}
+.sidebar #today-items{scrollbar-width:none;scrollbar-gutter:auto;padding-right:0}
+.sidebar #today-items::-webkit-scrollbar{display:none;width:0;height:0}
+.sidebar #today-items .lecture-item-row{padding-inline-end:0}
+.today-overlay-thumb{position:absolute;width:5px;border-radius:4px;background:var(--muted,#888290);opacity:0;pointer-events:none;z-index:3;transition:opacity .15s;touch-action:none;cursor:default}
+.today-overlay-thumb.is-visible{opacity:.6;pointer-events:auto}
+.today-overlay-thumb[hidden]{display:none}
