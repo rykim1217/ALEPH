@@ -170,7 +170,7 @@
  .sidebar .today-card .assigned-title{font-size:13px}
  .sidebar .today-card #today-capacity{font-size:19px}
  .sidebar #edit-today-time{transform:none!important;width:48px!important;height:28px!important;padding:0;font-size:13px}
- .sidebar #today-items{flex:none;max-height:clamp(58px,calc(var(--usable-height,100dvh) - 575px),170px);overflow:auto}
+ .sidebar #today-items{flex:none;max-height:clamp(58px,calc(var(--usable-height,100dvh) - 575px),170px);overflow-y:auto;overflow-x:hidden}
  .sidebar #today-items .lecture-item-row{padding-block:5px}
  .sidebar .today-card .today-total{margin-top:7px;padding-top:7px;gap:6px;font-size:14px}
  .sidebar>nav{flex:0 0 auto;max-height:none;overflow:visible;margin-top:auto;padding-top:9px;gap:2px}
@@ -196,3 +196,6 @@
  .calendar-grid .day-specials .special-event{padding:3px 6px;font-size:11px;transform:none}
  .calendar-grid .day-specials .special-event.exam{order:-1}
 }
+
+/* Leave space for overlay scrollbars without covering completion checkboxes. */
+.sidebar #today-items .lecture-item-row{min-width:0;padding-inline-end:16px}
