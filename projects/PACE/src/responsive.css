@@ -210,6 +210,9 @@
  #study-planning .planning-top>section{padding:10px 12px}
  #study-planning .planning-top h3{font-size:15px;margin:0 0 7px}
  #study-planning .planning-setting-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 8px}
+ @container planning-settings-card (min-width:540px){
+  #study-planning .planning-setting-fields{grid-template-columns:repeat(5,minmax(0,1fr))}
+ }
  #study-planning .planning-setting-field,#study-planning .planning-setting-fields .planning-speed{gap:3px;font-size:12px}
  #study-planning .planning-field-label{font-size:12px}
  #study-planning .planning-setting-field .planning-field-value{height:auto;min-height:28px;font-size:13px;white-space:normal}
