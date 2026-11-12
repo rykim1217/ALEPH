@@ -211,7 +211,8 @@ dialog{inset:var(--popup-y,24px) auto auto var(--popup-x,24px);transform:none}
 .date-time-editor select,.date-time-editor input{min-width:0;border:1px solid var(--pace-line-e5e1ed);border-radius:8px;background:var(--pace-surface-fff);padding:6px 8px;font:inherit;color:var(--pace-ink-242938)}
 .date-time-editor select{max-width:65%}.inline-time-inputs{display:flex;align-items:center;justify-content:flex-end;gap:7px}.inline-time-inputs input{width:58px}.inline-time-inputs input:disabled{background:var(--pace-surface-eeedf2);color:var(--pace-ink-9295a0)}
 .inline-time-status{margin:0;font-size:12px;line-height:1.5;color:var(--pace-ink-747987)}.date-time-editor button{font-size:13px}.date-time-editor .certification-actions{gap:6px}.date-time-editor .certification-actions button:first-child{margin-right:auto}
-#date-dialog.detail-fullscreen{inset:12px;transform:none;width:calc(100vw - 24px);max-width:none;max-height:calc(100dvh - 24px);overflow:auto}
+#date-dialog.detail-fullscreen{inset:12px auto auto 50%;transform:translateX(-50%);width:min(480px,calc(100vw - 24px));max-width:none;max-height:calc(100vh - 24px);max-height:calc(var(--usable-height,100dvh) - 24px);overflow:auto;overscroll-behavior:contain}
+#date-dialog.detail-fullscreen>.dialog-top{position:sticky;top:0;z-index:1;background:var(--pace-surface-fff)}
 #attached-time-editor{position:fixed;width:340px;max-width:calc(100vw - 32px);padding:16px;border:1px solid var(--pace-line-e5e1ed);border-radius:15px;background:var(--pace-surface-fff);box-shadow:0 9px 32px var(--pace-shadow-25213a25);color:var(--pace-ink-242938)}
 #attached-time-editor h3{margin:0 0 12px;font-size:16px}
 #attached-time-editor .date-time-editor{border:0;background:transparent;padding:0;margin:0;gap:12px}
@@ -1000,8 +1001,9 @@ button.pace-cert-trigger{background:var(--pace-surface-fff);color:var(--pace-ink
 .planning-day-total{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;margin-top:auto;padding-top:8px;border-top:1px solid var(--line);font-size:12px;flex-shrink:0}
 .settings-account-row{margin-top:24px}
 
-.detail-study-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;white-space:nowrap}
+.detail-study-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 10px}
 .detail-study-total{font-size:12px;font-weight:400;color:var(--muted)}
+.detail-trim-capacity{margin:8px 0 2px}
 
 /* Center the two account controls within the existing bottom menu row. */
 .sidebar .settings-account-row{gap:10px}

@@ -1,5 +1,33 @@
 import {lectureItems} from './study.js';
 import {validDate} from './availability.js';
+
+// Trim only explicitly targeted days. Completed and unmeasured work keeps its date.
+export function trimScheduleToCapacity(data,{capacityFor,minutesFor}){
+ const groups=new Map();
+ for(const item of lectureItems(data)){
+  if(!item.date)continue;
+  const key=JSON.stringify([item.planId,item.date]);
+  if(!groups.has(key))groups.set(key,[]);
+  groups.get(key).push(item);
+ }
+ const removed=[];
+ for(const items of groups.values()){
+  const {planId,date}=items[0],capacity=capacityFor(planId,date);
+  if(!Number.isFinite(capacity)||capacity<0)continue;
+  let remaining=capacity-items.filter(item=>item.completed).reduce((sum,item)=>sum+(minutesFor(item)??0),0);
+  for(const item of items){
+   if(item.completed)continue;
+   const minutes=minutesFor(item);
+   if(!Number.isFinite(minutes))continue;
+   if(minutes<=remaining+1e-8)remaining-=minutes;
+   else removed.push(item.id);
+  }
+ }
+ if(!removed.length)return {data,removed};
+ const itemOverrides={...data.itemOverrides};
+ for(const id of removed)itemOverrides[id]={...itemOverrides[id],date:null};
+ return {data:{...data,itemOverrides},removed};
+}
 export function moveStudyDate(data,planId,id,date){
  const item=lectureItems(data).find(i=>i.id===id);
  if(!item||item.planId!==planId||!validDate(date))throw Error('학습 항목과 이동할 날짜를 확인해 주세요.');

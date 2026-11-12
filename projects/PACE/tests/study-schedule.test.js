@@ -1,9 +1,22 @@
 import {importStudy} from './fixtures/synthetic-study.js';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {emptyStudy,setLectureCompleted,lectureItems,loadStudy} from '../src/study.js';
-import {moveDraggedStudyDate,moveStudyDate} from '../src/study-schedule.js';
+import {moveDraggedStudyDate,moveStudyDate,trimScheduleToCapacity} from '../src/study-schedule.js';
 import {missingSummary,planningProgress,remainingWorkload} from '../src/study-planning.js';
 const fixture=()=>({...emptyStudy(),catalog:[{id:'a',planId:'p',studyKind:'book',category:'교재',title:'첫 교재',date:'2026-10-10'},{id:'b',planId:'p',studyKind:'review',category:'복습',title:'복습',date:'2026-10-10'},{id:'done',planId:'p',studyKind:'book',category:'교재',title:'완료 교재'},{id:'other',planId:'q',studyKind:'mock',category:'기출'}],lectureCompletion:{done:{completed:true}},categoryColors:{p:{교재:'#abc'}}});
+
+test('7시간 배정에서 6시간 한도를 넘는 미완료 날짜만 해제하고 완료·다른 날짜·자격증을 보존한다',()=>{
+ const date='2026-11-13',catalog=Array.from({length:7},(_,i)=>({id:'round'+i,planId:'p',date,expectedMinutes:60}));
+ catalog.push({id:'unknown',planId:'p',date},{id:'next',planId:'p',date:'2026-11-14',expectedMinutes:60},{id:'other',planId:'q',date,expectedMinutes:120});
+ const data={...emptyStudy(),catalog,lectureCompletion:{round6:{completed:true}},itemOverrides:{round5:{title:'보존할 제목'}}},before=structuredClone(data);
+ const options={capacityFor:(id,key)=>id==='p'&&key===date?360:null,minutesFor:item=>item.expectedMinutes??null};
+ const result=trimScheduleToCapacity(data,options),items=lectureItems(result.data);
+ assert.deepEqual(result.removed,['round5']);assert.equal(items.find(item=>item.id==='round5').date,null);assert.equal(items.find(item=>item.id==='round5').title,'보존할 제목');
+ assert.equal(items.filter(item=>item.planId==='p'&&item.date===date).reduce((sum,item)=>sum+(item.expectedMinutes??0),0),360);
+ for(const id of ['round6','unknown','other'])assert.equal(items.find(item=>item.id===id).date,date);
+ assert.equal(items.find(item=>item.id==='next').date,'2026-11-14');assert.deepEqual(result.data.lectureCompletion,data.lectureCompletion);assert.deepEqual(data,before);
+ assert.equal(trimScheduleToCapacity(result.data,options).data,result.data);
+});
 test('미설정 안내는 자격증별 미완료 항목 분류별·전체 개수만 센다',()=>{const data=fixture();assert.equal(missingSummary(data,'p'),'교재 1개 · 복습 1개 / 총 2개');assert.equal(missingSummary(setLectureCompleted(data,'a',true),'p'),'복습 1개 / 총 1개');});
 test('수동 이동은 해당 날짜만 바꾸고 완료·ID·제목·다른 항목과 설정 보존 및 재로드 유지',()=>{
  const data=fixture(),snapshot=structuredClone(data),next=moveStudyDate(data,'p','a','2026-10-12');assert.equal(next.catalog[0].date,'2026-10-12');assert.equal(next.catalog[0].scheduleSource,'manual');assert.equal(next.catalog[0].id,'a');assert.equal(next.catalog[0].title,data.catalog[0].title);assert.deepEqual(next.catalog.slice(1),data.catalog.slice(1));assert.equal(next.lectureCompletion,data.lectureCompletion);assert.equal(next.categoryColors,data.categoryColors);assert.deepEqual(data,snapshot);assert.deepEqual(loadStudy({getItem:()=>JSON.stringify(next)}),next);assert.throws(()=>moveStudyDate(data,'q','a','2026-10-12'));assert.throws(()=>moveStudyDate(data,'p','a','2026-02-30'));

@@ -7,7 +7,8 @@ import {studyDisplayName,studyFullTitle,studyTooltipTitle,initStudyTooltips} fro
 import {initStudyPlanning,loadPlanning,planningMinutes} from './study-planning.js';
 import { initStudyManager } from './study-manager.js';
 import { STUDY_KEY, emptyStudy, loadStudy, migrateSavedStudy, studyItems, lectureItems, setLectureCompleted, categoryDots } from './study.js';
-import { initAvailabilityUI, aggregateAvailabilityText, resolveAvailability } from './availability.js';
+import { initAvailabilityUI, aggregateAvailabilityText, resolveAvailability, loadScopedAvailability, resolveScopedAvailability } from './availability.js';
+import { trimScheduleToCapacity } from './study-schedule.js';
 import { dateKey, monthCells, shiftMonth, formatMinutes, daysBetween, detailPlacement, attachedEditorPlacement, sidebarEditorPlacement, datePickerPlacement } from './calendar.js';
 import { getDaySummary, scheduledMinutes, studyTypes, studyColors } from './data.js';
 import { loadCertifications, saveCertifications, upsertCertification, deleteCertification, DEFAULT_CERTIFICATION_COLOR, validateGoal, updateCertificationDetails, milestoneCategories, resolvedMilestoneCategories, configureMilestone,certificationChoiceEntries,populateCertificationSelect,defaultCertificationId } from './certifications.js';
@@ -180,14 +181,16 @@ function personalManager(dateKeyValue) {
 
 function positionDetail() {
   const dialog=$('date-dialog');if(!dialog.open)return;
+  const viewportWidth=Math.min(innerWidth,window.visualViewport?.width||innerWidth),viewportHeight=Math.min(innerHeight,window.visualViewport?.height||innerHeight);
   dialog.classList.remove('detail-fullscreen');
   const selected=document.querySelector('.day-cell.selected'),cell=state.view==='study'?null:selected?.getBoundingClientRect();
-  if(!cell||!cell.width||!cell.height){const rect=dialog.getBoundingClientRect();dialog.classList.toggle('detail-fullscreen',innerWidth<600||rect.height>innerHeight-24);const trigger=$('today-detail').getBoundingClientRect(),card=$('today-detail').closest('.today-card')?.getBoundingClientRect();const x=state.view==='study'?Math.min(innerWidth-rect.width-12,(card?.right||trigger.right)+10):(innerWidth-rect.width)/2;const y=state.view==='study'?Math.min(innerHeight-rect.height-12,trigger.top-18):(innerHeight-rect.height)/2;dialog.style.setProperty('--popup-x',Math.max(12,x)+'px');dialog.style.setProperty('--popup-y',Math.max(12,y)+'px');return;}
-  const rect=dialog.getBoundingClientRect(),position=detailPlacement(cell,rect.width,rect.height,innerWidth,innerHeight);
+  if(!cell||!cell.width||!cell.height){const rect=dialog.getBoundingClientRect();dialog.classList.toggle('detail-fullscreen',viewportWidth<=720||rect.width>viewportWidth-24||rect.height>viewportHeight-24);const trigger=$('today-detail').getBoundingClientRect(),card=$('today-detail').closest('.today-card')?.getBoundingClientRect();const x=state.view==='study'?Math.min(viewportWidth-rect.width-12,(card?.right||trigger.right)+10):(viewportWidth-rect.width)/2;const y=state.view==='study'?Math.min(viewportHeight-rect.height-12,trigger.top-18):(viewportHeight-rect.height)/2;dialog.style.setProperty('--popup-x',Math.max(12,x)+'px');dialog.style.setProperty('--popup-y',Math.max(12,y)+'px');return;}
+  const rect=dialog.getBoundingClientRect(),position=detailPlacement(cell,rect.width,rect.height,viewportWidth,viewportHeight);
   dialog.classList.toggle('detail-fullscreen',!!position.fullscreen);
   if(!position.fullscreen){dialog.style.setProperty('--popup-x',position.x+'px');dialog.style.setProperty('--popup-y',position.y+'px');}
 }
 window.addEventListener('resize',()=>{positionDetail();positionTimeEditor();alignSidebarTimeButton();});
+window.visualViewport?.addEventListener('resize',()=>{positionDetail();positionTimeEditor();});
 
 function closeTimeEditor(){document.querySelector('#attached-time-editor')?.remove();$('edit-today-time').setAttribute('aria-expanded','false');const button=document.querySelector('.detail-capacity .change-capacity');if(button){button.style.visibility='';button.setAttribute('aria-expanded','false');}}
 function positionTimeEditor(){const editor=document.querySelector('#attached-time-editor');if(!editor)return;editor.classList.remove('editor-fullscreen');if(editor.classList.contains('sidebar-time-editor')){const rect=editor.getBoundingClientRect(),button=$('edit-today-time').getBoundingClientRect(),card=$('edit-today-time').closest('.today-card').getBoundingClientRect(),p=sidebarEditorPlacement({left:card.left,right:card.right,top:button.top,bottom:button.bottom},rect.width,rect.height,innerWidth,innerHeight);editor.classList.toggle('editor-fullscreen',!!p.fullscreen);if(!p.fullscreen){editor.style.left=p.x+'px';editor.style.top=p.y+'px';}return;}const anchor=document.querySelector('.day-cell.selected'),cell=state.view==='study'?{left:-1,right:-1,top:-1,bottom:-1,width:0,height:0}:anchor?.getBoundingClientRect()||{left:-1,right:-1,top:-1,bottom:-1,width:0,height:0},detail=$('date-dialog').getBoundingClientRect(),rect=editor.getBoundingClientRect();const p=attachedEditorPlacement(detail,cell,rect.width,rect.height,innerWidth,innerHeight);editor.classList.toggle('editor-fullscreen',!!p.fullscreen);if(!p.fullscreen){editor.style.left=p.x+'px';editor.style.top=p.y+'px';}}
@@ -239,7 +242,14 @@ function openDetail(date,editing=false) {
   day.special.filter(item => item.type !== 'personal').forEach(item => specials.append(specialNode(item)));
   if (day.rest) { const event = document.createElement('span'); event.className = 'special-event rest'; event.textContent = '휴식일'; specials.append(event); }
   if (!specials.childElementCount) { const empty = document.createElement('p'); empty.className = 'empty-state'; empty.textContent = '등록된 시험·목표 일정이 없습니다.'; specials.append(empty); }
-  $('detail-content').replaceChildren(capacity, heading, list, specialHeading, specials, personalManager(day.key));
+  const content=[capacity,heading,list];
+  try {
+    const rules=loadScopedAvailability(appStorage),ids=new Set(selectedPlans().map(plan=>plan.id));
+    const trim=()=>trimForCapacity((id,key)=>key===day.key&&ids.has(id)?resolveScopedAvailability(date,rules,id).minutes:null);
+    const excess=trim().removed.length;
+    if(excess){const clear=document.createElement('button');clear.type='button';clear.className='change-capacity detail-trim-capacity';clear.textContent=`초과 항목 ${excess}개 미배치`;clear.onclick=()=>{try{const result=trim();saveCapacityTrim(result);renderToday();openDetail(date);if(state.view==='study')studyManager.render();if(state.view==='planning')planningPage.render();$('detail-notice').textContent=`${result.removed.length}개 항목의 날짜를 해제했습니다.`;}catch(error){$('detail-notice').textContent=error.message;}};content.push(clear);}
+  } catch { /* Invalid settings are handled in the availability editor. */ }
+  $('detail-content').replaceChildren(...content, specialHeading, specials, personalManager(day.key));
 
   $('detail-notice').textContent = '개인 일정은 이 화면에서 추가·수정할 수 있습니다.';
   const dialog = $('date-dialog');
@@ -495,7 +505,23 @@ certificationForm.addEventListener('submit', event => {
 $('certification-settings').addEventListener('click', () => { setOptionsOpen(false); editingCertification = null; resetCertificationForm(); renderCertifications(); $('certification-dialog').showModal(); });
 $('close-certifications').addEventListener('click', () => $('certification-dialog').close());
 $('certification-dialog').addEventListener('click', event => { const rect = $('certification-dialog').getBoundingClientRect(); if (event.target === $('certification-dialog') && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) $('certification-dialog').close(); });
-const availabilitySettings = initAvailabilityUI({ getPlans:()=>plans, getSelectedId:()=>state.planId, openButton: $('availability-settings'), onSave: () => { if(document.querySelector('.sidebar-time-editor'))closeTimeEditor();renderToday(); renderCalendar(); if (state.view === 'year') renderYear(); if ($('date-dialog').open) openDetail(dateFromKey(state.selected)); if(state.view==='planning')planningPage.render();notify('학습 가능 시간을 저장했습니다.'); } });
+function trimForCapacity(capacityFor){
+ if(studyLoadError)return {data:studyData,removed:[]};
+ const speeds=loadPlanning(appStorage).certifications;
+ return trimScheduleToCapacity(studyData,{capacityFor,minutesFor:item=>planningMinutes(item,speeds[item.planId]?.speed||1)});
+}
+function saveCapacityTrim(result){
+ if(!result.removed.length)return;
+ appStorage.setItem(STUDY_KEY,JSON.stringify(result.data));studyData=result.data;
+}
+let previousAvailability;try{previousAvailability=loadScopedAvailability(appStorage);}catch{}
+const availabilitySettings = initAvailabilityUI({ getPlans:()=>plans, getSelectedId:()=>state.planId, openButton: $('availability-settings'), onSave: () => {
+ let message='학습 가능 시간을 저장했습니다.';
+ try{const current=loadScopedAvailability(appStorage),previous=previousAvailability;previousAvailability=current;
+  if(previous){const result=trimForCapacity((id,key)=>{if(key<dateKey(new Date()))return null;const date=dateFromKey(key),before=resolveScopedAvailability(date,previous,id).minutes,after=resolveScopedAvailability(date,current,id).minutes;return after!==null&&(before===null||after<before)?after:null;});saveCapacityTrim(result);if(result.removed.length)message+=` 초과 항목 ${result.removed.length}개의 날짜를 해제했습니다.`;}
+ }catch{message+=' 초과 항목을 미배치로 옮기지 못했습니다.';}
+ if(document.querySelector('.sidebar-time-editor'))closeTimeEditor();renderToday();renderCalendar();if(state.view==='year')renderYear();if($('date-dialog').open){openDetail(dateFromKey(state.selected));$('detail-notice').textContent=message;}if(state.view==='study')studyManager.render();if(state.view==='planning')planningPage.render();notify(message);
+} });
 renderToday(); renderCalendar();
 $('edit-today-time').setAttribute('aria-haspopup','dialog');
 $('edit-today-time').setAttribute('aria-expanded','false');
