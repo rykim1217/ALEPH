@@ -566,7 +566,7 @@ dialog{inset:var(--popup-y,24px) auto auto var(--popup-x,24px);transform:none}
 #study-planning .planning-setting-field button{height:36px;padding:0 9px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--pace-surface-fff)}
 .planning-progress-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}#study-planning .planning-progress-heading h3{margin:0}.planning-progress-heading>span{font-size:15px;white-space:nowrap}
 .planning-stacked-progress{display:flex;width:100%;height:12px;border-radius:6px;overflow:hidden;background:var(--pace-surface-eeedf1)}.planning-stacked-progress>span{height:100%;flex:none}
-.planning-progress-legend{display:flex;flex-wrap:wrap;gap:9px 16px;margin-top:13px;font-size:13px;line-height:1.5}.planning-legend-item{display:flex;gap:6px;align-items:center;white-space:nowrap}.planning-legend-item .category-dot{width:8px;height:8px}
+.planning-progress-legend{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:9px 14px;margin-top:13px;font-size:13px;line-height:1.5}.planning-progress-legend::-webkit-scrollbar{display:none}.planning-legend-item{display:flex;gap:6px;align-items:center;white-space:nowrap;flex-shrink:0}.planning-legend-item .category-dot{width:8px;height:8px}
 #study-planning .planning-schedule{margin-top:18px}
 @media(max-width:1400px){.planning-setting-fields{grid-template-columns:1fr 1fr}}
 @media(max-width:1100px){#study-planning .planning-top{grid-template-columns:1fr}.planning-setting-fields{grid-template-columns:105px minmax(100px,1fr) 118px 132px}}
@@ -713,10 +713,10 @@ dialog{inset:var(--popup-y,24px) auto auto var(--popup-x,24px);transform:none}
 #study-planning .planning-six-weeks .planning-month-more{line-height:15px}
 }
 
-#study-planning .planning-top{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-#study-planning .planning-setting-fields{grid-template-columns:105px minmax(110px,1fr) 118px 132px 132px;gap:12px}
+#study-planning .planning-top{grid-template-columns:minmax(0,53fr) minmax(0,47fr)}
+#study-planning .planning-progress{display:flex;flex-direction:column;justify-content:space-between}
+#study-planning .planning-setting-fields{grid-template-columns:minmax(0,.68fr) minmax(0,1.35fr) minmax(0,1.02fr) minmax(0,1.15fr) minmax(0,1.05fr);gap:8px}
 #study-planning .planning-field-label{white-space:nowrap}
-@media(max-width:1450px){#study-planning .planning-setting-fields{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:1100px){#study-planning .planning-top{grid-template-columns:1fr}}
 @media(max-width:720px){#study-planning .planning-setting-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
@@ -962,10 +962,10 @@ button.pace-cert-trigger{background:var(--pace-surface-fff);color:var(--pace-ink
 }
 /* Wrap planning controls according to the card width, before they overflow. */
 #study-planning .planning-settings{container-type:inline-size;container-name:planning-settings-card}
-@container planning-settings-card (max-width:650px){
+@container planning-settings-card (max-width:460px){
  #study-planning .planning-setting-fields{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:14px}
 }
-@container planning-settings-card (max-width:430px){
+@container planning-settings-card (max-width:360px){
  #study-planning .planning-setting-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 #study-planning .planning-setting-field .planning-field-value{min-width:0;max-width:100%}
