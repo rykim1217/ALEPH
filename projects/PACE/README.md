@@ -84,7 +84,7 @@ PACE는 시험일까지 남은 학습량과 공부 가능한 날짜를 바탕으
 
 ## 실행 방법
 
-Node.js 20 이상을 사용합니다. 외부 npm 의존성이 없어 별도 패키지 설치 없이 실행할 수 있습니다.
+Node.js 20 이상을 사용합니다. 웹 개발·테스트는 외부 npm 의존성 없이 실행할 수 있습니다. 데스크톱 앱 실행·패키징만 최초에 `npm install`이 필요합니다.
 
 ```powershell
 cd C:\ALEPH\projects\PACE
@@ -118,6 +118,21 @@ node scripts/build.js
 테스트는 Node.js 기본 테스트 러너를 사용하며 날짜 계산, 등록·파싱, 완료 기록, 설정, 시간·개수 분배, 이정표, 시험 직전 배치, 일정 적용과 백업 검증·복원을 검사합니다. 저장 관련 테스트는 가상 데이터와 테스트용 저장소를 사용합니다. 자동 테스트가 실제 브라우저 UI 검증을 모두 대신하지는 않습니다.
 
 빌드는 기존 `dist`를 다시 만들고 `scripts/build.js`에 명시된 실행 파일만 복사합니다. README, 테스트 fixture, 계획 문서, 참고 이미지, 로컬 백업과 개발 서버는 배포 결과물에 포함하지 않습니다.
+
+## macOS 데스크톱 앱
+
+데스크톱 앱의 Electron 소스와 PACE 아이콘은 `desktop/`에서 함께 관리합니다. 창 크기·위치는 앱 종료 시 사용자별 데이터 폴더에 저장되어 다음 실행 때 복원됩니다.
+
+```bash
+npm install
+npm run desktop:dev
+```
+
+배포 가능한 macOS 앱은 아래 명령으로 `release/`에 만듭니다. 새 맥에서는 저장소를 받은 뒤 이 명령으로 동일한 PACE 앱을 다시 만들 수 있습니다.
+
+```bash
+npm run desktop:package
+```
 
 ## Vercel 배포 구조
 
@@ -168,6 +183,7 @@ node scripts/build.js
 | `src/responsive-ui.js`, `src/responsive.css` | 모바일 메뉴·반응형 레이아웃 |
 | `src/guest-reset.js`, `src/account-reset-dialog.js`, `supabase/account-reset.sql` | 데이터 초기화와 보호 |
 | `server.js`, `scripts/build.js`, `vercel.json` | 로컬 실행·정적 빌드·배포 설정 |
+| `desktop/main.cjs`, `desktop/paths.cjs`, `desktop/assets/` | Electron 앱 실행, 창 상태 저장, 앱 아이콘 |
 
 ## 통합 설정과 화면 환경
 

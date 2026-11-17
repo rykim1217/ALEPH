@@ -1,4 +1,21 @@
 {
-  "name": "pace", "version": "0.1.0", "private": true, "type": "module",
-  "scripts": { "dev": "node server.js", "start": "node server.js", "build": "node scripts/build.js", "test": "node --test" }
+  "name": "pace", "productName": "PACE", "version": "0.1.0", "private": true, "type": "module", "main": "desktop/main.cjs",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node scripts/build.js",
+    "test": "node --test",
+    "desktop:dev": "npm run build && electron .",
+    "desktop:package": "npm run build && electron-builder --mac --publish never"
+  },
+  "devDependencies": {
+    "electron": "^39.2.6",
+    "electron-builder": "^26.7.0"
+  },
+  "build": {
+    "appId": "com.aleph.pace",
+    "productName": "PACE",
+    "files": ["dist/**", "desktop/**", "package.json"],
+    "mac": { "category": "public.app-category.productivity", "icon": "desktop/assets/pace.icns" }
+  }
 }
