@@ -293,6 +293,12 @@
  #study-planning .planning-day-total{font-size:11px;gap:3px;flex-wrap:wrap}
  #study-planning .planning-day-total strong{font-size:12px}
 }
-/* Keep the sidebar geometry identical across main views. */
-@media(min-width:721px){.app>.sidebar,.app:has(#study-planning:not([hidden]))>.sidebar{height:calc(var(--usable-height,100dvh) - 32px);position:sticky;top:16px;align-self:flex-start;max-height:calc(var(--usable-height,100dvh) - 32px)}}
+/* Keep the sidebar geometry identical across main views and lock outer viewport scroll. */
+@media(min-width:721px){
+ html,body{height:var(--usable-height,100dvh);max-height:var(--usable-height,100dvh);overflow:hidden;overscroll-behavior:none}
+ .app{height:var(--usable-height,100dvh);max-height:var(--usable-height,100dvh);min-height:0;overflow:hidden;align-items:stretch}
+ main,.calendar-card,#study-management:not([hidden]){height:100%;max-height:100%;min-height:0;overflow:hidden}
+ #study-planning:not([hidden]),#study-planning:not([hidden]):has(.planning-month){height:100%;max-height:100%;min-height:0}
+ .app>.sidebar,.app:has(#study-planning:not([hidden]))>.sidebar{height:calc(var(--usable-height,100dvh) - 32px);position:sticky;top:16px;align-self:flex-start;max-height:calc(var(--usable-height,100dvh) - 32px)}
+}
 @media(min-width:721px) and (max-width:1194px), (min-width:721px) and (max-width:1400px) and (pointer:coarse), (min-width:981px) and (max-height:820px){.app>.sidebar,.app:has(#study-planning:not([hidden]))>.sidebar{height:calc(var(--usable-height,100dvh) - 24px);max-height:calc(var(--usable-height,100dvh) - 24px);top:12px}}
